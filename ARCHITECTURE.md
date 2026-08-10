@@ -1,35 +1,55 @@
-# 🏛️ Arquitetura Global do Projeto: [Nome do Projeto]
+# 🏛️ Arquitetura Global do Projeto: Napo
 
 > 🛑 **LEITURA OBRIGATÓRIA PARA TODOS OS AGENTES**
 > Este documento é a **Fonte Única da Verdade** (Single Source of Truth) para o projeto.
 > Ele sobrepõe quaisquer regras genéricas de stack encontradas em outros lugares.
 
+> 📚 **Derivado de** [`docs/superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md`](docs/superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md).
+> Em conflito entre este arquivo e a spec do R1, **a spec vence** e este documento é corrigido via ADR.
+
 ---
 
 ## 1. Visão do Produto e Objetivos
 
-- **O que é:** [Resumo em 2 linhas da proposta de valor]
-- **Público-alvo:** [Ex: Clientes finais, administradores, etc.]
-- **Diferencial:** [O que torna este produto único no mercado]
-- **O que NÃO é:** [Defina limites claros do que o sistema não pretende ser — evita scope creep]
+- **O que é:** pizzaria napolitana de Brasília que vende pizza **assada e congelada** — massa de longa fermentação, forno italiano a 400°C, cliente só aquece em casa. O sistema é o canal de venda próprio: catálogo, checkout, disponibilidade honesta, frete e gestão da operação.
+- **Público-alvo:** cliente final em Brasília num raio de 12 km; equipe interna (atendente, cozinha, gerente, admin).
+- **Diferencial:** o concorrente é a **congelada de supermercado**, não a pizzaria da esquina. A diferença é física e não copiável: o cliente não reproduz 400°C em casa. Promessa do produto — *"fizemos a parte que a sua casa não consegue fazer"*.
+- **O que NÃO é:** não é ERP, não é DRE/fluxo de caixa, não é integradora fiscal homologada, não é app mobile nativo. Não opera evento ao vivo — apenas o prepara (R2).
+
+### 1.1 O gargalo que define as prioridades
+
+O gargalo é o **forno, não o mercado**: a cozinha opera a 47% da capacidade (303 de 650 pizzas/mês) e a ociosidade vale **R$ 7.700/mês de margem** não capturada. Toda decisão de arquitetura que precisar de desempate deve favorecer **vender a capacidade ociosa** e **medir a operação** — nessa ordem.
+
+| Indicador | Valor |
+|---|---|
+| Capacidade | 30 pizzas/dia × 5 dias = 650/mês |
+| Volume atual | 303/mês |
+| Ponto de equilíbrio | 207/mês |
+| Margem de contribuição média | R$ 20,82/pizza |
 
 ---
 
 ## 2. Stack Tecnológica Fundamental
 
 ### 2.1 Core
-- **Frontend:** [Ex: Next.js 14+ / React + Vite]
+- **Monorepo:** pnpm workspaces — **sem Turborepo** até o build doer
+- **Frontend:** Next.js 15 (App Router), app único dividido por grupos de rota
 - **Linguagem:** TypeScript (Strict Mode obrigatório)
-- **Backend & Database:** [Ex: Supabase (PostgreSQL) / Firebase (Firestore)]
-- **Serviços de Infra:** [Ex: Vercel, Firebase Hosting, Cloud Functions]
-- **Autenticação:** [Ex: Supabase Auth / Firebase Auth com RBAC]
+- **Backend & Database:** Supabase — PostgreSQL, Auth, Storage
+- **Serviços de Infra:** Vercel · domínio `napobsb.com.br` (DNS no Registro.br)
+- **Autenticação:** Supabase Auth (Magic Link + Google) com RBAC por `role` + gate obrigatório de telefone via WhatsApp
+- **Pagamento:** Mercado Pago Checkout Pro (conta PJ) — Pix, crédito, débito
+- **E-mail transacional:** Resend, `pedido@napobsb.com.br`
+- **Monitoramento de erros:** Sentry
 
 ### 2.2 UI & UX (Design System)
-- **Base de Componentes (catálogo de UI do projeto):** [declare aqui o catálogo deste projeto, na granularidade que fizer sentido. Ex.: bibliotecas externas adotadas (shadcn/ui, Radix, MUI, Chakra, Mantine, Quasar, Flutter Material, SwiftUI), primitivos próprios (`src/ui/`), patterns de composição (`src/ui/patterns/`). Caminhos exatos seguem a estrutura definida em §3.]
-- **Estilização:** [engine de styling adotado. Ex.: Tailwind v4 com `@theme`, CSS Modules, Vanilla CSS com tokens em `:root`, CSS-in-JS, Theme Provider da lib de componentes]
-- **Ícones:** [biblioteca padrão. Ex.: lucide-react, Phosphor, Material Icons]
-- **Animações:** [biblioteca/padrão. Ex.: Framer Motion, CSS Transitions, lottie]
-- **Tokens visuais:** [onde vivem — ex.: `src/index.css :root`, `theme.ts`, `tokens.json`. Esta é a fonte que o agente vai espelhar ao gerar `preview.*` na FASE 3.5 do `/especificar`.]
+- **Base de Componentes (catálogo de UI do projeto):** `shadcn/ui` como biblioteca externa adotada, instalada em **`packages/ui/src/components/`**. Patterns de composição do projeto em **`packages/ui/src/patterns/`** (ex.: o padrão de listagem — cards + busca + combobox de filtro + combobox de ordenação, com persistência ao navegar entre card e lista).
+- **Estilização:** Tailwind v4 com `@theme`
+- **Ícones:** `lucide-react` (padrão do shadcn/ui)
+- **Animações:** **Motion**, sempre respeitando `prefers-reduced-motion`
+- **Tokens visuais:** **`packages/ui/src/tokens.css`** — fonte única que o agente espelha ao gerar `preview.*` na FASE 3.5 do `/especificar`.
+- **Identidade:** preto, branco e amarelo. Referência de storytelling: Apple. Interface premium, nunca template genérico.
+- **Imagens:** o site é construído com **placeholders nas proporções finais** — o ensaio fotográfico (NAPO-020) entra depois sem quebrar layout.
 
 ### 2.2.1 Library-First (regra inviolável — aplicação de `AGENTS.md` §2 item 11)
 
@@ -47,63 +67,55 @@ Páginas e componentes de produto **DEVEM** compor a partir do catálogo declara
 O contrato visual de cada spec (§4.4 do `design.md`) é a fonte de verdade sobre **quais componentes do catálogo serão consumidos**, **quais componentes novos serão criados (com justificativa)** e **onde markup cru é aceito** — sem registro lá, é violação direta de `AGENTS.md` §2 item 11.
 
 ### 2.3 Ferramentas de Qualidade
-- **Linter:** [Ex: ESLint com config strict]
-- **Formatação:** [Ex: Prettier]
+- **Linter:** ESLint (config strict) — `eslint-config-next` + regras do monorepo
+- **Formatação:** Prettier
 - **Validação de Dados:** Zod (schemas estritos para Forms, APIs e Webhooks)
-- **Testes:** [Ex: Vitest, Jest, Playwright]
+- **Testes:** **Vitest** (unitário de `packages/core` + RLS contra Supabase local) · **Playwright** (checkout ponta a ponta)
+- **CI:** GitHub Actions — typecheck, lint, testes e migrations
 
 ---
 
-## 3. Arquitetura de Código (Feature-Based com Single Responsibility)
+## 3. Arquitetura de Código (Monorepo com núcleo de regras puro)
 
-A estrutura segue os princípios de **Feature-Sliced Design** e **Bulletproof React**: organização por **domínio de negócio** (não por tipo de arquivo), com cada camada tendo responsabilidade única e regras claras de dependência.
+A organização é por **domínio de negócio**, com uma separação adicional que é a **decisão arquitetural central do projeto**: as regras que, quando erram, vendem pizza que não existe ou cobram frete errado vivem isoladas em `packages/core`.
 
 ### 3.1 Árvore de Diretórios
 
 ```
-/projeto
+napo/
 │
-├ /docs                         # 📄 Documentação e decisões de arquitetura
-│   ├ /specs                    #    Blueprints por módulo (usando template xx-SpecName.md)
-│   └ /adr                     #    Architecture Decision Records (opcional)
+├ /docs                          # 📄 Documentação e decisões
+│   ├ /specs                     #    Blueprints por módulo (xx-SpecName / xx-SpecLite)
+│   ├ /adr                       #    Architecture Decision Records
+│   └ /superpowers/specs         #    Spec macro do R1 (origem deste documento)
 │
-├ /public                       # 🌐 Estáticos servidos SEM processamento do bundler
-│                               #    (favicon.ico, robots.txt, og-images, manifest.json)
+├ /apps
+│   └ /web                       # 💻 Next.js 15 — App Router
+│       ├ /app
+│       │   ├ /(site)            #    SSG/ISR — home, sabores, sobre, legal
+│       │   ├ /(loja)            #    catálogo, carrinho, checkout
+│       │   ├ /(conta)           #    área do cliente
+│       │   ├ /(admin)           #    painel administrativo
+│       │   └ /api               #    frete, disponibilidade, otp, webhook/mp
+│       ├ /src
+│       │   ├ /features          #    🧩 Módulos de negócio da web (auto-contidos)
+│       │   │   └ /[feature]/    #       components · hooks · services · types · index.ts
+│       │   └ /lib               #    ⚙️ Infra do app: clients, providers, middleware
+│       └ /public                #    🌐 Estáticos as-is (favicon, robots.txt, og-image)
 │
-├ /src                          # 💻 Código-fonte principal
-│   ├ /app                     #    Camada de Apresentação: rotas, páginas e layouts
-│   │                          #    (Adaptar ao framework: App Router, Vite routes, etc.)
-│   │
-│   ├ /features                #    🧩 NÚCLEO: Módulos de Negócio (auto-contidos)
-│   │   └ /[feature-name]/     #    Cada feature é isolada e contém:
-│   │       ├ /components      #       Componentes visuais do módulo
-│   │       ├ /hooks           #       Hooks específicos do módulo
-│   │       ├ /services        #       Lógica de acesso a dados / API calls
-│   │       ├ /types           #       Tipos e interfaces do módulo
-│   │       ├ /utils           #       Helpers internos do módulo
-│   │       └ index.ts         #       Public API (barrel file — único ponto de export)
-│   │
-│   ├ /shared                  #    ♻️ Código reutilizável ENTRE features
-│   │   ├ /ui                  #       Design System (Botões, Inputs, Cards, Modais, Toast)
-│   │   ├ /layout              #       Shell da Aplicação (Sidebar, Header, Footer)
-│   │   ├ /hooks               #       Hooks genéricos (useDebounce, useMediaQuery)
-│   │   └ /utils               #       Helpers puros (formatters, validators, cn())
-│   │
-│   ├ /lib                     #    ⚙️ Infraestrutura (clientes DB, config, providers, auth)
-│   │
-│   ├ /types                   #    📐 Tipos TypeScript globais (env.d.ts, types globais)
-│   │
-│   └ /assets                  #    🖼️ Recursos processados PELO bundler
-│                               #    (imagens importadas em código, SVGs como componentes,
-│                               #     fontes locais, ícones customizados)
+├ /packages
+│   ├ /core                      # 🧮 REGRAS PURAS — cutoff, CTP/ATP, frete, BOM, margem
+│   ├ /ui                        # 🎨 tokens.css, components/ (shadcn), patterns/
+│   └ /db                        # 🗄️ tipos gerados do Supabase + factories de client
 │
-├ /scripts                      # 🔧 Automação (deploy, seed, migrations, confirm-deploy)
+├ /supabase
+│   └ /migrations                # 🐘 Toda alteração de banco, versionada
 │
-├ /.tmp                       # 🤖 [GITIGNORED] Scratch do agente de IA
-│                               #    (arquivos temporários, logs de debug, scripts one-off,
-│                               #     testes exploratórios — SEGURO para deletar a qualquer momento)
+├ /scripts                       # 🔧 Automação (seed, confirm-prod-deploy.sh)
 │
-└ /[config files]               # ⚙️ .env.*, tsconfig, eslint, .gitignore, package.json, etc.
+├ /.tmp                          # 🤖 [GITIGNORED] Scratch do agente de IA
+│
+└ /[config files]                # ⚙️ pnpm-workspace.yaml, .env.*, tsconfig, eslint
 ```
 
 ### 3.2 Regra de Dependência (Dependency Rule)
@@ -111,135 +123,173 @@ A estrutura segue os princípios de **Feature-Sliced Design** e **Bulletproof Re
 > ⚠️ **LEI FUNDAMENTAL:** Imports só podem fluir "para baixo". Uma feature NUNCA importa de outra feature.
 
 ```
-/app       → pode importar de → /features, /shared, /lib
-/features  → pode importar de → /shared, /lib
-/shared    → pode importar de → /lib apenas
-/lib       → não importa de ninguém (infraestrutura pura)
+apps/web/app       → pode importar de → apps/web/src/features, src/lib, packages/*
+apps/web/features  → pode importar de → apps/web/src/lib, packages/*
+packages/ui        → pode importar de → packages/core apenas (React + Tailwind externos)
+packages/db        → pode importar de → packages/core apenas (supabase-js externo)
+packages/core      → NÃO importa de ninguém
 ```
 
-- **Features são ilhas:** comunicam-se via estado global (Context, Store) ou eventos, NUNCA por import direto.
-- **Barrel files (`index.ts`):** cada feature expõe APENAS o que é necessário. Internals são privados.
-- **Shared é genérico:** se um componente/hook serve a apenas UMA feature, ele pertence à feature, não ao `/shared`.
+**`packages/core` não importa React, não importa Supabase e não faz HTTP.** É TypeScript puro. Toda regra que decide *o que pode ser vendido, quando e por quanto* mora aqui e é testável com testes rápidos e determinísticos.
 
-### 3.3 Diferença: `/public` vs `/src/assets`
+- **Features são ilhas:** comunicam-se via estado global ou eventos, NUNCA por import direto.
+- **Barrel files (`index.ts`):** cada feature expõe APENAS o que é necessário. Internals são privados.
+- **Shared é genérico:** se um componente/hook serve a apenas UMA feature, ele pertence à feature, não a `packages/ui`.
+
+### 3.3 Diferença: `/public` vs assets processados
 
 | Pasta | Processamento | Exemplo | Como referenciar |
 |---|---|---|---|
-| `/public` | Nenhum (copiado as-is para output) | `favicon.ico`, `robots.txt`, `og-image.png` | URL absoluta: `/favicon.ico` |
-| `/src/assets` | Bundler otimiza (hash, compressão, tree-shake) | Imagens de UI, SVGs, fontes locais | `import logo from '@/assets/logo.svg'` |
+| `apps/web/public` | Nenhum (copiado as-is) | `favicon.ico`, `robots.txt`, `og-image.png` | URL absoluta: `/favicon.ico` |
+| Assets importados em código | Bundler otimiza (hash, compressão) | SVGs, ícones customizados | `import logo from '@/assets/logo.svg'` |
 
 ### 3.4 A pasta `/.tmp` (Scratch do Agente)
 
 - **Obrigatoriamente no `.gitignore`**
-- Usada pelo agente de IA para: scripts de teste one-off, logs temporários, rascunhos de migrations, outputs de debug
+- Usada pelo agente para: scripts one-off, logs temporários, rascunhos de migrations, outputs de debug
 - **Segura para deletar a qualquer momento** — nenhum código de produção pode depender dela
-- Evita poluição da árvore do projeto com arquivos temporários
 
-### 3.5 Pastas que NÃO devem estar no template
+### 3.5 Pastas que NÃO devem estar versionadas
 
-| Pasta | Motivo da exclusão |
+| Pasta | Motivo |
 |---|---|
-| `/dist`, `/build`, `/.next` | Gerada automaticamente pelo bundler — deve estar no `.gitignore` |
-| `/node_modules` | Gerenciada pelo package manager — nunca versionada |
-| `/.cache`, `/.turbo` | Cache de ferramentas — transparente ao desenvolvedor |
-
-> **Nota:** Adapte a árvore ao framework escolhido (Next.js App Router, Vite, etc.), mas mantenha rigorosamente a separação modular e as regras de dependência.
+| `/dist`, `/build`, `/.next` | Gerada pelo bundler — no `.gitignore` |
+| `/node_modules` | Gerenciada pelo pnpm |
+| `/.cache`, `/.turbo` | Cache de ferramentas |
 
 ---
 
 ## 4. Diretrizes de Engenharia
 
 ### 4.1 Estilo de Código
-- **Linguagem do código:** [Ex: Variáveis e funções em inglês/camelCase]
-- **Documentação:** Comentários, commits e documentação em Português (PT-BR)
-- **JSDoc:** Obrigatório (`/** ... */`) em todas as funções exportadas e componentes complexos
-- **DRY:** Proibido duplicar lógica — centralize em helpers, hooks e componentes reutilizáveis
+- **Linguagem do código:** variáveis e funções em inglês/camelCase
+- **Documentação:** comentários, commits e documentação em Português (PT-BR)
+- **JSDoc:** obrigatório (`/** ... */`) em funções exportadas e componentes complexos
+- **DRY:** proibido duplicar lógica — centralize em helpers, hooks e componentes
 
 ### 4.2 Padrões de API e Dados
-- **Respostas de API:** Seguir padrão `{ success: boolean, data?: T, error?: string }`
-- **Banco de Dados:** Todas as tabelas devem ter campos `id (UUID)`, `created_at` e `updated_at`
-- **Validação:** Inputs de Forms, APIs e Webhooks devem passar por schemas Zod estritos
-- **Tratamento de Erros:** Erros devem ser capturados, logados e exibidos de forma amigável ao usuário
+- **Respostas de API:** padrão `{ success: boolean, data?: T, error?: string }`
+- **Banco de Dados:** todas as tabelas com `id (UUID)`, `created_at` e `updated_at`
+- **Validação:** inputs de Forms, APIs e Webhooks passam por schemas Zod estritos
+- **Tratamento de Erros:** capturados, logados no Sentry e exibidos de forma amigável
 
-### 4.3 Componentização (UI)
-- **Check-first:** Antes de criar um componente, verificar se já existe em `/components/ui`
-- **Variantes:** Usar variantes do Design System em vez de classes hardcoded
-- **Zero Inline:** Estilos complexos devem ser abstraídos em componentes wrapper
+### 4.3 Fuso horário (regra crítica do domínio)
+
+Tudo persistido em `timestamptz` **UTC**. **Toda** decisão de data de negócio passa por um **único helper em `packages/core`** fixado em `America/Sao_Paulo`. Nenhum cálculo de cutoff ou dia de entrega pode acontecer fora desse helper — data errada aqui vende pizza que não existe.
+
+### 4.4 Componentização (UI)
+- **Check-first:** antes de criar componente, verificar `packages/ui` (§2.2.1)
+- **Variantes:** usar variantes do Design System em vez de classes hardcoded
+- **Zero Inline:** estilos complexos abstraídos em componentes wrapper
 - **Feedback ao Usuário:**
-  - Info/Sucesso → `Toast` (Snackbar)
+  - Info/Sucesso → `Toast`
   - Confirmação → `Modal` customizado
   - **PROIBIDO:** `alert()` e `confirm()` nativos
+
+### 4.5 Custo de hospedagem (restrição ativa)
+
+- `app/(site)/` é **SSG com `revalidate` longo** — catálogo muda pouco; nada de SSR sem motivo declarado.
+- **Vercel Analytics e Speed Insights ficam fora do R1** (cota paga).
+- Plano **Vercel Pro** é obrigatório (Hobby proíbe uso comercial) — custo fixo previsto.
 
 ---
 
 ## 5. Segurança
 
 ### 5.1 Princípios Fundamentais
-- **Frontend Inseguro:** Assuma que todo dado vindo do cliente é malicioso. Validação real acontece no Backend
-- **Zod em tudo:** Validação em runtime para qualquer dado externo (APIs, forms, webhooks)
-- **Supply Chain:** `npm audit` obrigatório antes de deploys em produção
+- **Frontend Inseguro:** todo dado vindo do cliente é malicioso. Validação real no Backend
+- **Zod em tudo:** validação em runtime para qualquer dado externo
+- **Supply Chain:** `pnpm audit` obrigatório antes de deploy em produção
 - **Chaves e Secrets:** `.env` NUNCA sobe para o Git — use `.env.example` como referência
+- **`service_role` nunca no browser** — apenas em Route Handlers
+- **Chave do Google Maps restrita por referrer**; chave de geocoding só no servidor
 
 ### 5.2 Autenticação e Autorização
-- **Tipo de Auth:** [Ex: JWT, Session-based, Firebase Auth]
-- **RBAC Obrigatório:** Segurança deve depender da **role** do usuário, não apenas da autenticação
-- **Regras de Acesso:** [Ex: RLS no Supabase / Firestore Security Rules] — Princípio de "Negar por padrão"
+- **Tipo de Auth:** Supabase Auth — Magic Link e Google, para cliente e equipe
+- **Roles:** `cliente · atendente · cozinha · gerente · admin`
+- **RBAC Obrigatório:** segurança depende da **role**, não apenas da autenticação
+- **Trigger bloqueando alteração de `role`** que não venha de admin — sem isso, um cliente com o próprio token se promove a gerente
+- **Gate de telefone:** tudo que é logado (carrinho, checkout, conta) exige telefone validado por OTP no WhatsApp. Navegação pública é livre — exigência de SEO e conversão
 
-### 5.3 Isolamento de Dados (se multi-tenant)
-- [Descrever estratégia de isolamento: RLS, schemas separados, etc.]
+### 5.3 Isolamento de Dados
+- **RLS negando por padrão em TODA tabela.** Nenhuma tabela sem política.
+- **Middleware protege rota; RLS protege dado.** Middleware sozinho não é segurança.
+- **Auditoria obrigatória** em: preço, estoque, capacidade, `role` e configuração de operação.
 
 ---
 
 ## 6. DevOps, Ambientes e Deploy
 
 ### 6.1 Separação de Ambientes
-- **Development:** Branch `dev`, Banco/Projeto `[nome]_dev`
-- **Production:** Branch `main`, Banco/Projeto `[nome]_prod`
-- **Regra de Ouro:** O código NUNCA deve ser alterado manualmente para mudar de ambiente — só via env vars / scripts de build.
-- **Automação (preencher conforme stack escolhida no Fluxo 1):**
-  - **Comando dev:** [Ex: `npm run dev` (Vite/Next), `python manage.py runserver` (Django), `go run .` (Go)]
-  - **Comando build prod:** [Ex: `npm run build`, `python manage.py collectstatic`, `go build`]
-  - **Carregamento de variáveis:** [Ex: Vite usa `.env.development`/`.env.production`; Next usa `.env.local`/`.env.production.local`; Django usa `.env` + `settings.py`]
-- **`.env*` nunca no Git** — versionar apenas `.env.example` com chaves sem valores.
+
+| Ambiente | Banco | Frontend |
+|---|---|---|
+| `local` | **Supabase CLI em Docker** (`supabase start`) | `pnpm dev` |
+| `staging` | projeto Supabase de staging | Preview deployment da Vercel |
+| `prod` | projeto Supabase de produção | Vercel em `napobsb.com.br` (branch `main`) |
+
+**O ambiente local é obrigatoriamente containerizado.** `supabase start` sobe Postgres, Auth, PostgREST, Realtime, Storage, Studio e servidor de e-mail fake em Docker — **requer Docker Desktop com backend WSL2**. Não é conveniência: é o que torna possível o teste de RLS exigido pela spec §9 (`cliente A não lê pedido de B`) sem depender de projeto remoto.
+
+**O que não funciona local** e precisa de tratamento por spec:
+
+| Serviço | Local | Como tratar |
+|---|---|---|
+| Magic Link | ✅ funciona (inbox fake) | — |
+| Google OAuth | ⚠️ exige credencial real | configurar ou testar só em staging |
+| OTP WhatsApp (Meta) | ❌ API externa | **mock obrigatório** — decisão da spec NAPO-002 |
+| Webhook Mercado Pago | ❌ precisa de URL pública | túnel (ngrok/`supabase functions serve`) ou staging |
+
+- **Regra de Ouro:** o código NUNCA é alterado manualmente para mudar de ambiente — só via env vars.
+- **Toda alteração de banco via migration versionada.** Sem exceção.
+- **Carregamento de variáveis:** Next.js — `.env.local` (dev) e variáveis de ambiente da Vercel por escopo (Preview/Production).
+- **`.env*` nunca no Git** — versionar apenas `.env.example`.
 
 ### 6.2 Protocolo de Deploy
-1. **Prepare:** Lint + Build locais verdes
-2. **Backup:** Snapshot do Banco antes de migrations destrutivas
-3. **Confirmação obrigatória de prod:** `bash scripts/confirm-prod-deploy.sh <nome-projeto-prod>` deve estar encadeado ao comando real de deploy de produção (ver §6.4)
-4. **Deploy:** [Descrever fluxo — ex: Push para `main`, CI/CD, comando manual]
-5. **Verify:** Health Check imediato em Produção
-6. **Rollback:** Plano de reversão em caso de falha crítica
+1. **Prepare:** lint + typecheck + build locais verdes
+2. **Backup:** snapshot do banco antes de migrations destrutivas
+3. **Confirmação obrigatória de prod:** `bash scripts/confirm-prod-deploy.sh napo-prod` encadeado ao comando real (ver §6.4)
+4. **Deploy:** push para `main` → Vercel builda e publica; migrations aplicadas via `db:push:prod`
+5. **Verify:** health check imediato + Sentry limpo
+6. **Rollback:** rollback de deployment na Vercel; migration reversa versionada quando houver schema
 
-### 6.3 Scripts Obrigatórios (em `package.json` / `Makefile` / equivalente da stack)
-- **`dev`** — Desenvolvimento local com emuladores/env dev
-- **`build`** — Build de produção
-- **`deploy:dev`** — Deploy para ambiente de desenvolvimento
-- **`deploy:prod`** — Deploy para produção, **obrigatoriamente encadeado** com `scripts/confirm-prod-deploy.sh` (ver §6.4)
-- [Outros scripts conforme necessidade do projeto — ex: `deploy:dev:rules`, `deploy:dev:functions` se Firebase]
+### 6.3 Scripts Obrigatórios (`package.json` da raiz)
+- **`dev`** — desenvolvimento local com Supabase CLI
+- **`build`** — build de produção
+- **`lint`** / **`typecheck`** / **`test`** — gates de qualidade
+- **`db:migrate`** — aplica migrations no ambiente local
+- **`db:push:staging`** — aplica migrations em staging
+- **`db:push:prod`** — aplica migrations em produção, **obrigatoriamente encadeado** com `confirm-prod-deploy.sh` (ver §6.4)
 
 ### 6.4 Salvaguarda contra Deploy Acidental em Prod
 - **Script obrigatório:** `scripts/confirm-prod-deploy.sh` (vem no template — não remover).
-- **Funcionamento:** exige digitação literal do nome do projeto/ambiente prod antes de prosseguir. Aborta se não conferir.
-- **Encadeamento típico:**
-  - **Node (Vite/Next/etc.):** `"deploy:prod": "bash scripts/confirm-prod-deploy.sh <nome-prod> && <comando-deploy>"`
-  - **Makefile:** `deploy-prod: ; bash scripts/confirm-prod-deploy.sh <nome-prod> && <comando-deploy>`
-  - **Python (just/poethepoet):** análogo, sempre com `confirm-prod-deploy.sh` ANTES do comando real.
-- **Nome esperado:** definido durante o Fluxo 1 (`/iniciar`) e registrado em §6.3.
+- **Funcionamento:** exige digitação literal do nome do projeto prod antes de prosseguir. Aborta se não conferir.
+- **Nome esperado:** `napo-prod` *(confirmar ao criar o projeto Supabase de produção)*.
+- **O que a salvaguarda protege:** como a Vercel publica por git push, o risco real está no **banco**. O encadeamento vale para migrations:
+  ```json
+  "db:push:prod": "bash scripts/confirm-prod-deploy.sh napo-prod && supabase db push --linked"
+  ```
 
 ---
 
 ## 7. Diretrizes de Design e UX
 
 ### 7.1 Filosofia de Design
-- **Design Premium:** Interfaces devem causar "wow factor" — evitar layouts genéricos de templates
+- **Design Premium:** interfaces devem causar "wow factor" — evitar layout genérico de template. Referência de storytelling: Apple
 - **Mobile First:** CSS sempre mobile-first
-- **CLS Zero:** Imagens obrigatórias com `width`, `height` ou `aspect-ratio`
-- **Fontes:** Usar fontes otimizadas (ex: `next/font`, Google Fonts) para evitar CLS
+- **CLS Zero:** imagens obrigatórias com `width`, `height` ou `aspect-ratio` — inclusive os placeholders que antecedem o ensaio fotográfico
+- **Fontes:** `next/font` para evitar CLS
+- **Movimento:** Motion respeitando `prefers-reduced-motion`
 
 ### 7.2 Performance UI
-- **Lazy Loading:** Usar carregamento lazy para rotas e componentes pesados (Modais, Gráficos)
-- **Server Components (se Next.js):** Padrão. Use `'use client'` apenas nas folhas da árvore (interatividade)
-- **Otimização de Imagens:** Sempre especificar dimensões para evitar Layout Shift
+- **Lazy Loading:** rotas e componentes pesados (Modais, Gráficos)
+- **Server Components:** padrão. `'use client'` apenas nas folhas da árvore
+- **Otimização de Imagens:** decidir por spec entre `next/image` e assets pré-otimizados no Supabase Storage (§4.5 — cota de transformação é custo real)
+
+### 7.3 Conteúdo e regulação
+- **Eixo do site:** *"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer. A parte difícil já foi feita."*
+- **Alérgenos e validade** são obrigatórios no catálogo (rotulagem ANVISA). Nutella com Avelã carrega **avelã**; glúten e leite alcançam quase todo o catálogo.
+- **Proibido** alegação de saúde ou digestão — território regulado. Use formulação sensorial ("leve", "não pesa").
+- **Schema.org `Restaurant`** no site público.
 
 ---
 
@@ -249,17 +299,18 @@ A estrutura segue os princípios de **Feature-Sliced Design** e **Bulletproof Re
 > **"Na dúvida, proteja os dados do usuário e pergunte antes de agir."**
 
 ### 8.2 Protocolo de Planejamento
-- **Planos antes de código:** Para tarefas complexas, criar plano de implementação antes de codar
-- **Socratic Gate:** Se o requisito for vago, fazer perguntas de clarificação antes de agir
-- **Verificação Final:** Mudanças executáveis só terminam quando `lint`, `build` e `test` passarem; fluxos exclusivamente documentais usam o gate documental definido em `AGENTS.md`
+- **Planos antes de código:** tarefas complexas exigem plano antes de codar
+- **Socratic Gate:** requisito vago → perguntar antes de agir
+- **Verificação Final:** mudanças executáveis só terminam com `lint`, `build` e `test` verdes; fluxos documentais usam o gate documental de `AGENTS.md`
 
 ### 8.3 Personas Dinâmicas (Contexto de Edição)
-- Editando **Regras de Negócio** → Atuar como **Product Engineer**: Foco em valor e UX
-- Editando **Auth/Middleware/Segurança** → Atuar como **Security Engineer**: Paranoia total com validação
-- Editando **UI/Componentes** → Atuar como **Design Architect**: Foco em estética premium
-- Editando **Infra/DevOps** → Atuar como **DevOps Engineer**: Foco em estabilidade e automação
+- Editando **Regras de Negócio** → **Product Engineer**: foco em valor e UX
+- Editando **Auth/Middleware/RLS** → **Security Engineer**: paranoia total com validação
+- Editando **UI/Componentes** → **Design Architect**: foco em estética premium
+- Editando **Infra/DevOps** → **DevOps Engineer**: foco em estabilidade e automação
+- Editando **`packages/core`** → **Domain Engineer**: nenhuma dependência externa entra; todo caminho tem teste determinístico
 
 ---
 
-**Versão da Arquitetura:** 0.1.0
-**Última Atualização:** [DATA]
+**Versão da Arquitetura:** 1.0.0
+**Última Atualização:** 2026-08-10

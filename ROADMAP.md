@@ -40,12 +40,14 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 *Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar.*
 
-- [ ] **NAPO-001** Fundação: monorepo, Next.js 15, Supabase, ambientes e CI
-  - **Spec:** `docs/specs/001-fundacao/` *(a criar)*
+- [ ] **NAPO-001** Fundação: monorepo, Next.js 15, Supabase local e CI
+  - **Spec:** [`docs/specs/001-fundacao/`](docs/specs/001-fundacao/) — completo, aguardando aprovação
   - **Dependências:** —
-  - **Bloqueia:** NAPO-002, NAPO-003, NAPO-004, NAPO-005, NAPO-006, NAPO-007, NAPO-008, NAPO-009
+  - **Bloqueia:** NAPO-002, NAPO-003, NAPO-004, NAPO-005, NAPO-006, NAPO-007, NAPO-008, NAPO-009, NAPO-021
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **Notas:** pnpm workspaces + App Router; `packages/core` com as regras puras (cutoff, CTP/ATP, frete, BOM, margem) sem React e sem Supabase. Migrations desde o primeiro dia, RLS negando por padrão, Sentry, fuso `America/Sao_Paulo` explícito em todo cálculo de data. Spec §3.
+  - **Custo de hospedagem (decidido 2026-08-10):** o plano **Hobby da Vercel proíbe uso comercial** nos termos — e-commerce com checkout exige **Pro (~US$ 20/mês)**. Custo fixo, independe de SEO ou de tráfego, e precisa estar previsto antes do go-live. **Vercel Analytics e Speed Insights ficam fora do R1** (cota paga, adiável sem prejuízo).
+  - **Escopo reduzido a desenvolvimento (decidido 2026-08-10):** publicação em homologação e produção **saiu deste item** e virou NAPO-021. Aqui fica só o ambiente local (Supabase em Docker) e o CI. O código nasce **capaz** de multi-ambiente — `APP_ENV`, variáveis separadas, migrations versionadas, scripts de deploy escritos e validados a seco — de forma que provisionar depois seja configuração, não refatoração.
 
 - [ ] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp
   - **Spec:** `docs/specs/002-auth-gate-telefone/` *(a criar)*
@@ -60,6 +62,8 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
   - **Bloqueia:** NAPO-006
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
   - **Notas:** storytelling estilo Apple sobre o eixo *"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer."* — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
+  - **SEO permanece no R1 (decidido 2026-08-10):** avaliado adiar por receio de custo na Vercel e **descartado** — metadata, `sitemap.xml`, `robots.txt`, JSON-LD e URLs semânticas são texto no HTML que o build já gera; em página SSG servida do CDN o custo marginal é **zero**. Adiar não posterga custo, posterga receita: indexação de domínio novo leva semanas a meses, e trocar estrutura de URL depois exige mapa de 301 e descarta autoridade acumulada.
+  - **Restrições de custo a respeitar na spec:** (a) `app/(site)/` fica **SSG com `revalidate` longo** — catálogo de pizza muda pouco, nada de SSR sem motivo; (b) decidir explicitamente se as fotos do ensaio (NAPO-020) passam pelo `next/image` ou vão **pré-otimizadas do Supabase Storage** — a cota de transformação de imagem é o custo real do catálogo, não o SEO.
 
 - [ ] **NAPO-004** Motor de disponibilidade (calendário, cutoff, dois tetos)
   - **Spec:** `docs/specs/004-motor-disponibilidade/` *(a criar)*
@@ -104,6 +108,11 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
   - **Dependências:** NAPO-001
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **Notas:** termos, política de privacidade, banner, consentimento **versionado** (quando e qual versão foi aceita). Utilidade (OTP, aviso de entrega) é separada de marketing — validar o número não autoriza propaganda. Spec §8.
+
+- [ ] **NAPO-021** Provisionar homologação e produção + primeiro deploy
+  - **Dependências:** NAPO-001
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **Notas:** desmembrado do NAPO-001 em 2026-08-10 por decisão de focar em desenvolvimento primeiro. Cria os dois projetos Supabase online (staging e prod — **2 ativos cabem no free tier**), conecta a Vercel, aponta o DNS de `napobsb.com.br` no Registro.br e roda o primeiro `db:push` de verdade. Dois pontos de atenção conhecidos: projeto free **pausa após ~7 dias sem atividade** (o CI tocando o banco a cada PR resolve), e produção no free não tem PITR — vira Pro (~US$ 25/mês) antes de faturar. **Quanto mais specs acumularem antes deste item, maior a superfície de surpresa de ambiente** (`docs/specs/001-fundacao/design.md` §8).
 
 ### R2 — Eventos
 
