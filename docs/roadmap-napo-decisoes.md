@@ -1,4 +1,8 @@
-# Roadmap Napo — Reconstrução
+# Napo — Registro de Decisões por Fase
+
+> 📌 **Este NÃO é o backlog.** O backlog vivo é o [`ROADMAP.md`](../ROADMAP.md) na
+> raiz. Este documento é o **registro das decisões de produto e arquitetura** que
+> deram origem a ele — mantido para consulta, não para priorização.
 
 > ⚠️ Documento reconstruído após perda do chat original. **[FECHADO]** = decisão
 > real confirmada. **[A VALIDAR]** = estrutura funcional ainda não passada pelo
@@ -6,7 +10,7 @@
 
 > 🔄 **REVISADO EM 2026-08-10.** Oito decisões deste documento foram substituídas.
 > A verdade atual do R1 está em
-> [`docs/superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md`](docs/superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md).
+> [`docs/superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md`](superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md).
 > Itens revisados estão marcados **[REVISTO]** abaixo. Em conflito, a spec vence.
 >
 > **Diagnóstico econômico que motivou as revisões:** capacidade 650 pizzas/mês ·
@@ -353,6 +357,9 @@ Ainda abertos, para as fases seguintes:
 ---
 
 ## Como seguir **[REVISTO 2026-08-10]**
+
+> A ordem abaixo é a **justificativa** da priorização. A fila executável, com IDs
+> e dependências, está em [`ROADMAP.md`](../ROADMAP.md).
 
 A ordem abaixo substitui a anterior (que mandava fechar frete em segundo lugar e
 deixava o site para o fim). O diagnóstico de capacidade ociosa inverteu a prioridade:
