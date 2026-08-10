@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Após `git pull --rebase`: aplica migrations novas. Ignora `git commit --amend`
+# (rewrite que não é pull). Ver scripts/db-auto-migrate.sh.
+[ "${1:-}" = "rebase" ] || exit 0
+exec "$(git rev-parse --show-toplevel)/scripts/db-auto-migrate.sh"

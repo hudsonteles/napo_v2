@@ -26,9 +26,18 @@ A página inicial é uma **tela crua de verificação** (NAPO-001): mostra a hor
 vinda do Postgres se toda a cadeia (env → Supabase → banco) estiver de pé. O
 site de verdade nasce no NAPO-003.
 
-> **Rodando outro projeto Supabase na máquina?** As portas padrão
-> (54321–54324) colidem. Ajuste as portas em `supabase/config.toml` e a URL em
-> `apps/web/.env.local`, ou pare o outro stack antes de `pnpm db:start`.
+> **Portas:** o Napo usa o bloco **544xx** (API `54421`, DB `54422`, Studio
+> `54423`…), não o padrão `543xx`, para coexistir com outros projetos Supabase
+> na mesma máquina. Já vem assim no `supabase/config.toml` e no `.env.example`.
+
+### Sincronia de banco entre máquinas (dois PCs)
+
+Os hooks versionados em `.githooks/` são armados automaticamente no
+`pnpm install` (`git config core.hooksPath`). Depois disso, **todo `git pull`
+que traz migrations novas aplica-as sozinho** no seu Supabase local e regenera
+os tipos — sem precisar lembrar de rodar nada. Se o Supabase estiver desligado,
+o hook só avisa; se uma migration antiga tiver sido reescrita, ele sugere
+`pnpm db:reset` em vez de aplicar cegamente. Uso manual: `pnpm db:sync`.
 
 ## Scripts
 

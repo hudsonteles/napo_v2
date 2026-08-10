@@ -9,6 +9,7 @@
   "packageManager": "pnpm@11.3.0",
   "scripts": {
     "preinstall": "npx -y only-allow pnpm",
+    "prepare": "node scripts/setup-hooks.mjs",
     "dev": "pnpm --filter @napo/web dev",
     "build": "pnpm --filter @napo/web build",
     "start": "pnpm --filter @napo/web start",
@@ -21,6 +22,7 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:migrate": "supabase migration up --local",
+    "db:sync": "supabase migration up --local && pnpm db:types",
     "db:test": "supabase test db",
     "db:types": "supabase gen types typescript --local > packages/db/src/types.generated.ts",
     "db:types:check": "supabase gen types typescript --local | git diff --no-index --exit-code packages/db/src/types.generated.ts -",

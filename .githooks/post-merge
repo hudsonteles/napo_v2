@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Após `git pull` (merge): aplica migrations novas. Ver scripts/db-auto-migrate.sh.
+exec "$(git rev-parse --show-toplevel)/scripts/db-auto-migrate.sh"
