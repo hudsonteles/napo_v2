@@ -1,0 +1,10 @@
+node_modules
+.next
+out
+dist
+build
+coverage
+pnpm-lock.yaml
+packages/db/src/types.generated.ts
+supabase/.temp
+supabase/.branches

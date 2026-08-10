@@ -1,0 +1,87 @@
+name: CI
+
+# O gate que sustenta a arquitetura (RN1, RN7, RN8, RN9, RN10). Reprova o PR se
+# qualquer passo falhar — a disciplina não depende de alguém lembrar dela.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Qualidade: sem Docker, rápido. Lint (inclui a fronteira RN7), tipos,
+  #    testes de unidade, build e a verificação de que a service_role não vaza. ──
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      APP_ENV: local
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key-placeholder
+      SUPABASE_SERVICE_ROLE_KEY: ci-service-role-key-must-not-leak
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4 # lê o campo packageManager (pnpm fixado — RN10)
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc # Node fixado (RN10)
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint (fronteira de packages/core — RN7)
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Testes de unidade (packages/core — RN6)
+        run: pnpm test
+
+      - name: Build (inclui o bundle do cliente)
+        run: pnpm build
+
+      - name: Guard — service_role fora do bundle do cliente (RN3, T14)
+        run: |
+          if grep -rq "$SUPABASE_SERVICE_ROLE_KEY" apps/web/.next; then
+            echo "::error::A chave service_role vazou para o build do cliente!"
+            exit 1
+          fi
+          echo "OK: service_role ausente do build."
+
+  # ── Banco: sobe o Supabase local em Docker, roda o pgTAP (RN1, RN2) e checa o
+  #    drift dos tipos gerados (RN9). Roda em paralelo ao job de qualidade. ──
+  database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Sobe o Supabase local
+        run: pnpm exec supabase start
+
+      - name: Testes de RLS e trigger (pgTAP — RN1, RN2)
+        run: pnpm exec supabase test db
+
+      - name: Drift dos tipos gerados (RN9, T7)
+        run: |
+          pnpm exec supabase gen types typescript --local > packages/db/src/types.generated.ts
+          if ! git diff --exit-code -- packages/db/src/types.generated.ts; then
+            echo "::error::Tipos gerados fora de sincronia. Rode 'pnpm db:types' e commite o resultado."
+            exit 1
+          fi
+          echo "OK: tipos em sincronia com as migrations."

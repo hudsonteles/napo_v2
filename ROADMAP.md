@@ -40,15 +40,6 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 *Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar.*
 
-- [ ] **NAPO-001** Fundação: monorepo, Next.js 15, Supabase local e CI
-  - **Spec:** [`docs/specs/001-fundacao/`](docs/specs/001-fundacao/) — completo, aguardando aprovação
-  - **Dependências:** —
-  - **Bloqueia:** NAPO-002, NAPO-003, NAPO-004, NAPO-005, NAPO-006, NAPO-007, NAPO-008, NAPO-009, NAPO-021
-  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
-  - **Notas:** pnpm workspaces + App Router; `packages/core` com as regras puras (cutoff, CTP/ATP, frete, BOM, margem) sem React e sem Supabase. Migrations desde o primeiro dia, RLS negando por padrão, Sentry, fuso `America/Sao_Paulo` explícito em todo cálculo de data. Spec §3.
-  - **Custo de hospedagem (decidido 2026-08-10):** o plano **Hobby da Vercel proíbe uso comercial** nos termos — e-commerce com checkout exige **Pro (~US$ 20/mês)**. Custo fixo, independe de SEO ou de tráfego, e precisa estar previsto antes do go-live. **Vercel Analytics e Speed Insights ficam fora do R1** (cota paga, adiável sem prejuízo).
-  - **Escopo reduzido a desenvolvimento (decidido 2026-08-10):** publicação em homologação e produção **saiu deste item** e virou NAPO-021. Aqui fica só o ambiente local (Supabase em Docker) e o CI. O código nasce **capaz** de multi-ambiente — `APP_ENV`, variáveis separadas, migrations versionadas, scripts de deploy escritos e validados a seco — de forma que provisionar depois seja configuração, não refatoração.
-
 - [ ] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp
   - **Spec:** `docs/specs/002-auth-gate-telefone/` *(a criar)*
   - **Dependências:** NAPO-001
@@ -207,6 +198,8 @@ Ainda abertas, para as fases seguintes:
 
 *Histórico — adicionar mais recentes NO TOPO.*
 
+- [x] **NAPO-001** Fundação: monorepo, Next.js 15, Supabase local e CI · concluído 2026-08-10 · [`docs/specs/001-fundacao/`](docs/specs/001-fundacao/)
+  - Monorepo pnpm (`apps/web` + `packages/core|db|ui`), `packages/core` puro garantido por lint. Migrations `0001/0002` com RLS deny-by-default, enum de role e trigger anti-auto-promoção (validado por pgTAP). `env.ts` (Zod) mantendo `service_role` fora do browser, helper `tempo.ts` fixado em `America/Sao_Paulo`, CI em dois jobs. Publicação (staging/prod) permanece em NAPO-021.
 - [x] **Setup do kit ORIA no projeto** · concluído 2026-08-10
 - [x] **Spec do R1 (e-commerce) escrita e revisada** · concluído 2026-08-10 · `docs/superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md`
 

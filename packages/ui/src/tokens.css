@@ -1,0 +1,10 @@
+/*
+ * Tokens visuais do Napo — fonte única (preto / branco / amarelo).
+ * Consumidos a partir do NAPO-003, quando o catálogo de UI e o primeiro
+ * Gate Visual nascem. Componentes (shadcn) e patterns entram lá, não aqui.
+ */
+@theme {
+  --color-preto: #0a0a0a;
+  --color-branco: #ffffff;
+  --color-amarelo: #f5c518;
+}

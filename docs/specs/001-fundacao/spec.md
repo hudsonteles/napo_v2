@@ -1,7 +1,7 @@
 # 📋 Spec: Fundação — monorepo, Next.js 15, Supabase local e CI
 
 **ID:** NAPO-001
-**Status:** Aprovado
+**Status:** Concluído
 **Responsável:** Hudson
 **Data:** 2026-08-10
 **Item no Roadmap:** NAPO-001

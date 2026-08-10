@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Scripts de build de dependências aprovados explicitamente (gate de segurança do
+# pnpm). `supabase` baixa o binário do CLI no postinstall; os demais compilam
+# artefatos nativos usados por Next e pelo lint.
+allowBuilds:
+  esbuild: true
+  sharp: true
+  supabase: true
+  unrs-resolver: true

@@ -1,0 +1,13 @@
+# Normaliza fim de linha: LF em todo lugar. O time desenvolve no Windows, mas o
+# CI roda no Linux — sem isso, a checagem de drift dos tipos gerados (RN9)
+# quebraria por CRLF vs LF, não por diferença real de schema.
+* text=auto eol=lf
+
+# Binários não são tocados.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
