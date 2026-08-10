@@ -149,13 +149,13 @@ When user's prompt is NOT in English:
 
 ### 📱 Project Type Routing
 
-| Project Type                           | Primary Agent         | Skills                        |
-| -------------------------------------- | --------------------- | ----------------------------- |
-| **MOBILE** (iOS, Android, RN, Flutter) | `mobile-developer`    | mobile-design                 |
-| **WEB** (Next.js, React web)           | `frontend-specialist` | frontend-design               |
-| **BACKEND** (API, server, DB)          | `backend-specialist`  | api-patterns, database-design |
+| Project Type                 | Primary Agent         | Skills                        |
+| ---------------------------- | --------------------- | ----------------------------- |
+| **WEB** (Next.js, React web) | `frontend-specialist` | frontend-design               |
+| **BACKEND** (API, server, DB)| `backend-specialist`  | api-patterns, database-design |
 
-> 🔴 **Mobile + frontend-specialist = WRONG.** Mobile = mobile-developer ONLY.
+> 🔴 Napo é **web** (Next.js + Supabase). O kit mobile/game foi podado — o PDV em
+> tablet é PWA, continua com `frontend-specialist`.
 
 ### 🛑 Socratic Gate
 
@@ -211,7 +211,6 @@ When user's prompt is NOT in English:
 | `accessibility_checker.py` | frontend-design       | After UI change     |
 | `seo_checker.py`           | seo-fundamentals      | After page change   |
 | `bundle_analyzer.py`       | performance-profiling | Before deploy       |
-| `mobile_audit.py`          | mobile-design         | After mobile change |
 | `lighthouse_audit.py`      | performance-profiling | Before deploy       |
 | `playwright_runner.py`     | webapp-testing        | Before deploy       |
 
@@ -260,8 +259,8 @@ When user's prompt is NOT in English:
 
 ### Agents & Skills
 
-- **Masters**: `orchestrator`, `project-planner`, `security-auditor` (Cyber/Audit), `backend-specialist` (API/DB), `frontend-specialist` (UI/UX), `mobile-developer`, `debugger`, `game-developer`
-- **Key Skills**: `clean-code`, `brainstorming`, `app-builder`, `frontend-design`, `mobile-design`, `plan-writing`, `behavioral-modes`
+- **Masters**: `orchestrator`, `project-planner`, `security-auditor` (Cyber/Audit), `backend-specialist` (API/DB), `frontend-specialist` (UI/UX), `database-architect`, `debugger`, `seo-specialist`
+- **Key Skills**: `clean-code`, `brainstorming`, `app-builder`, `frontend-design`, `database-design`, `plan-writing`, `behavioral-modes`
 
 ### Key Scripts
 

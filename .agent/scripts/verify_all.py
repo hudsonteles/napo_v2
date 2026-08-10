@@ -19,7 +19,6 @@ Includes ALL checks:
     ✅ Lighthouse (Core Web Vitals)
     ✅ Playwright E2E
     ✅ Bundle Analysis (if applicable)
-    ✅ Mobile Audit (if applicable)
 """
 
 import sys
@@ -127,22 +126,6 @@ VERIFICATION_SUITE = [
         "requires_url": True,
         "checks": [
             ("Playwright E2E", ".agent/skills/webapp-testing/scripts/playwright_runner.py", False),
-        ]
-    },
-    
-    # P8: Mobile (if applicable)
-    {
-        "category": "Mobile",
-        "checks": [
-            ("Mobile Audit", ".agent/skills/mobile-design/scripts/mobile_audit.py", False),
-        ]
-    },
-    
-    # P9: Internationalization
-    {
-        "category": "Internationalization",
-        "checks": [
-            ("i18n Check", ".agent/skills/i18n-localization/scripts/i18n_checker.py", False),
         ]
     },
 ]

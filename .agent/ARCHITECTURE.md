@@ -1,16 +1,20 @@
-# Antigravity Kit Architecture
+# Antigravity Kit Architecture — edição Napo
 
-> Comprehensive AI Agent Capability Expansion Toolkit
+> Kit de expansão de capacidade para agentes de IA, **podado para o stack do Napo**
+> (Next.js 15 App Router + Supabase/Postgres + Tailwind, e-commerce com SEO local).
+
+> ✂️ **Este kit foi podado.** O original tem 20 agentes, 36 skills e 11 workflows.
+> Aqui ficaram **17 agentes, 29 skills e 10 workflows**. O que saiu e por quê está
+> em "O que foi podado" no fim deste arquivo. O kit completo continua disponível em
+> `oria-orquestrador-ia/.agent/` — para recuperar qualquer peça, copie de lá.
 
 ---
 
 ## 📋 Overview
 
-Antigravity Kit is a modular system consisting of:
-
-- **20 Specialist Agents** - Role-based AI personas
-- **36 Skills** - Domain-specific knowledge modules
-- **11 Workflows** - Slash command procedures
+- **17 Specialist Agents** - Role-based AI personas
+- **29 Skills** - Domain-specific knowledge modules
+- **10 Workflows** - Slash command procedures
 
 ---
 
@@ -19,16 +23,16 @@ Antigravity Kit is a modular system consisting of:
 ```plaintext
 .agent/
 ├── ARCHITECTURE.md          # This file
-├── agents/                  # 20 Specialist Agents
-├── skills/                  # 36 Skills
-├── workflows/               # 11 Slash Commands
+├── agents/                  # 17 Specialist Agents
+├── skills/                  # 29 Skills
+├── workflows/               # 10 Slash Commands
 ├── rules/                   # Global Rules
 └── scripts/                 # Master Validation Scripts
 ```
 
 ---
 
-## 🤖 Agents (20)
+## 🤖 Agents (17)
 
 Specialist AI personas for different domains.
 
@@ -38,12 +42,9 @@ Specialist AI personas for different domains.
 | `project-planner` | Discovery, task planning | brainstorming, plan-writing, architecture |
 | `frontend-specialist` | Web UI/UX | frontend-design, nextjs-react-expert, tailwind-patterns |
 | `backend-specialist` | API, business logic | api-patterns, nodejs-best-practices, database-design |
-| `database-architect` | Schema, SQL | database-design, prisma-expert |
-| `mobile-developer` | iOS, Android, RN | mobile-design |
-| `game-developer` | Game logic, mechanics | game-development |
-| `devops-engineer` | CI/CD, Docker | deployment-procedures, docker-expert |
-| `security-auditor` | Security compliance | vulnerability-scanner, red-team-tactics |
-| `penetration-tester` | Offensive security | red-team-tactics |
+| `database-architect` | Schema, SQL | database-design |
+| `devops-engineer` | CI/CD, deploy | deployment-procedures |
+| `security-auditor` | Security compliance | vulnerability-scanner |
 | `test-engineer` | Testing strategies | testing-patterns, tdd-workflow, webapp-testing |
 | `debugger` | Root cause analysis | systematic-debugging |
 | `performance-optimizer` | Speed, Web Vitals | performance-profiling |
@@ -57,9 +58,9 @@ Specialist AI personas for different domains.
 
 ---
 
-## 🧩 Skills (36)
+## 🧩 Skills (29)
 
-Modular knowledge domains that agents can load on-demand. based on task context.
+Modular knowledge domains that agents can load on-demand, based on task context.
 
 ### Frontend & UI
 
@@ -69,37 +70,25 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 | `web-design-guidelines` | Web UI audit - 100+ rules for accessibility, UX, performance (Vercel) |
 | `tailwind-patterns` | Tailwind CSS v4 utilities |
 | `frontend-design` | UI/UX patterns, design systems |
-| `ui-ux-pro-max` | 50 styles, 21 palettes, 50 fonts |
 
 ### Backend & API
 
 | Skill | Description |
 | ----- | ----------- |
 | `api-patterns` | REST, GraphQL, tRPC |
-| `nestjs-expert` | NestJS modules, DI, decorators |
 | `nodejs-best-practices` | Node.js async, modules |
-| `python-patterns` | Python standards, FastAPI |
 
 ### Database
 
 | Skill | Description |
 | ----- | ----------- |
 | `database-design` | Schema design, optimization |
-| `prisma-expert` | Prisma ORM, migrations |
-
-### TypeScript/JavaScript
-
-| Skill | Description |
-| ----- | ----------- |
-| `typescript-expert` | Type-level programming, performance |
 
 ### Cloud & Infrastructure
 
 | Skill | Description |
 | ----- | ----------- |
-| `docker-expert` | Containerization, Compose |
 | `deployment-procedures` | CI/CD, deploy workflows |
-| `server-management` | Infrastructure management |
 
 ### Testing & Quality
 
@@ -116,28 +105,15 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 | Skill | Description |
 | ----- | ----------- |
 | `vulnerability-scanner` | Security auditing, OWASP |
-| `red-team-tactics` | Offensive security |
 
 ### Architecture & Planning
 
 | Skill | Description |
 | ----- | ----------- |
-| `app-builder` | Full-stack app scaffolding |
+| `app-builder` | Full-stack app scaffolding (3 templates: nextjs-fullstack, nextjs-saas, monorepo-turborepo) |
 | `architecture` | System design patterns |
 | `plan-writing` | Task planning, breakdown |
 | `brainstorming` | Socratic questioning |
-
-### Mobile
-
-| Skill | Description |
-| ----- | ----------- |
-| `mobile-design` | Mobile UI/UX patterns |
-
-### Game Development
-
-| Skill | Description |
-| ----- | ----------- |
-| `game-development` | Game logic, mechanics |
 
 ### SEO & Growth
 
@@ -150,8 +126,8 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 
 | Skill | Description |
 | ----- | ----------- |
-| `bash-linux` | Linux commands, scripting |
-| `powershell-windows` | Windows PowerShell |
+| `bash-linux` | Linux commands, scripting (CI) |
+| `powershell-windows` | Windows PowerShell (máquina de dev) |
 
 ### Other
 
@@ -160,15 +136,14 @@ Modular knowledge domains that agents can load on-demand. based on task context.
 | `clean-code` | Coding standards (Global) |
 | `behavioral-modes` | Agent personas |
 | `parallel-agents` | Multi-agent patterns |
-| `mcp-builder` | Model Context Protocol |
+| `intelligent-routing` | Roteamento de agentes/skills |
 | `documentation-templates` | Doc formats |
-| `i18n-localization` | Internationalization |
 | `performance-profiling` | Web Vitals, optimization |
 | `systematic-debugging` | Troubleshooting |
 
 ---
 
-## 🔄 Workflows (11)
+## 🔄 Workflows (10)
 
 Slash command procedures. Invoke with `/command`.
 
@@ -184,7 +159,6 @@ Slash command procedures. Invoke with `/command`.
 | `/preview` | Preview changes |
 | `/status` | Check project status |
 | `/test` | Run tests |
-| `/ui-ux-pro-max` | Design with 50 styles |
 
 ---
 
@@ -208,21 +182,11 @@ skill-name/
 └── assets/            # (Optional) Images, logos
 ```
 
-### Enhanced Skills (with scripts/references)
-
-| Skill | Files | Coverage |
-| ----- | ----- | -------- |
-| `typescript-expert` | 5 | Utility types, tsconfig, cheatsheet |
-| `ui-ux-pro-max` | 27 | 50 styles, 21 palettes, 50 fonts |
-| `app-builder` | 20 | Full-stack scaffolding |
-
 ---
 
-## � Scripts (2)
+## 🔧 Scripts (2)
 
 Master validation scripts that orchestrate skill-level scripts.
-
-### Master Scripts
 
 | Script | Purpose | When to Use |
 | ------ | ------- | ----------- |
@@ -241,37 +205,38 @@ python .agent/scripts/verify_all.py . --url http://localhost:3000
 
 ### What They Check
 
-**checklist.py** (Core checks):
+**checklist.py** (Core checks): Security · Code Quality · Schema Validation ·
+Test Suite · UX Audit · SEO Check
 
-- Security (vulnerabilities, secrets)
-- Code Quality (lint, types)
-- Schema Validation
-- Test Suite
-- UX Audit
-- SEO Check
+**verify_all.py** (Full suite): tudo do `checklist.py` mais Lighthouse (Core Web
+Vitals), Playwright E2E e Bundle Analysis.
 
-**verify_all.py** (Full suite):
-
-- Everything in checklist.py PLUS:
-- Lighthouse (Core Web Vitals)
-- Playwright E2E
-- Bundle Analysis
-- Mobile Audit
-- i18n Check
-
-For details, see [scripts/README.md](scripts/README.md)
+> Ambos pulam graciosamente qualquer script ausente (`Script not found, skipping`).
 
 ---
 
-## 📊 Statistics
+## ✂️ O que foi podado (e por quê)
 
-| Metric | Value |
-| ------ | ----- |
-| **Total Agents** | 20 |
-| **Total Skills** | 36 |
-| **Total Workflows** | 11 |
-| **Total Scripts** | 2 (master) + 18 (skill-level) |
-| **Coverage** | ~90% web/mobile development |
+Critério: sai o que é **impossível de usar neste stack**, não o que é "menos
+provável". Tudo continua em `oria-orquestrador-ia/.agent/`.
+
+| Removido | Tipo | Motivo |
+| -------- | ---- | ------ |
+| `mobile-developer`, `mobile-design` | agente + skill | Napo é web. O PDV em tablet é PWA — `frontend-specialist` cobre. `AGENTS.md` §10.3.6 já proibia `mobile-developer` em app web. |
+| `game-developer`, `game-development` | agente + skill | Não há jogo. 11 sub-skills (VR/AR, multiplayer, game-audio…). |
+| `penetration-tester`, `red-team-tactics` | agente + skill | Segurança ofensiva. A defensiva (RLS, OWASP, LGPD) fica com `security-auditor` + `vulnerability-scanner`. |
+| `python-patterns` | skill | Produto é TypeScript. Os scripts `.py` do próprio kit são ferramenta, não código do produto. |
+| `mcp-builder` | skill | Não construímos servidores MCP. |
+| `i18n-localization` | skill | Locale único pt-BR, entrega em raio de 12 km em Brasília. |
+| `server-management` | skill | Infra gerenciada (Vercel + Supabase); não há servidor para administrar. |
+| `ui-ux-pro-max` (`.shared/`) | skill | 24 CSVs de 50 estilos / 21 paletas / 50 fontes para escolher identidade visual. A do Napo já está fechada: preto, branco e amarelo, referência Apple. |
+| 10 templates de `app-builder` | templates | astro, chrome-extension, cli-tool, electron, express, flutter, nextjs-static, nuxt, fastapi, react-native. Sobraram `nextjs-fullstack`, `nextjs-saas` e `monorepo-turborepo`. |
+| `/ui-ux-pro-max` | workflow | Depende da skill removida. |
+
+Também foram corrigidas referências **já quebradas no kit original**: as skills
+`prisma-expert`, `typescript-expert`, `docker-expert`, `nestjs-expert` e
+`refactoring-patterns` eram citadas mas nunca existiram em disco, e
+`intelligent-routing` existia sem estar listada.
 
 ---
 
@@ -279,11 +244,11 @@ For details, see [scripts/README.md](scripts/README.md)
 
 | Need | Agent | Skills |
 | ---- | ----- | ------ |
-| Web App | `frontend-specialist` | nextjs-react-expert, frontend-design |
+| Web App | `frontend-specialist` | nextjs-react-expert, frontend-design, tailwind-patterns |
 | API | `backend-specialist` | api-patterns, nodejs-best-practices |
-| Mobile | `mobile-developer` | mobile-design |
-| Database | `database-architect` | database-design, prisma-expert |
+| Database | `database-architect` | database-design |
 | Security | `security-auditor` | vulnerability-scanner |
-| Testing | `test-engineer` | testing-patterns, webapp-testing |
+| Testing | `test-engineer` | testing-patterns, webapp-testing, tdd-workflow |
 | Debug | `debugger` | systematic-debugging |
+| SEO | `seo-specialist` | seo-fundamentals, geo-fundamentals |
 | Plan | `project-planner` | brainstorming, plan-writing |
