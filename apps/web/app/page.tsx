@@ -36,8 +36,7 @@ export default async function Page() {
         </p>
       ) : (
         <p style={{ color: '#f5c518' }}>
-          {error?.message ??
-            'Sem resposta do banco. O Docker está ativo? Rode `pnpm db:start`.'}
+          {error?.message ?? 'Sem resposta do banco. O Docker está ativo? Rode `pnpm db:start`.'}
         </p>
       )}
 

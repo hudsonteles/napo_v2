@@ -11,27 +11,27 @@
 
 ## 1. Mapa de Impacto
 
-*Fonte única do escopo. Arquivos fora desta tabela não devem ser modificados sem aprovação explícita.*
+_Fonte única do escopo. Arquivos fora desta tabela não devem ser modificados sem aprovação explícita._
 
-| Arquivo / Módulo | Ação | Risco | Justificativa |
-|---|---|---|---|
-| `pnpm-workspace.yaml`, `package.json`, `.nvmrc` | Criar | Médio | Define os workspaces e **fixa Node e pnpm** (RN10) |
-| `tsconfig.base.json`, `eslint.config.mjs`, `.prettierrc` | Criar | Médio | Config compartilhada; o ESLint carrega a regra de fronteira que protege `packages/core` (RN7) |
-| `.gitignore`, `.env.example` | Criar | Baixo | `.env*` fora do Git; `.env.example` é o contrato de variáveis |
-| `apps/web/` — `package.json`, `next.config.ts`, `app/layout.tsx`, `app/page.tsx` | Criar | Baixo | App Next.js 15 mínimo + a tela crua de verificação |
-| `apps/web/src/lib/env.ts` | Criar | **Alto** | Validação Zod das variáveis no boot (RN5). Ponto único de leitura de `process.env` |
-| `apps/web/src/lib/supabase/{server,client}.ts` | Criar | **Alto** | Factories de client. Separação física é o que garante que `service_role` não vaze para o browser (RN3) |
-| `packages/core/` — `package.json`, `src/index.ts` | Criar | Baixo | Núcleo puro; `package.json` sem nenhuma dependência é parte da garantia da RN7 |
-| `packages/core/src/tempo.ts` | Criar | **Alto** | Helper único de fuso `America/Sao_Paulo` (RN6). Erro aqui contamina cutoff e dia de entrega em todo o R1 |
-| `packages/db/` — `package.json`, `src/types.generated.ts`, `src/index.ts` | Criar | Médio | Tipos gerados do banco; arquivo gerado, nunca editado à mão (RN9) |
-| `packages/ui/` — `package.json`, `src/tokens.css` | Criar | Baixo | Só os tokens (preto/branco/amarelo). Componentes nascem no NAPO-003 |
-| `supabase/config.toml` | Criar | Médio | Configuração do stack local em Docker |
-| `supabase/migrations/0001_base.sql` | Criar | **Alto** | Extensões, `is_admin()` e o padrão de RLS deny-by-default |
-| `supabase/migrations/0002_profiles.sql` | Criar | **Alto** | Enum de role, `profiles`, políticas e o trigger anti-auto-promoção (RN2) |
-| `supabase/seed.sql` | Criar | Médio | Usuários determinísticos por role — pré-requisito dos testes de RLS |
-| `supabase/tests/*.sql` | Criar | **Alto** | pgTAP: `rls_enabled` + isolamento + trigger (RN1, RN2) |
-| `scripts/confirm-prod-deploy.sh` | Criar | Baixo | Salvaguarda escrita agora, usada quando prod existir |
-| `.github/workflows/ci.yml` | Criar | **Alto** | O gate que sustenta RN1, RN7, RN8, RN9 e RN10 |
+| Arquivo / Módulo                                                                 | Ação  | Risco    | Justificativa                                                                                            |
+| -------------------------------------------------------------------------------- | ----- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `pnpm-workspace.yaml`, `package.json`, `.nvmrc`                                  | Criar | Médio    | Define os workspaces e **fixa Node e pnpm** (RN10)                                                       |
+| `tsconfig.base.json`, `eslint.config.mjs`, `.prettierrc`                         | Criar | Médio    | Config compartilhada; o ESLint carrega a regra de fronteira que protege `packages/core` (RN7)            |
+| `.gitignore`, `.env.example`                                                     | Criar | Baixo    | `.env*` fora do Git; `.env.example` é o contrato de variáveis                                            |
+| `apps/web/` — `package.json`, `next.config.ts`, `app/layout.tsx`, `app/page.tsx` | Criar | Baixo    | App Next.js 15 mínimo + a tela crua de verificação                                                       |
+| `apps/web/src/lib/env.ts`                                                        | Criar | **Alto** | Validação Zod das variáveis no boot (RN5). Ponto único de leitura de `process.env`                       |
+| `apps/web/src/lib/supabase/{server,client}.ts`                                   | Criar | **Alto** | Factories de client. Separação física é o que garante que `service_role` não vaze para o browser (RN3)   |
+| `packages/core/` — `package.json`, `src/index.ts`                                | Criar | Baixo    | Núcleo puro; `package.json` sem nenhuma dependência é parte da garantia da RN7                           |
+| `packages/core/src/tempo.ts`                                                     | Criar | **Alto** | Helper único de fuso `America/Sao_Paulo` (RN6). Erro aqui contamina cutoff e dia de entrega em todo o R1 |
+| `packages/db/` — `package.json`, `src/types.generated.ts`, `src/index.ts`        | Criar | Médio    | Tipos gerados do banco; arquivo gerado, nunca editado à mão (RN9)                                        |
+| `packages/ui/` — `package.json`, `src/tokens.css`                                | Criar | Baixo    | Só os tokens (preto/branco/amarelo). Componentes nascem no NAPO-003                                      |
+| `supabase/config.toml`                                                           | Criar | Médio    | Configuração do stack local em Docker                                                                    |
+| `supabase/migrations/0001_base.sql`                                              | Criar | **Alto** | Extensões, `is_admin()` e o padrão de RLS deny-by-default                                                |
+| `supabase/migrations/0002_profiles.sql`                                          | Criar | **Alto** | Enum de role, `profiles`, políticas e o trigger anti-auto-promoção (RN2)                                 |
+| `supabase/seed.sql`                                                              | Criar | Médio    | Usuários determinísticos por role — pré-requisito dos testes de RLS                                      |
+| `supabase/tests/*.sql`                                                           | Criar | **Alto** | pgTAP: `rls_enabled` + isolamento + trigger (RN1, RN2)                                                   |
+| `scripts/confirm-prod-deploy.sh`                                                 | Criar | Baixo    | Salvaguarda escrita agora, usada quando prod existir                                                     |
+| `.github/workflows/ci.yml`                                                       | Criar | **Alto** | O gate que sustenta RN1, RN7, RN8, RN9 e RN10                                                            |
 
 > **Nota sobre tamanho (18 linhas > 15):** o template sugere avaliar quebra em duas specs. **Não quebrar.** As linhas estão agrupadas por módulo e nenhuma entrega valor isolada — um monorepo pela metade não roda, não testa e não prova nada. O risco real de tamanho é mitigado pelo plano de blocos (§7), que dá pontos de parada verificáveis.
 
@@ -49,7 +49,7 @@
 ### 2.2 Alternativas de modelagem descartadas
 
 - **A — `role` em `auth.users.raw_app_meta_data`:** poria a role dentro do JWT, evitando um JOIN. **Descartada porque** revogar privilégio exigiria esperar o token expirar ou forçar refresh — um gerente demitido continuaria gerente até lá. Além disso, metadata do Auth não é auditável por trigger SQL, e a spec do R1 §8 exige auditoria de `role`.
-- **B — tabela `user_roles` N:N (múltiplos papéis por pessoa):** mais flexível. **Descartada porque** a operação tem cinco pessoas e papéis mutuamente exclusivos; N:N traria ambiguidade de precedência ("quem é cozinha *e* gerente pode o quê?") sem nenhum caso de uso real.
+- **B — tabela `user_roles` N:N (múltiplos papéis por pessoa):** mais flexível. **Descartada porque** a operação tem cinco pessoas e papéis mutuamente exclusivos; N:N traria ambiguidade de precedência ("quem é cozinha _e_ gerente pode o quê?") sem nenhum caso de uso real.
 
 ### 2.3 Decisão crítica — recursão de RLS
 
@@ -89,7 +89,7 @@ O Mapa de Impacto cria `apps/web/app/page.tsx`, o que normalmente dispara a FASE
 
 - **Decisão:** pgTAP (`supabase test db`) para RLS; Vitest para `packages/core`.
   **Alternativa rejeitada:** Vitest para tudo, via cliente JS com dois usuários.
-  **Motivo:** o teste via cliente JS prova que *aquele caminho* está protegido; `tests.rls_enabled('public')` prova que **nenhuma tabela do schema** ficou sem política — inclusive as que ainda não existem, criadas nas specs seguintes. É a diferença entre testar o que lembramos e testar o que esquecemos.
+  **Motivo:** o teste via cliente JS prova que _aquele caminho_ está protegido; `tests.rls_enabled('public')` prova que **nenhuma tabela do schema** ficou sem política — inclusive as que ainda não existem, criadas nas specs seguintes. É a diferença entre testar o que lembramos e testar o que esquecemos.
 
 - **Decisão:** ponto único de leitura de `process.env`, em `apps/web/src/lib/env.ts`, validado com Zod no boot.
   **Alternativa rejeitada:** `process.env.X` espalhado com `!` de non-null assertion.
@@ -112,26 +112,26 @@ O Mapa de Impacto cria `apps/web/app/page.tsx`, o que normalmente dispara a FASE
 
 ### 6.1 Bibliotecas
 
-| Lib | Onde | Por quê |
-|---|---|---|
-| `next@15`, `react@19` | `apps/web` | Stack definida na arquitetura |
+| Lib                                      | Onde                      | Por quê                                                                                              |
+| ---------------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `next@15`, `react@19`                    | `apps/web`                | Stack definida na arquitetura                                                                        |
 | `@supabase/supabase-js`, `@supabase/ssr` | `apps/web`, `packages/db` | `@supabase/ssr` é o pacote correto para App Router — gerencia cookies de sessão em Server Components |
-| `zod` | `apps/web` | Validação de env (RN5) e futuros contratos |
-| `tailwindcss@4` | `apps/web`, `packages/ui` | Engine de estilo |
-| `vitest` | raiz, `packages/core` | Testes de unidade |
-| `eslint`, `prettier`, `typescript` | raiz | Qualidade |
-| `basejump-supabase_test_helpers` | `supabase/tests` | Extensão de banco (não npm). Fornece `tests.rls_enabled()` e `tests.authenticate_as()` |
+| `zod`                                    | `apps/web`                | Validação de env (RN5) e futuros contratos                                                           |
+| `tailwindcss@4`                          | `apps/web`, `packages/ui` | Engine de estilo                                                                                     |
+| `vitest`                                 | raiz, `packages/core`     | Testes de unidade                                                                                    |
+| `eslint`, `prettier`, `typescript`       | raiz                      | Qualidade                                                                                            |
+| `basejump-supabase_test_helpers`         | `supabase/tests`          | Extensão de banco (não npm). Fornece `tests.rls_enabled()` e `tests.authenticate_as()`               |
 
 **Ainda não instalados** — entram nas specs que os usam: `@sentry/nextjs`, `motion`, `shadcn/ui`, `resend`, SDK do Mercado Pago, Playwright.
 
 ### 6.2 Variáveis de ambiente
 
-| Variável | Obrigatória | Escopo | Observação |
-|---|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | sim | browser + servidor | Local: `http://127.0.0.1:54321` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | sim | browser + servidor | Protegida por RLS |
-| `SUPABASE_SERVICE_ROLE_KEY` | sim | **servidor apenas** | Sem prefixo `NEXT_PUBLIC_`. Ignora RLS — vazar equivale a entregar o banco |
-| `APP_ENV` | sim | servidor | `local \| staging \| production` |
+| Variável                        | Obrigatória | Escopo              | Observação                                                                 |
+| ------------------------------- | ----------- | ------------------- | -------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | sim         | browser + servidor  | Local: `http://127.0.0.1:54321`                                            |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | sim         | browser + servidor  | Protegida por RLS                                                          |
+| `SUPABASE_SERVICE_ROLE_KEY`     | sim         | **servidor apenas** | Sem prefixo `NEXT_PUBLIC_`. Ignora RLS — vazar equivale a entregar o banco |
+| `APP_ENV`                       | sim         | servidor            | `local \| staging \| production`                                           |
 
 ---
 

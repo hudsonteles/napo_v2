@@ -50,14 +50,14 @@
 
 ## 4. Fluxos de Exceção (Tratamento de Erros)
 
-| Cenário | Ação | Resposta do Sistema |
-|---|---|---|
-| Docker não está rodando | `pnpm dev` | Mensagem explícita: "Docker Desktop precisa estar ativo — rode `supabase start`". Não tenta conectar em produção como fallback |
-| Variável de ambiente faltando | Iniciar app | Erro na inicialização listando **quais** variáveis faltam. App não sobe |
-| Migration falha ao aplicar | `pnpm db:migrate` | Aborta, preserva o estado anterior, imprime o SQL que falhou |
-| Tabela criada sem RLS | Abrir PR | Teste `rls_enabled` falha, CI vermelho, merge bloqueado |
-| Tipos gerados desatualizados | Abrir PR | CI falha indicando que falta rodar a geração de tipos |
-| Tentativa de alterar a própria role | `UPDATE` em `profiles` | Banco rejeita via trigger, com mensagem de erro clara. Nada é persistido |
+| Cenário                             | Ação                   | Resposta do Sistema                                                                                                            |
+| ----------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Docker não está rodando             | `pnpm dev`             | Mensagem explícita: "Docker Desktop precisa estar ativo — rode `supabase start`". Não tenta conectar em produção como fallback |
+| Variável de ambiente faltando       | Iniciar app            | Erro na inicialização listando **quais** variáveis faltam. App não sobe                                                        |
+| Migration falha ao aplicar          | `pnpm db:migrate`      | Aborta, preserva o estado anterior, imprime o SQL que falhou                                                                   |
+| Tabela criada sem RLS               | Abrir PR               | Teste `rls_enabled` falha, CI vermelho, merge bloqueado                                                                        |
+| Tipos gerados desatualizados        | Abrir PR               | CI falha indicando que falta rodar a geração de tipos                                                                          |
+| Tentativa de alterar a própria role | `UPDATE` em `profiles` | Banco rejeita via trigger, com mensagem de erro clara. Nada é persistido                                                       |
 
 ---
 
@@ -93,7 +93,7 @@
 ## 7. Observações e Decisões de Negócio
 
 - **Publicação adiada (2026-08-10):** o PM optou por focar em desenvolvimento antes de subir qualquer ambiente. A consequência aceita é que problemas de ambiente aparecerão mais tarde. A mitigação é que o código nasce **capaz** de multi-ambiente — variáveis separadas, migrations versionadas, scripts de deploy escritos — de modo que provisionar depois seja configuração, não refatoração.
-- **pgTAP em vez de Vitest para RLS:** a spec do R1 §9 previa Vitest. Benchmarking mostrou que `supabase test db` com pgTAP roda dentro do Postgres e traz `tests.rls_enabled('public')`, que reprova se *qualquer* tabela estiver sem política. Isso converte a RN1 de disciplina humana em verificação mecânica. Vitest continua sendo a ferramenta de `packages/core`.
+- **pgTAP em vez de Vitest para RLS:** a spec do R1 §9 previa Vitest. Benchmarking mostrou que `supabase test db` com pgTAP roda dentro do Postgres e traz `tests.rls_enabled('public')`, que reprova se _qualquer_ tabela estiver sem política. Isso converte a RN1 de disciplina humana em verificação mecânica. Vitest continua sendo a ferramenta de `packages/core`.
 - **`profiles` entra agora, embora login seja NAPO-002:** sem ao menos uma tabela real com role e política, não há como provar que RLS e o trigger funcionam. Entra a espinha — identidade e papel — e nada mais.
 - **A tela é descartável de propósito:** existe para provar que Next.js, Supabase e o build conversam. O contrato visual do projeto nasce no NAPO-003, e é lá que o Gate Visual será exercido pela primeira vez.
 

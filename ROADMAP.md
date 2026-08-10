@@ -1,6 +1,7 @@
 # 🗺️ ROADMAP (Backlog) do Projeto: Napo
 
 > 📋 **Convenções**
+>
 > - **Prefixo de ID deste projeto:** `NAPO`.
 > - **Specs:** cada item aprovado vira pasta em `docs/specs/[ID]-[slug]/`. **Completo** (3 arquivos: `spec.md`, `design.md`, `tests.md`) por default; **lite** (1 arquivo `spec.md` com `Tipo: lite`) permitido para itens em 1 domínio não-sensíveis conforme `AGENTS.md` §3.1 (resumo: Esforço=Baixo qualquer MoSCoW, OU Esforço=Médio com MoSCoW≠Must, OU Esforço=Médio+Must em 1 domínio). Mudanças triviais (≤1 arquivo, sem RN nova, ≤30min) podem ir direto como **tweak** sem spec (ver `AGENTS.md` §3.0).
 > - **IDs imutáveis:** o número não muda ao reordenar. A ordem é dada pela **posição na seção**, não pelo número.
@@ -8,6 +9,7 @@
 > - **Evoluir este backlog** (capturar ideias durante dev, promover, grooming): comandos `/ideia`, `/promover`, `/grooming`. Ver Fluxo 6 do guia em `oria-orquestrador-ia/ReadMe_GuiaOrquestracaoAgentes.md` e `AGENTS.md` §4.3.
 
 > 📚 **Fontes de verdade deste backlog**
+>
 > - **Spec do R1:** [`docs/superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md`](docs/superpowers/specs/2026-08-10-napo-r1-ecommerce-design.md) — vence em qualquer conflito.
 > - **Decisões por fase (R2+):** [`docs/roadmap-napo-decisoes.md`](docs/roadmap-napo-decisoes.md) — registro histórico, não é fila de trabalho.
 
@@ -15,7 +17,7 @@
 
 ## 🎯 Objetivo do MVP
 
-*Descreva o menor produto que já resolve o problema central do usuário.*
+_Descreva o menor produto que já resolve o problema central do usuário._
 
 Vender pizza congelada premium por canal próprio, com disponibilidade honesta e frete
 que não mata a venda. O gargalo é o **forno**, não o mercado: a cozinha opera a 47% da
@@ -30,48 +32,48 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 ## 🟢 Em Andamento (máx 2-3 itens simultâneos)
 
-*Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar.*
+_Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-*(Nenhum item em andamento — nada de código escrito ainda.)*
+_(Nenhum item em andamento — nada de código escrito ainda.)_
 
 ---
 
 ## 🟡 Próximos (Ordem importa — pegar de cima pra baixo)
 
-*Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar.*
+_Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
 
 - [ ] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp
-  - **Spec:** `docs/specs/002-auth-gate-telefone/` *(a criar)*
+  - **Spec:** `docs/specs/002-auth-gate-telefone/` _(a criar)_
   - **Dependências:** NAPO-001
   - **Bloqueia:** NAPO-006, NAPO-007, NAPO-008
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
   - **Notas:** Magic Link **e** Google, para cliente e equipe, com `role` decidindo o destino. Trigger impedindo auto-atribuição de `role`; middleware protege rota, RLS protege dado. OTP no WhatsApp via API oficial (Meta/BSP), com expiração 5–10 min, 3–5 tentativas, rate limit por número, telefone único entre contas validadas e override de admin. **Sem fallback SMS** — risco aceito. Spec §7.
 
 - [ ] **NAPO-003** Site público, catálogo e SEO
-  - **Spec:** `docs/specs/003-site-catalogo/` *(a criar)*
+  - **Spec:** `docs/specs/003-site-catalogo/` _(a criar)_
   - **Dependências:** NAPO-001
   - **Bloqueia:** NAPO-006
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** storytelling estilo Apple sobre o eixo *"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer."* — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
+  - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer."_ — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
   - **SEO permanece no R1 (decidido 2026-08-10):** avaliado adiar por receio de custo na Vercel e **descartado** — metadata, `sitemap.xml`, `robots.txt`, JSON-LD e URLs semânticas são texto no HTML que o build já gera; em página SSG servida do CDN o custo marginal é **zero**. Adiar não posterga custo, posterga receita: indexação de domínio novo leva semanas a meses, e trocar estrutura de URL depois exige mapa de 301 e descarta autoridade acumulada.
   - **Restrições de custo a respeitar na spec:** (a) `app/(site)/` fica **SSG com `revalidate` longo** — catálogo de pizza muda pouco, nada de SSR sem motivo; (b) decidir explicitamente se as fotos do ensaio (NAPO-020) passam pelo `next/image` ou vão **pré-otimizadas do Supabase Storage** — a cota de transformação de imagem é o custo real do catálogo, não o SEO.
 
 - [ ] **NAPO-004** Motor de disponibilidade (calendário, cutoff, dois tetos)
-  - **Spec:** `docs/specs/004-motor-disponibilidade/` *(a criar)*
+  - **Spec:** `docs/specs/004-motor-disponibilidade/` _(a criar)_
   - **Dependências:** NAPO-001
   - **Bloqueia:** NAPO-006, NAPO-008
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
   - **Notas:** coração do R1. Agenda única de dias de entrega com cutoff **derivado** do piso de fermentação (nunca digitado); antes do cutoff CTP, depois só ATP; sabor esgotado oferece o próximo dia **com vaga real**. Horizonte de 2 semanas deslizantes (rolamento Opção B). Tetos do R1: `teto_forno_dia = 30` + `capacidade_freezer = 150`; sub-teto de massa (consome vaga de forno igual a uma pizza, mas rende R$ 7,21 contra R$ 20,82). Tabela de etapas nasce vazia no schema. Spec §5.
 
 - [ ] **NAPO-005** Endereços e frete por faixa de distância
-  - **Spec:** `docs/specs/005-enderecos-frete/` *(a criar)*
+  - **Spec:** `docs/specs/005-enderecos-frete/` _(a criar)_
   - **Dependências:** NAPO-001
   - **Bloqueia:** NAPO-006
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **Notas:** CEP → ViaCEP → geocoding → ajuste de pin. Faixas fixas (0–4 km R$6 · 4–8 km R$10 · 8–12 km R$14), frete grátis acima de R$ 150, raio de 12 km configurável + exceções de CEP. Distância **rodoviária** (Brasília tem o lago), calculada uma vez por endereço e gravada. Custo real de referência: R$ 9,60/entrega em rota de 10. Spec §6.
 
 - [ ] **NAPO-006** Carrinho e checkout com Mercado Pago
-  - **Spec:** `docs/specs/006-checkout/` *(a criar)*
+  - **Spec:** `docs/specs/006-checkout/` _(a criar)_
   - **Dependências:** NAPO-002, NAPO-003, NAPO-004, NAPO-005
   - **Bloqueia:** NAPO-007
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
@@ -81,7 +83,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 ## 🔵 Backlog (Priorizado mas flexível)
 
-*Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informações.*
+_Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informações._
 
 ### Fecham o R1
 
@@ -110,7 +112,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 - [ ] **NAPO-010** Módulo de eventos (preparação)
   - **Dependências:** NAPO-008
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Should
-  - **Notas:** o sistema **prepara** o evento, não o opera ao vivo — cada evento é um dossiê. Cálculo automático de insumos via proporção pessoa/pizza sobre o BOM, checklist de equipamentos, semáforo de prontidão, pipeline Orçamento→Confirmado→Em preparação→Pronto→Realizado→Pós-evento, precificação assistida, rentabilidade real vs. planejada, ordem de serviço exportável (BEO). Colisão evento × congelada resolve por *allocated ATP*: evento confirmado reserva, sistema sinaliza, humano libera manualmente. Ver `docs/roadmap-napo-decisoes.md` (Fase 4).
+  - **Notas:** o sistema **prepara** o evento, não o opera ao vivo — cada evento é um dossiê. Cálculo automático de insumos via proporção pessoa/pizza sobre o BOM, checklist de equipamentos, semáforo de prontidão, pipeline Orçamento→Confirmado→Em preparação→Pronto→Realizado→Pós-evento, precificação assistida, rentabilidade real vs. planejada, ordem de serviço exportável (BEO). Colisão evento × congelada resolve por _allocated ATP_: evento confirmado reserva, sistema sinaliza, humano libera manualmente. Ver `docs/roadmap-napo-decisoes.md` (Fase 4).
 
 ### R3 — Fiscal e cozinha
 
@@ -150,7 +152,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 ## 💡 Ideias (Sem priorização)
 
-*Capturadas mas não avaliadas. Promover para Backlog após análise de valor/esforço.*
+_Capturadas mas não avaliadas. Promover para Backlog após análise de valor/esforço._
 
 Adiadas no R1 **com o dado já capturado** (ligam depois sem migração):
 
@@ -174,7 +176,7 @@ Ainda abertas, para as fases seguintes:
 
 ## ⏸️ Bloqueados (Aguardando externo)
 
-*Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do controle).*
+_Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do controle)._
 
 - [ ] **NAPO-017** Verificação da empresa na Meta (WhatsApp Business API)
   - **Bloqueado por:** processo de verificação da Meta — **bloqueia o login em produção** (NAPO-002 não sobe sem isso)
@@ -196,7 +198,7 @@ Ainda abertas, para as fases seguintes:
 
 ## ✅ Concluídos
 
-*Histórico — adicionar mais recentes NO TOPO.*
+_Histórico — adicionar mais recentes NO TOPO._
 
 - [x] **Tooling: sincronia de banco entre máquinas** · concluído 2026-08-10 — git hooks versionados (`.githooks/post-merge` + `post-rewrite`) armados no `pnpm install`; todo `git pull` com migration nova roda `migration up` + regenera tipos no Supabase local. Degrada com aviso se o stack estiver desligado ou se uma migration foi reescrita (sugere `db:reset`). DevX, sem spec.
 - [x] **NAPO-001** Fundação: monorepo, Next.js 15, Supabase local e CI · concluído 2026-08-10 · [`docs/specs/001-fundacao/`](docs/specs/001-fundacao/)
@@ -208,20 +210,20 @@ Ainda abertas, para as fases seguintes:
 
 ## ❌ Cancelados
 
-*Itens descartados. IDs permanecem reservados (não reciclar).*
+_Itens descartados. IDs permanecem reservados (não reciclar)._
 
-*(Sem itens cancelados. Duas propostas foram rejeitadas antes de virar item de backlog e estão documentadas em `docs/roadmap-napo-decisoes.md`: a fórmula de frete `km × 2 ÷ qtd` — cobrava R$ 38,40 numa pizza a 12 km — e virar integradora homologada de iFood/99food.)*
+_(Sem itens cancelados. Duas propostas foram rejeitadas antes de virar item de backlog e estão documentadas em `docs/roadmap-napo-decisoes.md`: a fórmula de frete `km × 2 ÷ qtd` — cobrava R$ 38,40 numa pizza a 12 km — e virar integradora homologada de iFood/99food.)_
 
 ---
 
 ## 📊 Legenda de Seções
 
-| Seção | Significado | Quem move |
-|---|---|---|
-| 🟢 Em Andamento | Trabalho ativo agora (máx 2-3) | Agente ao iniciar |
-| 🟡 Próximos | Ordem definida, próximos na fila | Humano prioriza |
-| 🔵 Backlog | Conhecidos, prioridade flexível | Humano ou agente |
-| 💡 Ideias | Brutas, não avaliadas | Qualquer um adiciona |
-| ⏸️ Bloqueados | Esperando externo | Agente move quando bloqueio externo é confirmado |
-| ✅ Concluídos | Histórico (mais recentes no topo) | Agente ao concluir spec |
-| ❌ Cancelados | Descartados | Humano decide |
+| Seção           | Significado                       | Quem move                                        |
+| --------------- | --------------------------------- | ------------------------------------------------ |
+| 🟢 Em Andamento | Trabalho ativo agora (máx 2-3)    | Agente ao iniciar                                |
+| 🟡 Próximos     | Ordem definida, próximos na fila  | Humano prioriza                                  |
+| 🔵 Backlog      | Conhecidos, prioridade flexível   | Humano ou agente                                 |
+| 💡 Ideias       | Brutas, não avaliadas             | Qualquer um adiciona                             |
+| ⏸️ Bloqueados   | Esperando externo                 | Agente move quando bloqueio externo é confirmado |
+| ✅ Concluídos   | Histórico (mais recentes no topo) | Agente ao concluir spec                          |
+| ❌ Cancelados   | Descartados                       | Humano decide                                    |

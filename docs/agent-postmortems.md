@@ -8,7 +8,7 @@
 
 ## Quando registrar (3 gatilhos)
 
-1. **Retrospectiva de spec** — ao concluir um spec, o agente pergunta ao humano: *"Algo neste fluxo precisou de correção sua que valha registrar?"*
+1. **Retrospectiva de spec** — ao concluir um spec, o agente pergunta ao humano: _"Algo neste fluxo precisou de correção sua que valha registrar?"_
 2. **Padrão repetido** — quando o humano corrigir o agente 2x sobre o mesmo tema.
 3. **Correção espontânea** — humano sinaliza a qualquer momento.
 
@@ -18,7 +18,7 @@
 
 Adicione novas entradas **no topo** da seção "Entradas", mais recentes primeiro:
 
-~~~markdown
+```markdown
 ### YYYY-MM-DD — Título curto da falha
 
 **Spec/Contexto:** [Qual spec ou tarefa estava em andamento?]
@@ -28,10 +28,11 @@ Adicione novas entradas **no topo** da seção "Entradas", mais recentes primeir
 **Causa provável:** [Regra ausente em AGENTS.md? Contexto faltando? Alucinação? Spec ambíguo?]
 **Correção naquele momento:** [Como foi resolvido pontualmente]
 **Ação de follow-up:**
+
 - [ ] Virou regra em `AGENTS.md`? Seção: ___
 - [ ] Virou caso de eval em `evals/cases/`? Arquivo: ___
 - [ ] Apenas registrado (1ª ocorrência)
-~~~
+```
 
 ---
 
@@ -62,6 +63,7 @@ Adicione novas entradas **no topo** da seção "Entradas", mais recentes primeir
 **Causa provável:** A regra global exigia o mesmo gate para qualquer tarefa, sem distinguir mudanças documentais de executáveis.
 **Correção naquele momento:** Gates proporcionais ao impacto e classificação canônica dos protocolos documentais e executáveis.
 **Ação de follow-up:**
+
 - [x] Virou regra em `AGENTS.md`? Seção: Regras Inegociáveis
 - [ ] Virou caso de eval em `evals/cases/`? Arquivo: —
 - [ ] Apenas registrado (1ª ocorrência)

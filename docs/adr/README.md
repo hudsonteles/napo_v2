@@ -14,6 +14,7 @@ Crie um ADR quando:
 4. Um **incidente em produção** força uma decisão de mudança que afeta a arquitetura.
 
 **Não crie ADR para:**
+
 - Bugs (vão em issues / specs).
 - Decisões puramente de implementação dentro de um spec (ficam no próprio `design.md`).
 - Postmortems do sistema de agentes (vão em `docs/agent-postmortems.md`).
@@ -50,13 +51,14 @@ Para garantir que `/especificar` e `/implementar` **não prossigam** quando um i
 
 **Comportamento mecânico:**
 
-| Valor | `/especificar` e `/implementar` |
-|---|---|
-| Ausente ou `—` | Prosseguem (sem pré-requisito) |
-| Contém `(Status: Aceito)` | Prosseguem (ADR aprovado) |
+| Valor                                                     | `/especificar` e `/implementar`                                                                                                                                                 |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Ausente ou `—`                                            | Prosseguem (sem pré-requisito)                                                                                                                                                  |
+| Contém `(Status: Aceito)`                                 | Prosseguem (ADR aprovado)                                                                                                                                                       |
 | `Pendente` ou `(Status: Proposto \| Descartado)` ou outro | **Disparam protocolo proativo** — perguntam ao humano: (A) agente rascunha o ADR, (B) humano cria manual, (C) rejeitar e repensar escopo. Ver `AGENTS.md` §3.3.1 para detalhes. |
 
 **Quando atualizar o campo:**
+
 - ADR criado em `Proposto`: campo passa de `Pendente` → `ADR-NNNN-slug (Status: Proposto)`.
 - ADR aceito: campo passa para `ADR-NNNN-slug (Status: Aceito)`. **A partir deste ponto, `/especificar` e `/implementar` desbloqueiam.**
 - ADR descartado: campo passa para `ADR-NNNN-slug (Status: Descartado)`. O item do ROADMAP deve ser repensado (cancelar, redefinir escopo, ou criar novo ADR).
@@ -92,9 +94,9 @@ A flag complementa o texto livre dos "Pré-requisitos antes de implementar" — 
 
 ## Índice
 
-*(adicionar conforme ADRs forem aceitos, mais recentes no topo)*
+_(adicionar conforme ADRs forem aceitos, mais recentes no topo)_
 
-*(Sem ADRs ainda.)*
+_(Sem ADRs ainda.)_
 
 <!-- Exemplo:
 - [ADR-0002 — Trocar provider de SMS de Firebase para Twilio](./0002-trocar-provider-sms.md) — Aceito 2026-08-15

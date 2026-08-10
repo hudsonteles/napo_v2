@@ -14,11 +14,11 @@ allowed-tools: Read, Glob, Grep
 
 **Read ONLY the template matching user's project type!**
 
-| Template | Tech Stack | When to Use |
-|----------|------------|-------------|
-| [nextjs-fullstack](nextjs-fullstack/TEMPLATE.md) | Next.js + Prisma | Full-stack web app |
-| [nextjs-saas](nextjs-saas/TEMPLATE.md) | Next.js + Stripe | SaaS product |
-| [monorepo-turborepo](monorepo-turborepo/TEMPLATE.md) | Turborepo + pnpm | Monorepo |
+| Template                                             | Tech Stack       | When to Use        |
+| ---------------------------------------------------- | ---------------- | ------------------ |
+| [nextjs-fullstack](nextjs-fullstack/TEMPLATE.md)     | Next.js + Prisma | Full-stack web app |
+| [nextjs-saas](nextjs-saas/TEMPLATE.md)               | Next.js + Stripe | SaaS product       |
+| [monorepo-turborepo](monorepo-turborepo/TEMPLATE.md) | Turborepo + pnpm | Monorepo           |
 
 ---
 

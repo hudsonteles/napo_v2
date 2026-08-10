@@ -15,15 +15,15 @@ pizza **assada e congelada**. O cliente descongela e aquece no forno de casa. A 
 A operação hoje vende **70 pizzas/semana** por WhatsApp e balcão. O diagnóstico
 econômico definiu o objetivo do release:
 
-| Indicador | Valor |
-|---|---|
-| Capacidade de produção | 30 pizzas/dia × 5 dias = **650/mês** |
-| Volume atual | **303/mês** (47% da capacidade) |
-| Ponto de equilíbrio | **207/mês** |
-| Margem de contribuição média | **R$ 20,82**/pizza |
-| Custo fixo mensal | R$ 4.300 (sem pró-labore) |
-| Resultado hoje | R$ 2.008/mês |
-| Resultado a capacidade cheia | R$ 9.233/mês |
+| Indicador                    | Valor                                |
+| ---------------------------- | ------------------------------------ |
+| Capacidade de produção       | 30 pizzas/dia × 5 dias = **650/mês** |
+| Volume atual                 | **303/mês** (47% da capacidade)      |
+| Ponto de equilíbrio          | **207/mês**                          |
+| Margem de contribuição média | **R$ 20,82**/pizza                   |
+| Custo fixo mensal            | R$ 4.300 (sem pró-labore)            |
+| Resultado hoje               | R$ 2.008/mês                         |
+| Resultado a capacidade cheia | R$ 9.233/mês                         |
 
 **O gargalo do negócio é o forno, não o mercado.** Sobram 347 pizzas/mês de
 capacidade ociosa, que valem **R$ 7.700/mês de margem não capturada** sem nenhum
@@ -53,17 +53,17 @@ o segundo forno seja tomada com dado, e não por intuição.
 
 ### Fica fora do R1 (por decisão, não por esquecimento)
 
-| Item | Motivo |
-|---|---|
-| Módulo de eventos | É o R2 |
-| Emissão fiscal (NFC-e/NF-e) | Depende do contador e de certificado A1; a costura fica pronta |
-| Capacidade por etapa-gargalo | Números não medidos; teto simples resolve a 30/dia |
-| Roteirização automática | ~10 entregas/dia se organizam à mão |
-| Impressão de etiqueta de lote | Rótulo em R2; o dado de lote já é capturado |
-| Contagem cíclica de inventário | Ajuste manual com motivo cobre o R1 |
-| Estorno automatizado | Cancelamento devolve estoque; estorno é manual no painel MP |
-| DRE e fluxo de caixa | Margem de contribuição e ponto de equilíbrio bastam para decidir |
-| KDS, PDV, bot WhatsApp, iFood | Fases posteriores do roadmap |
+| Item                           | Motivo                                                           |
+| ------------------------------ | ---------------------------------------------------------------- |
+| Módulo de eventos              | É o R2                                                           |
+| Emissão fiscal (NFC-e/NF-e)    | Depende do contador e de certificado A1; a costura fica pronta   |
+| Capacidade por etapa-gargalo   | Números não medidos; teto simples resolve a 30/dia               |
+| Roteirização automática        | ~10 entregas/dia se organizam à mão                              |
+| Impressão de etiqueta de lote  | Rótulo em R2; o dado de lote já é capturado                      |
+| Contagem cíclica de inventário | Ajuste manual com motivo cobre o R1                              |
+| Estorno automatizado           | Cancelamento devolve estoque; estorno é manual no painel MP      |
+| DRE e fluxo de caixa           | Margem de contribuição e ponto de equilíbrio bastam para decidir |
+| KDS, PDV, bot WhatsApp, iFood  | Fases posteriores do roadmap                                     |
 
 ---
 
@@ -71,20 +71,20 @@ o segundo forno seja tomada com dado, e não por intuição.
 
 ### Stack
 
-| Camada | Decisão |
-|---|---|
-| Monorepo | pnpm workspaces (sem Turborepo até o build doer) |
-| App | Next.js 15 App Router, único, dividido por grupos de rota |
-| Linguagem | TypeScript strict |
-| UI | Tailwind + shadcn/ui, tema preto / branco / amarelo |
-| Animação | Motion, respeitando `prefers-reduced-motion` |
-| Backend | Supabase — Postgres, Auth, Storage |
-| Hospedagem | Vercel · domínio `napobsb.com.br` (DNS no Registro.br) |
-| Pagamento | Mercado Pago Checkout Pro, conta PJ |
-| E-mail | Resend, `pedido@napobsb.com.br` |
-| Erros | Sentry |
-| Testes | Vitest (unitário + RLS) · Playwright (checkout) |
-| CI | GitHub Actions — typecheck, lint, testes, migrations |
+| Camada     | Decisão                                                   |
+| ---------- | --------------------------------------------------------- |
+| Monorepo   | pnpm workspaces (sem Turborepo até o build doer)          |
+| App        | Next.js 15 App Router, único, dividido por grupos de rota |
+| Linguagem  | TypeScript strict                                         |
+| UI         | Tailwind + shadcn/ui, tema preto / branco / amarelo       |
+| Animação   | Motion, respeitando `prefers-reduced-motion`              |
+| Backend    | Supabase — Postgres, Auth, Storage                        |
+| Hospedagem | Vercel · domínio `napobsb.com.br` (DNS no Registro.br)    |
+| Pagamento  | Mercado Pago Checkout Pro, conta PJ                       |
+| E-mail     | Resend, `pedido@napobsb.com.br`                           |
+| Erros      | Sentry                                                    |
+| Testes     | Vitest (unitário + RLS) · Playwright (checkout)           |
+| CI         | GitHub Actions — typecheck, lint, testes, migrations      |
 
 ### Estrutura
 
@@ -335,11 +335,11 @@ frete(endereco, subtotal):
   senão                                     → valor da faixa
 ```
 
-| Faixa | Valor |
-|---|---|
-| 0–4 km | R$ 6 |
-| 4–8 km | R$ 10 |
-| 8–12 km | R$ 14 |
+| Faixa           | Valor  |
+| --------------- | ------ |
+| 0–4 km          | R$ 6   |
+| 4–8 km          | R$ 10  |
+| 8–12 km         | R$ 14  |
 | Pedido ≥ R$ 150 | grátis |
 
 Faixas fixas em vez da fórmula da Fase 5 do roadmap, por três razões: a fórmula
@@ -440,11 +440,11 @@ na hora.
 
 ## 9. Testes
 
-| Alvo | Ferramenta | O que cobre |
-|---|---|---|
-| `packages/core` | Vitest | derivação de cutoff incluindo recuo por dia sem produção · CTP vs ATP · dois tetos · sub-teto de massa · faixas de frete · rollup de custo do BOM de dois níveis · margem de contribuição · ponto de equilíbrio |
-| RLS | Vitest + Supabase local | cliente A não lê pedido de B · cliente não acessa admin · cliente não altera própria role |
-| Checkout | Playwright | caminho felizardo: login → validação → endereço → carrinho → pagamento |
+| Alvo            | Ferramenta              | O que cobre                                                                                                                                                                                                     |
+| --------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/core` | Vitest                  | derivação de cutoff incluindo recuo por dia sem produção · CTP vs ATP · dois tetos · sub-teto de massa · faixas de frete · rollup de custo do BOM de dois níveis · margem de contribuição · ponto de equilíbrio |
+| RLS             | Vitest + Supabase local | cliente A não lê pedido de B · cliente não acessa admin · cliente não altera própria role                                                                                                                       |
+| Checkout        | Playwright              | caminho felizardo: login → validação → endereço → carrinho → pagamento                                                                                                                                          |
 
 UI decorativa não é testada. Regra de negócio e autorização, sempre.
 
@@ -452,12 +452,12 @@ UI decorativa não é testada. Regra de negócio e autorização, sempre.
 
 ## 10. Catálogo inicial
 
-| Faixa | Preço | Produtos |
-|---|---|---|
-| Tradicional | R$ 39,90 | Calabresa · Lombo Canadense · Margherita · Banana |
-| Especial | R$ 45,90 | Pepperoni · Frango c/ Catupiry · Peito de Peru c/ Gorgonzola · 4 Queijos · Chocolate Nestlé |
-| Premium | R$ 49,90 | Nutella com Avelã |
-| Massa | R$ 15,00 | Massa doce · Massa salgada |
+| Faixa       | Preço    | Produtos                                                                                    |
+| ----------- | -------- | ------------------------------------------------------------------------------------------- |
+| Tradicional | R$ 39,90 | Calabresa · Lombo Canadense · Margherita · Banana                                           |
+| Especial    | R$ 45,90 | Pepperoni · Frango c/ Catupiry · Peito de Peru c/ Gorgonzola · 4 Queijos · Chocolate Nestlé |
+| Premium     | R$ 49,90 | Nutella com Avelã                                                                           |
+| Massa       | R$ 15,00 | Massa doce · Massa salgada                                                                  |
 
 **Nutella com Avelã carrega avelã**, alérgeno de declaração obrigatória — destaque no
 site e no rótulo. Glúten e leite alcançam quase todo o catálogo.
@@ -488,7 +488,7 @@ regulado pela ANVISA.
 Eixo do site:
 
 > **Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer.**
-> *A parte difícil já foi feita.*
+> _A parte difícil já foi feita._
 
 Os quatro sócios são a seção "quem somos" — prova de que não é fábrica — não a
 manchete.
@@ -519,18 +519,18 @@ paga.
 
 Nenhuma bloqueia a implementação. Valores iniciais assumidos, todos editáveis:
 
-| Premissa | Valor assumido | Como se resolve |
-|---|---|---|
-| Dias de entrega e janelas | sexta e sábado | configuração no admin |
-| Dias de produção | segunda a sexta | configuração no admin |
-| Custo de insumos | 40% do preço | ficha técnica real no cadastro |
-| Embalagem | R$ 3,50 pizza · R$ 2,00 massa | cadastro de insumo |
-| `custo_km` por veículo | R$ 0,60 | cadastro do entregador |
-| Comissão por pizza | R$ 2,00 | cadastro do entregador |
-| Alíquota do Simples | 4,5% | contador |
-| Taxas Mercado Pago | 2,5% médio ponderado | extrato real do MP |
-| Alérgenos por produto | glúten e leite no geral | cadastro de produto |
-| Fotos e textos | placeholders | ensaio a agendar |
+| Premissa                  | Valor assumido                | Como se resolve                |
+| ------------------------- | ----------------------------- | ------------------------------ |
+| Dias de entrega e janelas | sexta e sábado                | configuração no admin          |
+| Dias de produção          | segunda a sexta               | configuração no admin          |
+| Custo de insumos          | 40% do preço                  | ficha técnica real no cadastro |
+| Embalagem                 | R$ 3,50 pizza · R$ 2,00 massa | cadastro de insumo             |
+| `custo_km` por veículo    | R$ 0,60                       | cadastro do entregador         |
+| Comissão por pizza        | R$ 2,00                       | cadastro do entregador         |
+| Alíquota do Simples       | 4,5%                          | contador                       |
+| Taxas Mercado Pago        | 2,5% médio ponderado          | extrato real do MP             |
+| Alérgenos por produto     | glúten e leite no geral       | cadastro de produto            |
+| Fotos e textos            | placeholders                  | ensaio a agendar               |
 
 Duas premissas de negócio a levar ao contador: o **anexo do Simples** para pizza
 congelada industrializada, e a **atividade mista** (congelado industrializado vs.
@@ -543,12 +543,12 @@ fresca no balcão), que exige segregação de receita na declaração mensal. O 
 
 Correm em paralelo ao desenvolvimento e nenhuma depende de código:
 
-| Providência | Bloqueia |
-|---|---|
-| **Verificação da empresa na Meta** + template de OTP aprovado | o login em produção |
-| **Conversa com o contador** — anexo, atividade mista, documento exigido no DF | o emissor fiscal |
-| **Certificado digital A1** | qualquer emissão fiscal |
-| **Ensaio de fotografia** | o lançamento do site |
+| Providência                                                                   | Bloqueia                |
+| ----------------------------------------------------------------------------- | ----------------------- |
+| **Verificação da empresa na Meta** + template de OTP aprovado                 | o login em produção     |
+| **Conversa com o contador** — anexo, atividade mista, documento exigido no DF | o emissor fiscal        |
+| **Certificado digital A1**                                                    | qualquer emissão fiscal |
+| **Ensaio de fotografia**                                                      | o lançamento do site    |
 
 A verificação na Meta tem o maior lead time e bloqueia o lançamento, não o
 desenvolvimento — a interface de envio trocável permite construir e testar o fluxo
@@ -576,13 +576,13 @@ inteiro antes da aprovação.
 
 ## 16. Revisões que esta spec faz no roadmap
 
-| Roadmap dizia | Esta spec decide |
-|---|---|
-| Fase 1 = site institucional/vendas, sem checkout definido | site com e-commerce completo |
-| "Como seguir": Fase 0 → Fase 5 → Fase 2 → Fases 1 e 3 | R1 = site + checkout + admin · R2 = eventos |
-| `[FECHADO]` capacidade por etapa-gargalo, sem concessão MVP | teto simples por dia + teto de freezer; etapas ficam no schema |
-| Fase 5: fórmula `MAX(4; km×2×1,60 ÷ qtd) × (1−desconto)` | faixas fixas de distância + frete grátis por valor |
-| Stack "React + Supabase" | Next.js App Router em pnpm workspaces, com `packages/core` puro |
-| Magic Link **ou** Google | ambos, para cliente e equipe, com role decidindo o destino |
-| OTP como validação de telefone (Fase 3) | mesma decisão, mas como **gate obrigatório** de plataforma no R1 |
-| Pagamento na entrega liberado para todos | mantido no bot; **site exige pagamento online** |
+| Roadmap dizia                                               | Esta spec decide                                                 |
+| ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| Fase 1 = site institucional/vendas, sem checkout definido   | site com e-commerce completo                                     |
+| "Como seguir": Fase 0 → Fase 5 → Fase 2 → Fases 1 e 3       | R1 = site + checkout + admin · R2 = eventos                      |
+| `[FECHADO]` capacidade por etapa-gargalo, sem concessão MVP | teto simples por dia + teto de freezer; etapas ficam no schema   |
+| Fase 5: fórmula `MAX(4; km×2×1,60 ÷ qtd) × (1−desconto)`    | faixas fixas de distância + frete grátis por valor               |
+| Stack "React + Supabase"                                    | Next.js App Router em pnpm workspaces, com `packages/core` puro  |
+| Magic Link **ou** Google                                    | ambos, para cliente e equipe, com role decidindo o destino       |
+| OTP como validação de telefone (Fase 3)                     | mesma decisão, mas como **gate obrigatório** de plataforma no R1 |
+| Pagamento na entrega liberado para todos                    | mantido no bot; **site exige pagamento online**                  |

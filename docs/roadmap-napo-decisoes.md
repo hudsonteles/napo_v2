@@ -30,6 +30,7 @@ commodity regulada.
 painéis/agenda, WhatsApp marketing, OCR de notas de entrada, super admin.
 
 **COMPRAR (não construir):**
+
 - Ingestão de pedidos iFood/99food → **integrador/hub homologado existente**
   (decisão: **NÃO** virar integradora homologada — seria tiro no pé; homologação
   própria só compensa pra quem revende integração)
@@ -65,7 +66,7 @@ estoque); Mercado Pago (canal próprio) + Stone (plataformas).
   cálculo de insumos de eventos
 - **[FECHADO]** Desenho Build-vs-Buy acima é premissa de arquitetura
 
-*Pendente: estrutura de módulos, padrão de API, hospedagem, CI/CD.*
+_Pendente: estrutura de módulos, padrão de API, hospedagem, CI/CD._
 
 ---
 
@@ -81,8 +82,8 @@ disponibilidade (Fase 2) e o frete (Fase 5). Escopo detalhado na spec.
 
 **Posicionamento definido:** o concorrente é a pizza congelada de supermercado, e a
 diferença é física — massa crua assada a 200°C em casa versus massa assada a 400°C em
-forno italiano. Eixo: *"Longa fermentação. Forno italiano a 400°C. Em casa, só
-aquecer."*
+forno italiano. Eixo: _"Longa fermentação. Forno italiano a 400°C. Em casa, só
+aquecer."_
 
 ---
 
@@ -93,7 +94,7 @@ aquecer."*
   - Congelado vs. disponível
   - Cálculo de **quantas pizzas dá para produzir**
   - Alerta de **insumos em baixa**
-  - **Validade/lote (FEFO)** — segurança alimentar + premium *(novo)*
+  - **Validade/lote (FEFO)** — segurança alimentar + premium _(novo)_
   - Pizzas frescas (dias específicos, iFood/99food + retirada em loja)
 - Custos de produção por pizza + margem de lucro
 - **[FECHADO]** **KDS (tela de cozinha)** — coração da produção; fluxo principal
@@ -107,6 +108,7 @@ aquecer."*
   saída, comprar, não construir)
 
 ### Disponibilidade e capacidade de produção [FECHADO]
+
 - **Estoque = saldo projetado no tempo**, não número único. Painel por dia:
   estoque inicial · já vendido (delivery+evento) · produção planejada ·
   **saldo projetado** · capacidade livre de produção
@@ -161,7 +163,7 @@ aquecer."*
   confirmado **reserva** insumo + capacidade por padrão (protege o core premium
   / receita contratada); o sistema **sinaliza a colisão** e permite **liberação
   manual** de parte da reserva quando há folga real, como decisão consciente e
-  rastreável. Padrão de *allocated ATP* (compromisso firme reserva, catálogo
+  rastreável. Padrão de _allocated ATP_ (compromisso firme reserva, catálogo
   consome o não alocado, override manual do planejador). Depende da reserva de
   estoque (Fase 4/melhorias)
 
@@ -177,8 +179,8 @@ aquecer."*
   tentativas (3–5)**, **rate limit por número**, **número validado persistido
   no cadastro** (só revalida se trocar). **Sem fallback SMS/ligação** e **sem
   reuso como login** (decisão do cliente)
-  - *Obs.: sem fallback, o WhatsApp é ponto único de validação — se o envio
-    falhar ou o cliente não tiver Zap, o cadastro trava. Aceito como risco.*
+  - _Obs.: sem fallback, o WhatsApp é ponto único de validação — se o envio
+    falhar ou o cliente não tiver Zap, o cadastro trava. Aceito como risco._
   - **Via WhatsApp Business API oficial (Meta/BSP)** — não-oficial arrisca
     banimento do número
 - Mensageria via WhatsApp
@@ -199,27 +201,33 @@ aquecer."*
 > Escopo: o sistema **prepara** o evento; **não** o opera ao vivo. Cada evento é
 > um **dossiê de preparação**.
 
-### Dados do evento *(atualizado)*
+### Dados do evento _(atualizado)_
+
 - Data · Local · Quantidade de pessoas · **Equipe alocada** · **Valores**
   (custo do evento + valor cobrado + margem)
 
 ### Cálculo automático de insumos por evento
+
 - Deriva qtd. de pizzas, unidades de massa e insumos via proporção configurável
   pessoa/pizza; integrado ao BOM de dois níveis (Fase 0)
 - Alerta pré-evento configurável (padrão 48h) para disparar preparo de massa
 
 ### Checklist de equipamentos
+
 - Separado dos insumos (transportado/devolvido, não consumido)
 - Template padrão por tipo de evento, customizável por instância
 
 ### Sugestão inteligente de mix de sabores
+
 - Registra produção real por evento (histórico); engine recomenda proporções
   futuras; substitui distribuição igualitária por calibração orientada a dados
 
 ### Lista de compras para eventos
+
 - Com base na quantidade de pessoas — ligada ao cálculo automático de insumos
 
 ### Melhorias de preparação [FECHADO]
+
 1. **Semáforo de prontidão** (verde/amarelo/vermelho por evento) — cruza insumo
    congelado suficiente, massa preparada dentro das 48h, equipe confirmada,
    equipamentos separados. Depende do estoque (Fase 2)
@@ -245,7 +253,7 @@ aquecer."*
 2. Cobrava **R$ 38,40 de frete numa pizza a 12 km**. Não é margem perdida, é venda
    perdida.
 3. O desconto por quantidade invertia o incentivo: com **comissão por pizza**, o custo
-   cresce com a *quantidade*, não com a distância — e a fórmula dava 30% de desconto
+   cresce com a _quantidade_, não com a distância — e a fórmula dava 30% de desconto
    justamente a quem pedia 5+.
 
 **Decidido:** faixas fixas de distância (0–4 km R$6 · 4–8 km R$10 · 8–12 km R$14) com
@@ -263,12 +271,14 @@ Roteirização automática fica fora — ~10 entregas/dia se organizam à mão.
 > pedidos) — não é sistema novo. **Depende de Fase 2/3 prontas** (vem depois).
 
 ### Arquitetura [FECHADO]
+
 - **Modelo híbrido (Opção C): IA interpreta, SISTEMA decide.** A IA traduz a
   conversa; **todo dado (estoque, preço, frete, prazo) vem do sistema, nunca da
   IA** — zero alucinação de número. Sistema = fonte da verdade
 - Via **WhatsApp Business API oficial** (mesma base do OTP)
 
 ### Fluxo de pedido de congelada [FECHADO]
+
 - Identifica se o cliente já é cadastrado (e se tem endereço)
 - Informa **próximo dia de entrega + disponibilidade** (motor da Fase 2)
 - Sem endereço → coleta CEP → calcula **frete** (Fase 5)
@@ -279,7 +289,7 @@ Roteirização automática fica fora — ~10 entregas/dia se organizam à mão.
   **vale só para o canal bot.** No **site**, pagamento online é obrigatório: um
   no-show não custa a viagem, custa **uma vaga de 30**, e com Pix na mão do cliente
   não há motivo para abrir esse risco
-  - *Risco aceito: cliente novo pagando na entrega = vetor de calote/no-show*
+  - _Risco aceito: cliente novo pagando na entrega = vetor de calote/no-show_
   - **[A CONFIRMAR] Paraquedas opcional:** registrar histórico de calote/no-show
     por cliente, para revisitar a regra caso a caso no futuro
 - **[FECHADO] Reserva temporária de estoque durante a conversa** (tempo
@@ -287,7 +297,9 @@ Roteirização automática fica fora — ~10 entregas/dia se organizam à mão.
 - OTP amarrado ao fluxo (o cliente já escreve do próprio número)
 
 ### Escopo por tipo de contato [A CONFIRMAR — refinamento do time]
+
 Bot é a **porta única** dos três, mas a ação difere (protege premium):
+
 - **Congelada** → fecha autônomo (fluxo acima)
 - **Evento** → **captura lead** (data, nº pessoas, local, contato) → joga no
   **pipeline de eventos (Fase 4)** → handoff pra humano (não precifica/fecha
@@ -365,7 +377,7 @@ A ordem abaixo substitui a anterior (que mandava fechar frete em segundo lugar e
 deixava o site para o fim). O diagnóstico de capacidade ociosa inverteu a prioridade:
 não falta capacidade, falta canal de venda.
 
-1. **R1 — E-commerce** *(spec escrita, pronta para plano de implementação)*
+1. **R1 — E-commerce** _(spec escrita, pronta para plano de implementação)_
    Site de vendas · catálogo · checkout · motor de disponibilidade · frete ·
    área do cliente · admin de pedidos/estoque/custos
 2. **R2 — Módulo de eventos** (Fase 4 do roadmap, já bem especificada)

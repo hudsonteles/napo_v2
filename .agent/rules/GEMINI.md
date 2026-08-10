@@ -22,7 +22,7 @@ Agent activated → Check frontmatter "skills:" → Read SKILL.md (INDEX) → Re
 ### 2. Enforcement Protocol
 
 1. **When agent is activated:**
-    - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
+   - ✅ Activate: Read Rules → Check Frontmatter → Load SKILL.md → Apply All.
 2. **Forbidden:** Never skip reading agent rules or skill instructions. "Read → Understand → Apply" is mandatory.
 
 ---
@@ -75,12 +75,12 @@ When auto-applying an agent, inform the user:
 
 **Before ANY code or design work, you MUST complete this mental checklist:**
 
-| Step | Check | If Unchecked |
-|------|-------|--------------|
-| 1 | Did I identify the correct agent for this domain? | → STOP. Analyze request domain first. |
-| 2 | Did I READ the agent's `.md` file (or recall its rules)? | → STOP. Open `.agent/agents/{agent}.md` |
-| 3 | Did I announce `🤖 Applying knowledge of @[agent]...`? | → STOP. Add announcement before response. |
-| 4 | Did I load required skills from agent's frontmatter? | → STOP. Check `skills:` field and read them. |
+| Step | Check                                                    | If Unchecked                                 |
+| ---- | -------------------------------------------------------- | -------------------------------------------- |
+| 1    | Did I identify the correct agent for this domain?        | → STOP. Analyze request domain first.        |
+| 2    | Did I READ the agent's `.md` file (or recall its rules)? | → STOP. Open `.agent/agents/{agent}.md`      |
+| 3    | Did I announce `🤖 Applying knowledge of @[agent]...`?   | → STOP. Add announcement before response.    |
+| 4    | Did I load required skills from agent's frontmatter?     | → STOP. Check `skills:` field and read them. |
 
 **Failure Conditions:**
 
@@ -149,10 +149,10 @@ When user's prompt is NOT in English:
 
 ### 📱 Project Type Routing
 
-| Project Type                 | Primary Agent         | Skills                        |
-| ---------------------------- | --------------------- | ----------------------------- |
-| **WEB** (Next.js, React web) | `frontend-specialist` | frontend-design               |
-| **BACKEND** (API, server, DB)| `backend-specialist`  | api-patterns, database-design |
+| Project Type                  | Primary Agent         | Skills                        |
+| ----------------------------- | --------------------- | ----------------------------- |
+| **WEB** (Next.js, React web)  | `frontend-specialist` | frontend-design               |
+| **BACKEND** (API, server, DB) | `backend-specialist`  | api-patterns, database-design |
 
 > 🔴 Napo é **web** (Next.js + Supabase). O kit mobile/game foi podado — o PDV em
 > tablet é PWA, continua com `frontend-specialist`.
@@ -200,19 +200,19 @@ When user's prompt is NOT in English:
 
 **Available Scripts (12 total):**
 
-| Script                     | Skill                 | When to Use         |
-| -------------------------- | --------------------- | ------------------- |
-| `security_scan.py`         | vulnerability-scanner | Always on deploy    |
-| `dependency_analyzer.py`   | vulnerability-scanner | Weekly / Deploy     |
-| `lint_runner.py`           | lint-and-validate     | Every code change   |
-| `test_runner.py`           | testing-patterns      | After logic change  |
-| `schema_validator.py`      | database-design       | After DB change     |
-| `ux_audit.py`              | frontend-design       | After UI change     |
-| `accessibility_checker.py` | frontend-design       | After UI change     |
-| `seo_checker.py`           | seo-fundamentals      | After page change   |
-| `bundle_analyzer.py`       | performance-profiling | Before deploy       |
-| `lighthouse_audit.py`      | performance-profiling | Before deploy       |
-| `playwright_runner.py`     | webapp-testing        | Before deploy       |
+| Script                     | Skill                 | When to Use        |
+| -------------------------- | --------------------- | ------------------ |
+| `security_scan.py`         | vulnerability-scanner | Always on deploy   |
+| `dependency_analyzer.py`   | vulnerability-scanner | Weekly / Deploy    |
+| `lint_runner.py`           | lint-and-validate     | Every code change  |
+| `test_runner.py`           | testing-patterns      | After logic change |
+| `schema_validator.py`      | database-design       | After DB change    |
+| `ux_audit.py`              | frontend-design       | After UI change    |
+| `accessibility_checker.py` | frontend-design       | After UI change    |
+| `seo_checker.py`           | seo-fundamentals      | After page change  |
+| `bundle_analyzer.py`       | performance-profiling | Before deploy      |
+| `lighthouse_audit.py`      | performance-profiling | Before deploy      |
+| `playwright_runner.py`     | webapp-testing        | Before deploy      |
 
 > 🔴 **Agents & Skills can invoke ANY script** via `python .agent/skills/<skill>/scripts/<script>.py`
 

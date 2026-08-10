@@ -99,6 +99,7 @@ A escolha acontece em `oria-orquestrador-ia/prompts/especificar.md` Fase 0.5.
 ### 3.1 Ordem de leitura dentro do spec
 
 **Variante completa:**
+
 1. `spec.md` — entenda o **o quê** e o **porquê** (negócio)
 2. `design.md` — entenda o **como** (técnico + UI + Mapa de Impacto)
 3. `tests.md` — entenda o **pronto quando** (contrato de validação)
@@ -106,6 +107,7 @@ A escolha acontece em `oria-orquestrador-ia/prompts/especificar.md` Fase 0.5.
 **Variante lite:** leia o `spec.md` único — todas as 3 dimensões estão lá (RNs com cenários Gherkin inline em §2; Mapa de Impacto + decisões em §4).
 
 ### 3.2 Ordem de execução (TDD-leve)
+
 1. **Pré-flight:** Build verde? Spec aprovado pelo humano? Dependências do roadmap concluídas?
 2. **Testes primeiro:** transforme cada cenário de `tests.md` em código executável. Eles devem falhar (red).
 3. **Implementação:** implemente conforme `design.md` até todos os testes passarem (green).
@@ -120,6 +122,7 @@ A escolha acontece em `oria-orquestrador-ia/prompts/especificar.md` Fase 0.5.
 Quando uma mudança afetar algo já documentado em `docs/ARCHITECTURE.md` ou em spec aprovado, **não edite a arquitetura silenciosamente** — crie um ADR primeiro.
 
 **Quando criar ADR (obrigatório):**
+
 - **Tipo A — antes de promover:** Ideia em 💡 Ideias com flag `**Exige ADR**`. Bloqueia `/promover` (ver §4.3).
 - **Tipo B — antes de especificar/implementar:** Item já no Backlog/Próximos com campo `**ADR pré-requisito:**` diferente de `—` ou `(Status: Aceito)`. **Bloqueia `/especificar` e `/implementar` mecanicamente.**
 - Spec em execução revela necessidade de mudar decisão estrutural anterior.
@@ -137,10 +140,11 @@ Quando uma mudança afetar algo já documentado em `docs/ARCHITECTURE.md` ou em 
 
 Ao detectar a flag bloqueando `/especificar` ou `/implementar`, **NÃO aborte o fluxo** — pergunte ao humano como conduzir:
 
-> *"O item `$ARGUMENTS` exige ADR pré-requisito: **[valor atual]**. Como deseja proceder?*
-> *  **A) Eu rascunho o ADR** — você revisa, ajusta, aprova/rejeita*
-> *  **B) Você cria o ADR manualmente** — eu aguardo até `(Status: Aceito)` no campo do item*
-> *  **C) Rejeitar — repensar o escopo do item** para que não exija mudar a arquitetura"*
+> _"O item `$ARGUMENTS` exige ADR pré-requisito: **[valor atual]**. Como deseja proceder?_
+>
+> - **A) Eu rascunho o ADR** — você revisa, ajusta, aprova/rejeita*
+> - **B) Você cria o ADR manualmente** — eu aguardo até `(Status: Aceito)` no campo do item*
+> - **C) Rejeitar — repensar o escopo do item** para que não exija mudar a arquitetura"*
 
 Conduza conforme escolha:
 
@@ -166,18 +170,19 @@ Conduza conforme escolha:
 
 4. **Apresente resumo executivo** (4-6 linhas) + caminho do arquivo + 4 opções:
 
-   > *"ADR rascunhado em `docs/adr/NNNN-slug.md`.*
-   > *Resumo:*
-   > *- Contexto: [1 linha]*
-   > *- Decisão: [1-2 linhas]*
-   > *- Alternativas consideradas: [lista curta]*
-   > *- Consequência negativa principal: [1 linha]*
-   > *- Impacto em `ARCHITECTURE.md` §X.X: [1 linha]*
-   > *Como prefere prosseguir?*
-   > *  **(a) Abrir o arquivo e ler completo antes**
-   > *  **(b) Aprovar como está**
-   > *  **(c) Pedir ajustes em campos específicos**
-   > *  **(d) Rejeitar — repensar escopo do item**"*
+   > _"ADR rascunhado em `docs/adr/NNNN-slug.md`._
+   > _Resumo:_
+   > _- Contexto: [1 linha]_
+   > _- Decisão: [1-2 linhas]_
+   > _- Alternativas consideradas: [lista curta]_
+   > _- Consequência negativa principal: [1 linha]_
+   > _- Impacto em `ARCHITECTURE.md` §X.X: [1 linha]_
+   > _Como prefere prosseguir?_
+   >
+   > - **(a) Abrir o arquivo e ler completo antes**
+   > - **(b) Aprovar como está**
+   > - **(c) Pedir ajustes em campos específicos**
+   > - **(d) Rejeitar — repensar escopo do item**"*
 
 5. **Conforme escolha:**
    - **(a) Abrir e ler:** humano lê, volta com (b), (c) ou (d).
@@ -191,13 +196,12 @@ Conduza conforme escolha:
    - Identifique as seções afetadas (já listadas em "Impacto" do ADR).
    - **Formule diff exato (antes/depois)** e apresente:
 
-   > *"ADR aceito. Para refletir, proposta de diff em `ARCHITECTURE.md` §X.X:*
-   > *```diff*
-   > *- [linha original]*
-   > *+ [linha nova]*
-   > *```*
-   > *Aprova esta edição?"*
-
+   > _"ADR aceito. Para refletir, proposta de diff em `ARCHITECTURE.md` §X.X:_
+   > _`diff*
+*- [linha original]*
+*+ [linha nova]*
+*`_
+   > _Aprova esta edição?"_
    - Humano aprova: aplique Edit em `ARCHITECTURE.md`.
    - Humano pede ajustes no diff: itere.
 
@@ -205,44 +209,47 @@ Conduza conforme escolha:
 
 9. **Reporte e prossiga:**
 
-   > *"ADR-NNNN-slug aceito. `ARCHITECTURE.md` §X.X atualizado. Item `$ARGUMENTS` desbloqueado. Retomando `/especificar` (ou `/implementar`) `$ARGUMENTS`..."*
+   > _"ADR-NNNN-slug aceito. `ARCHITECTURE.md` §X.X atualizado. Item `$ARGUMENTS` desbloqueado. Retomando `/especificar` (ou `/implementar`) `$ARGUMENTS`..."_
 
 ##### Opção B — Espera de ADR manual
 
 Diga ao humano:
 
-> *"OK, aguardando você criar `docs/adr/NNNN-slug.md` manualmente. Quando o campo `**ADR pré-requisito:**` do item `$ARGUMENTS` for atualizado para `(Status: Aceito)`, rode `/especificar $ARGUMENTS` (ou `/implementar`) de novo."*
+> _"OK, aguardando você criar `docs/adr/NNNN-slug.md` manualmente. Quando o campo `**ADR pré-requisito:**` do item `$ARGUMENTS` for atualizado para `(Status: Aceito)`, rode `/especificar $ARGUMENTS` (ou `/implementar`) de novo."_
 
 **NÃO crie spec/implemente.** Encerre o fluxo.
 
 ##### Opção C — Rejeitar / Repensar escopo
 
-1. **Identificar conflito:** pergunte: *"O que no item `$ARGUMENTS` exige mudar `ARCHITECTURE.md` §X.X especificamente?"*
+1. **Identificar conflito:** pergunte: _"O que no item `$ARGUMENTS` exige mudar `ARCHITECTURE.md` §X.X especificamente?"_
 
 2. **Propor reescopos alternativos** (mínimo 2 concretos):
 
-   > *"Possíveis reescopos para `$ARGUMENTS` que evitam o conflito com arch:*
-   > *  Opção 1: [descrição concreta]*
-   > *  Opção 2: [descrição concreta]*
-   > *Ou você tem outra ideia?"*
+   > _"Possíveis reescopos para `$ARGUMENTS` que evitam o conflito com arch:_
+   >
+   > - Opção 1: [descrição concreta]*
+   > - Opção 2: [descrição concreta]*
+   >   _Ou você tem outra ideia?"_
 
 3. **Conforme escolha:**
    - **Reescopo viável escolhido:**
      - Edite o item no ROADMAP: ajuste notas + altere `**ADR pré-requisito:**` para `—`.
-     - Reporte: *"Item reescopado, ADR não é mais necessário. Posso rodar `/especificar $ARGUMENTS` agora?"*
+     - Reporte: _"Item reescopado, ADR não é mais necessário. Posso rodar `/especificar $ARGUMENTS` agora?"_
    - **Nenhum reescopo viável:** pergunte fallback:
-     - *(α) Cancelar `$ARGUMENTS`* → mover para ❌ Cancelados com motivo "ADR rejeitado, escopo inviável sem mudar arch".
-     - *(β) Criar ADR normalmente* → volte para Opção A.
-     - *(γ) Marcar ADR como Descartado* → criar `docs/adr/NNNN-slug.md` com `Status: Descartado` + motivo. Item fica no Backlog com `**ADR pré-requisito:** ADR-NNNN-slug (Status: Descartado)` — bloqueando reabertura até novo ADR.
+     - _(α) Cancelar `$ARGUMENTS`_ → mover para ❌ Cancelados com motivo "ADR rejeitado, escopo inviável sem mudar arch".
+     - _(β) Criar ADR normalmente_ → volte para Opção A.
+     - _(γ) Marcar ADR como Descartado_ → criar `docs/adr/NNNN-slug.md` com `Status: Descartado` + motivo. Item fica no Backlog com `**ADR pré-requisito:** ADR-NNNN-slug (Status: Descartado)` — bloqueando reabertura até novo ADR.
 
 **NÃO crie spec/implemente** durante o reescopo. Encerre o fluxo após a decisão.
 
 **Quando NÃO criar ADR:**
+
 - Bug fix dentro do escopo de um spec → fica no próprio `design.md`/`drift.md`.
 - Detalhe de implementação interno a uma feature.
 - Postmortem de falha do sistema de agentes → vai em `docs/agent-postmortems.md`.
 
 **Como criar:**
+
 1. Copie `oria-orquestrador-ia/adr-template.md` para `docs/adr/NNNN-slug.md` (próximo número sequencial, kebab-case slug).
 2. Preencha contexto, decisão, **mínimo 2 alternativas**, consequências (positivas, negativas, impacto em ARCHITECTURE.md).
 3. Status inicial: `Proposto`. Mude para `Aceito` após revisão humana explícita.
@@ -252,6 +259,7 @@ Diga ao humano:
 Veja `docs/adr/README.md` para o ciclo completo e índice.
 
 ### 3.4 Protocolo de Spec Drift
+
 Se ao implementar você descobrir que o spec está errado, incompleto ou ambíguo:
 
 1. **PARE** a implementação imediatamente.
@@ -268,22 +276,24 @@ Se ao implementar você descobrir que o spec está errado, incompleto ou ambígu
 
 O `ROADMAP.md` é **vivo**. Você (agente) deve atualizá-lo automaticamente nos seguintes eventos:
 
-| Evento | Ação no ROADMAP.md |
-|---|---|
-| **Iniciar trabalho em um item** | Mover linha de **🟡 Próximos** → **🟢 Em Andamento**. Adicionar campo `Iniciado em: YYYY-MM-DD`. |
-| **Concluir implementação + validação** | Mover linha de **🟢 Em Andamento** → **✅ Concluídos**. Marcar `[x]`. Adicionar `Concluído em: YYYY-MM-DD`. |
-| **Detectar nova dependência** | Atualizar campo `Dependências:` do item afetado. Reportar ao humano. |
-| **Receber novo item do humano** | Adicionar em **🔵 Backlog** ou **💡 Ideias** com **próximo ID sequencial** disponível. |
-| **Humano pede reordenação** | Mover linha entre seções. **NUNCA renumere IDs** — a ordem é dada pela posição, não pelo número. |
-| **Bloqueio externo (espera de terceiro)** | Mover para uma seção `⏸️ Bloqueados` (criar se não existir) com motivo + data. |
+| Evento                                    | Ação no ROADMAP.md                                                                                          |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| **Iniciar trabalho em um item**           | Mover linha de **🟡 Próximos** → **🟢 Em Andamento**. Adicionar campo `Iniciado em: YYYY-MM-DD`.            |
+| **Concluir implementação + validação**    | Mover linha de **🟢 Em Andamento** → **✅ Concluídos**. Marcar `[x]`. Adicionar `Concluído em: YYYY-MM-DD`. |
+| **Detectar nova dependência**             | Atualizar campo `Dependências:` do item afetado. Reportar ao humano.                                        |
+| **Receber novo item do humano**           | Adicionar em **🔵 Backlog** ou **💡 Ideias** com **próximo ID sequencial** disponível.                      |
+| **Humano pede reordenação**               | Mover linha entre seções. **NUNCA renumere IDs** — a ordem é dada pela posição, não pelo número.            |
+| **Bloqueio externo (espera de terceiro)** | Mover para uma seção `⏸️ Bloqueados` (criar se não existir) com motivo + data.                              |
 
 ### 4.1 Regras de ID
+
 - **Formato:** `[PREFIXO]-NNN` (ex: `PROJ-001`, `AUTH-001`, `CRM-042`). Prefixo é definido no início do projeto.
 - **Imutáveis:** Uma vez atribuído, o ID nunca muda — nem ao reordenar, nem ao mover entre seções.
 - **Sequenciais:** Sempre use o **próximo número não-utilizado** (mesmo que itens anteriores tenham sido removidos).
 - **Não reciclar:** IDs de itens cancelados permanecem reservados (vão para `❌ Cancelados` se você criar essa seção).
 
 ### 4.2 Limites saudáveis
+
 - **🟢 Em Andamento:** máximo 2-3 itens simultâneos. Se houver mais, sugira ao humano paralelização ou repriorização.
 - **🟡 Próximos:** mantenha 3-7 itens. Mais que isso, mova excesso para Backlog.
 
@@ -293,12 +303,12 @@ A seção **💡 Ideias** do ROADMAP é a porta de entrada para tudo que surge d
 
 **Eventos a observar (complementam a tabela §4):**
 
-| Evento | Ação no ROADMAP.md |
-|---|---|
-| **Ideia adjacente surgida durante `/implementar` ou outro fluxo** | Capturar em **💡 Ideias** SEM atribuir ID e SEM desviar do trabalho atual. Reportar ao humano ao fim do fluxo atual. Slash command: `/ideia [descrição]` (ver `oria-orquestrador-ia/prompts/ideia.md`). |
-| **Humano pede para promover ideia** | Atribuir próximo ID sequencial (§4.1). Perguntar V/E/MoSCoW/Dependências socraticamente. Mover de 💡 → destino apropriado (Backlog ou Próximos). **Atualizar dependências bidirecionais** dos itens que esta ideia bloqueia. Slash command: `/promover [titulo]` (ver `oria-orquestrador-ia/prompts/promover.md`). |
-| **Humano pede grooming periódico** | Revisar 💡 e 🔵 por idade, dependências quebradas, duplicação, bloqueios obsoletos. Propor ações **sem agir sozinho**. Cadência recomendada: a cada Must concluído ou a cada 2 semanas. Slash command: `/grooming` (ver `oria-orquestrador-ia/prompts/grooming.md`). |
-| **Ideia conflita com `ARCHITECTURE.md` ou spec aprovada** | Adicionar flag `**Exige ADR**` (ou `**Exige revisão spec [ID]**`) na entrada de 💡. `/promover` deve **PARAR** enquanto a flag existir — exige ADR em `docs/adr/NNNN-titulo.md` ou atualização da spec antes de mover para Backlog. |
+| Evento                                                            | Ação no ROADMAP.md                                                                                                                                                                                                                                                                                                 |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Ideia adjacente surgida durante `/implementar` ou outro fluxo** | Capturar em **💡 Ideias** SEM atribuir ID e SEM desviar do trabalho atual. Reportar ao humano ao fim do fluxo atual. Slash command: `/ideia [descrição]` (ver `oria-orquestrador-ia/prompts/ideia.md`).                                                                                                            |
+| **Humano pede para promover ideia**                               | Atribuir próximo ID sequencial (§4.1). Perguntar V/E/MoSCoW/Dependências socraticamente. Mover de 💡 → destino apropriado (Backlog ou Próximos). **Atualizar dependências bidirecionais** dos itens que esta ideia bloqueia. Slash command: `/promover [titulo]` (ver `oria-orquestrador-ia/prompts/promover.md`). |
+| **Humano pede grooming periódico**                                | Revisar 💡 e 🔵 por idade, dependências quebradas, duplicação, bloqueios obsoletos. Propor ações **sem agir sozinho**. Cadência recomendada: a cada Must concluído ou a cada 2 semanas. Slash command: `/grooming` (ver `oria-orquestrador-ia/prompts/grooming.md`).                                               |
+| **Ideia conflita com `ARCHITECTURE.md` ou spec aprovada**         | Adicionar flag `**Exige ADR**` (ou `**Exige revisão spec [ID]**`) na entrada de 💡. `/promover` deve **PARAR** enquanto a flag existir — exige ADR em `docs/adr/NNNN-titulo.md` ou atualização da spec antes de mover para Backlog.                                                                                |
 
 **Anti-padrões a evitar:**
 
@@ -317,13 +327,14 @@ O arquivo `docs/agent-postmortems.md` registra falhas do **próprio sistema de a
 
 ### 5.1 Três gatilhos
 
-| # | Gatilho | Quem dispara | Quando |
-|---|---|---|---|
-| **1** | **Retrospectiva de spec** | Agente | Ao concluir Fluxo 5, **antes** de marcar `[x]` no roadmap, pergunte ao humano: *"Algo neste fluxo precisou de correção sua que valha registrar como postmortem?"* |
-| **2** | **Padrão repetido** | Agente | Quando o humano te corrigir 2x sobre o mesmo tema, sugira: *"Notei que você me corrigiu sobre X antes — quer registrar como postmortem?"* |
-| **3** | **Correção espontânea** | Humano | A qualquer momento. Receba sem defensividade e registre. |
+| #     | Gatilho                   | Quem dispara | Quando                                                                                                                                                            |
+| ----- | ------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | **Retrospectiva de spec** | Agente       | Ao concluir Fluxo 5, **antes** de marcar `[x]` no roadmap, pergunte ao humano: _"Algo neste fluxo precisou de correção sua que valha registrar como postmortem?"_ |
+| **2** | **Padrão repetido**       | Agente       | Quando o humano te corrigir 2x sobre o mesmo tema, sugira: _"Notei que você me corrigiu sobre X antes — quer registrar como postmortem?"_                         |
+| **3** | **Correção espontânea**   | Humano       | A qualquer momento. Receba sem defensividade e registre.                                                                                                          |
 
 ### 5.2 Loop de melhoria
+
 ```
 1ª ocorrência → postmortem (registra histórico)
        ↓
@@ -333,6 +344,7 @@ O arquivo `docs/agent-postmortems.md` registra falhas do **próprio sistema de a
 ```
 
 ### 5.3 Formato
+
 Veja `docs/agent-postmortems.md` para o template de cada entrada.
 Entradas mais recentes ficam **no topo**.
 
@@ -344,12 +356,12 @@ Entradas mais recentes ficam **no topo**.
 
 Em vez disso, ao trabalhar em contextos sensíveis, **consulte a seção pertinente da `ARCHITECTURE.md` e siga os checklists**:
 
-| Contexto de edição | Onde consultar |
-|---|---|
-| Auth / RBAC / Middleware | `ARCHITECTURE.md` §5 (Segurança) |
-| UI / Componentes / UX | `ARCHITECTURE.md` §7 (Diretrizes de Design) |
-| DevOps / Deploy / Migrations | `ARCHITECTURE.md` §6 (DevOps) |
-| Banco de Dados / Schema | `ARCHITECTURE.md` §4.2 + `design.md` do spec |
+| Contexto de edição           | Onde consultar                               |
+| ---------------------------- | -------------------------------------------- |
+| Auth / RBAC / Middleware     | `ARCHITECTURE.md` §5 (Segurança)             |
+| UI / Componentes / UX        | `ARCHITECTURE.md` §7 (Diretrizes de Design)  |
+| DevOps / Deploy / Migrations | `ARCHITECTURE.md` §6 (DevOps)                |
+| Banco de Dados / Schema      | `ARCHITECTURE.md` §4.2 + `design.md` do spec |
 
 Restrições explícitas > papéis fictícios.
 
@@ -357,7 +369,7 @@ Restrições explícitas > papéis fictícios.
 
 ## 7. Convenções Universais
 
-- **Princípio de documentação:** documente o que código **não pode expressar** — WHY de decisões, alternativas rejeitadas, contratos de negócio, trade-offs aceitos. **Não duplique** o que schema, schemas Zod, JSX/HTML ou testes já dizem fielmente. Doc que repete código vira mentirosa quando código muda — e ninguém atualiza. Regra prática: se a pergunta é *"o que o código faz?"*, leia o código. Se a pergunta é *"por que decidimos assim?"* ou *"o que **não** está aí e por quê?"*, leia a doc.
+- **Princípio de documentação:** documente o que código **não pode expressar** — WHY de decisões, alternativas rejeitadas, contratos de negócio, trade-offs aceitos. **Não duplique** o que schema, schemas Zod, JSX/HTML ou testes já dizem fielmente. Doc que repete código vira mentirosa quando código muda — e ninguém atualiza. Regra prática: se a pergunta é _"o que o código faz?"_, leia o código. Se a pergunta é _"por que decidimos assim?"_ ou _"o que **não** está aí e por quê?"_, leia a doc.
 - **Documentação:** PT-BR (comentários, commits, docs)
 - **Código:** inglês, `camelCase`
 - **Commits — formato:** `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `perf:`, `build:`, `ci:` + descrição em PT-BR. Escopo opcional entre parênteses (`feat(auth): ...`).
@@ -379,17 +391,17 @@ Restrições explícitas > papéis fictícios.
 
 O projeto disponibiliza comandos automatizando os fluxos do `ReadME_WorkfloProposto.md`. **Fonte única:** `oria-orquestrador-ia/prompts/*.md` (portável entre ferramentas).
 
-| Comando | Cobertura | Argumento | Wrapper |
-|---|---|---|---|
-| `/iniciar` | Fluxo 0 + 1 (setup + arquitetura) | — | `.claude/commands/iniciar.md`, `.gemini/commands/iniciar.toml` |
-| `/roadmap` | Fluxo 2 + 3 (brainstorm + backlog) | — | idem |
-| `/especificar [ID]` | Fluxo 4 (diagnóstico técnico, descoberta socrática, benchmarking e spec completo ou lite) | ID do item (opcional `--lite` como preferência, sujeita às proteções obrigatórias) | idem |
-| `/implementar [ID]` | Fluxo 5A (TDD-leve) | ID do spec aprovado | idem |
-| `/retrospectiva` | Registro de postmortem | — | idem |
-| `/postmortem` | **Alias** de `/retrospectiva` — mais ergonômico para gatilho 3 espontâneo | — | aponta para o mesmo prompt |
-| `/ideia [desc]` | Fluxo 6.1 (captura em 💡 sem desviar) | descrição (texto livre) | idem |
-| `/promover [titulo]` | Fluxo 6.2 (ideia 💡 → Backlog com ID) | título da ideia (opcional) | idem |
-| `/grooming` | Fluxo 6.3 (diagnóstico assistido do backlog) | `--ideias` ou `--backlog` (opcional) | idem |
+| Comando              | Cobertura                                                                                 | Argumento                                                                          | Wrapper                                                        |
+| -------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `/iniciar`           | Fluxo 0 + 1 (setup + arquitetura)                                                         | —                                                                                  | `.claude/commands/iniciar.md`, `.gemini/commands/iniciar.toml` |
+| `/roadmap`           | Fluxo 2 + 3 (brainstorm + backlog)                                                        | —                                                                                  | idem                                                           |
+| `/especificar [ID]`  | Fluxo 4 (diagnóstico técnico, descoberta socrática, benchmarking e spec completo ou lite) | ID do item (opcional `--lite` como preferência, sujeita às proteções obrigatórias) | idem                                                           |
+| `/implementar [ID]`  | Fluxo 5A (TDD-leve)                                                                       | ID do spec aprovado                                                                | idem                                                           |
+| `/retrospectiva`     | Registro de postmortem                                                                    | —                                                                                  | idem                                                           |
+| `/postmortem`        | **Alias** de `/retrospectiva` — mais ergonômico para gatilho 3 espontâneo                 | —                                                                                  | aponta para o mesmo prompt                                     |
+| `/ideia [desc]`      | Fluxo 6.1 (captura em 💡 sem desviar)                                                     | descrição (texto livre)                                                            | idem                                                           |
+| `/promover [titulo]` | Fluxo 6.2 (ideia 💡 → Backlog com ID)                                                     | título da ideia (opcional)                                                         | idem                                                           |
+| `/grooming`          | Fluxo 6.3 (diagnóstico assistido do backlog)                                              | `--ideias` ou `--backlog` (opcional)                                               | idem                                                           |
 
 **Quando invocado**, a **primeira ação obrigatória** é abrir e ler integralmente `oria-orquestrador-ia/prompts/[nome].md`. Só então execute — passo a passo e na ordem descrita no arquivo. **Nunca interprete o nome do comando como um resumo semântico do que fazer.** O comportamento correto está no arquivo, não no nome.
 
@@ -423,7 +435,7 @@ O humano é **orquestrador**, não revisor de código. Seu trabalho como agente 
 > A ferramenta `Agent` do Claude Code só aceita um conjunto fixo de tipos (ex.:
 > `general-purpose`, `Explore`, `Plan`) — `security-auditor`, `test-engineer`,
 > `backend-specialist`, etc. **não existem** como tipo invocável e disparar
-> `Agent(subagent_type: "security-auditor")` falha com *"Agent type not found"*.
+> `Agent(subagent_type: "security-auditor")` falha com _"Agent type not found"_.
 > Os arquivos `.agent/agents/<nome>.md` são **personas em texto**, não executáveis.
 > **Fallback obrigatório:** para usar um especialista, dispare `general-purpose` e
 > **carregue a persona dentro do prompt** mandando o subagente ler
@@ -446,14 +458,14 @@ ls .agent/ARCHITECTURE.md 2>/dev/null && echo "kit disponível"
 
 Antes de agir, classifique o tipo de pedido e ajuste a profundidade de carregamento:
 
-| Tipo de request | Palavras-gatilho | Ação com o kit |
-|---|---|---|
-| **Pergunta / Explicação** | "o que é", "como funciona", "explica", "por que" | Nenhum agente necessário — responda direto |
-| **Análise / Levantamento** | "analise", "liste", "visão geral", "overview" | `explorer-agent` se disponível |
-| **Código simples** | "corrija", "adicione", "mude" (1 arquivo) | 1 agente + skill base `clean-code` |
-| **Código complexo** | "implemente", "crie", "construa", "refatore" | Agente(s) completo(s) + skills do domínio detectado |
-| **Design / UI** | "design", "interface", "tela", "dashboard", "componente visual" | `frontend-specialist` obrigatório |
-| **Fluxo da metodologia** | `/especificar`, `/implementar`, `/roadmap`, etc. | Protocolo §10.3 completo |
+| Tipo de request            | Palavras-gatilho                                                | Ação com o kit                                      |
+| -------------------------- | --------------------------------------------------------------- | --------------------------------------------------- |
+| **Pergunta / Explicação**  | "o que é", "como funciona", "explica", "por que"                | Nenhum agente necessário — responda direto          |
+| **Análise / Levantamento** | "analise", "liste", "visão geral", "overview"                   | `explorer-agent` se disponível                      |
+| **Código simples**         | "corrija", "adicione", "mude" (1 arquivo)                       | 1 agente + skill base `clean-code`                  |
+| **Código complexo**        | "implemente", "crie", "construa", "refatore"                    | Agente(s) completo(s) + skills do domínio detectado |
+| **Design / UI**            | "design", "interface", "tela", "dashboard", "componente visual" | `frontend-specialist` obrigatório                   |
+| **Fluxo da metodologia**   | `/especificar`, `/implementar`, `/roadmap`, etc.                | Protocolo §10.3 completo                            |
 
 > Se o tipo for **Pergunta** ou **Análise simples**, pule diretamente para a Etapa 1 do prompt.
 > Para todos os demais tipos, prossiga para §10.3.
@@ -473,12 +485,13 @@ Antes de agir, classifique o tipo de pedido e ajuste a profundidade de carregame
 
 4. **Leia seletivamente os `SKILL.md`** — apenas das skills listadas no frontmatter
    do agente (`skills: ...`) que sejam relevantes para a tarefa atual.
+
    > ⚠️ Nunca leia todos os arquivos de uma pasta de skill. Leia `SKILL.md` (índice)
    > e depois apenas as seções que casam com o request.
 
 5. **Um request pode ter múltiplos domínios** → carregue múltiplos agentes/skills.
    Ex: `/implementar` de feature com UI + API + schema → `frontend-specialist`
-   + `backend-specialist` + `database-architect` em paralelo.
+   - `backend-specialist` + `database-architect` em paralelo.
 
 6. **Regra de conflito de projeto:**
    - App web (React, Next.js) → `frontend-specialist` (NUNCA `mobile-developer`)
@@ -500,6 +513,7 @@ Quando um agente for ativado, informe o humano de forma concisa antes de prosseg
 ```
 
 **Regras:**
+
 - Análise silenciosa: sem meta-comentários verbosos ("estou analisando o domínio...")
 - Se o humano especificou `@agente` explicitamente, use esse — não substitua
 - Para requests multi-domínio, liste todos os agentes ativados em uma linha
@@ -522,18 +536,22 @@ responda mentalmente:
 ### 10.6 Regras universais complementares (sempre ativas com o kit)
 
 #### Leitura de dependências de arquivo
+
 Antes de modificar **qualquer** arquivo quando o kit estiver disponível:
+
 1. Identifique arquivos que importam ou dependem do arquivo a modificar
 2. Atualize todos os arquivos dependentes na mesma operação
 3. Nunca modifique um arquivo em isolamento se há dependentes conhecidos
 
 #### Read → Understand → Apply (obrigatório)
+
 ```
 ❌ ERRADO: Leu o arquivo do agente/skill → começou a codar
 ✅ CORRETO: Leu → Entendeu o PORQUÊ dos princípios → Aplicou com julgamento → Codou
 ```
 
 Antes de codar, responda:
+
 1. Qual é o OBJETIVO deste agente/skill?
 2. Quais PRINCÍPIOS devo aplicar?
 3. Como isso DIFERE de uma resposta genérica?
@@ -543,14 +561,15 @@ Antes de codar, responda:
 Este protocolo **complementa** o §9 adicionando gatilhos específicos para o
 contexto de uso de agentes/skills:
 
-| Tipo de request | Estratégia | Ação obrigatória |
-|---|---|---|
-| **Nova feature / Build** | Descoberta profunda | Faça mínimo 3 perguntas estratégicas antes de ativar agentes |
-| **Edição de código / Bug** | Verificação de contexto | Confirme entendimento + pergunte sobre impacto antes de codar |
-| **Request vago** | Clarificação | Pergunte Propósito, Usuários e Escopo |
-| **Multi-agente / Orquestração** | Porteiro | PARE sub-agentes até humano confirmar o plano |
+| Tipo de request                 | Estratégia              | Ação obrigatória                                              |
+| ------------------------------- | ----------------------- | ------------------------------------------------------------- |
+| **Nova feature / Build**        | Descoberta profunda     | Faça mínimo 3 perguntas estratégicas antes de ativar agentes  |
+| **Edição de código / Bug**      | Verificação de contexto | Confirme entendimento + pergunte sobre impacto antes de codar |
+| **Request vago**                | Clarificação            | Pergunte Propósito, Usuários e Escopo                         |
+| **Multi-agente / Orquestração** | Porteiro                | PARE sub-agentes até humano confirmar o plano                 |
 
 **Protocolo:**
+
 1. Nunca assuma: se 1% for ambíguo, pergunte primeiro
 2. Mesmo com lista de respostas fornecida: pergunte sobre trade-offs ou edge cases
 3. Não invoque agentes/skills até o humano liberar o gate

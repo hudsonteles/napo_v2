@@ -36,10 +36,12 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
 
   // Regras específicas do app Next.js (Core Web Vitals).
-  ...compat.config({
-    extends: ['next/core-web-vitals'],
-    settings: { next: { rootDir: 'apps/web' } },
-  }).map((config) => ({ ...config, files: ['apps/web/**/*.{ts,tsx}'] })),
+  ...compat
+    .config({
+      extends: ['next/core-web-vitals'],
+      settings: { next: { rootDir: 'apps/web' } },
+    })
+    .map((config) => ({ ...config, files: ['apps/web/**/*.{ts,tsx}'] })),
 
   // 🔒 Fronteira do núcleo puro (RN7). Nenhuma dependência externa entra em core.
   {

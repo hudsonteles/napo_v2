@@ -1,6 +1,6 @@
 packages:
-  - "apps/*"
-  - "packages/*"
+  - 'apps/*'
+  - 'packages/*'
 
 # Scripts de build de dependências aprovados explicitamente (gate de segurança do
 # pnpm). `supabase` baixa o binário do CLI no postinstall; os demais compilam

@@ -79,17 +79,17 @@ manual: `pnpm db:sync`. Fluxo entre os dois PCs:
 
 ## Scripts
 
-| Script | O quê |
-|---|---|
-| `pnpm dev` | App Next.js em desenvolvimento |
-| `pnpm build` | Build de produção |
-| `pnpm lint` | ESLint (inclui a fronteira de `packages/core`) |
-| `pnpm typecheck` | `tsc --noEmit` em todos os workspaces |
-| `pnpm test` | Testes de unidade (Vitest) do `packages/core` |
-| `pnpm db:start` / `db:stop` | Sobe / derruba o Supabase local |
-| `pnpm db:reset` | Recria o banco só a partir das migrations + seed |
-| `pnpm db:test` | Testes de RLS e trigger (pgTAP) |
-| `pnpm db:types` | Regenera os tipos TypeScript do banco |
+| Script                      | O quê                                            |
+| --------------------------- | ------------------------------------------------ |
+| `pnpm dev`                  | App Next.js em desenvolvimento                   |
+| `pnpm build`                | Build de produção                                |
+| `pnpm lint`                 | ESLint (inclui a fronteira de `packages/core`)   |
+| `pnpm typecheck`            | `tsc --noEmit` em todos os workspaces            |
+| `pnpm test`                 | Testes de unidade (Vitest) do `packages/core`    |
+| `pnpm db:start` / `db:stop` | Sobe / derruba o Supabase local                  |
+| `pnpm db:reset`             | Recria o banco só a partir das migrations + seed |
+| `pnpm db:test`              | Testes de RLS e trigger (pgTAP)                  |
+| `pnpm db:types`             | Regenera os tipos TypeScript do banco            |
 
 ## Estrutura
 
