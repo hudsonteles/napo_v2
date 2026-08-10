@@ -4,11 +4,11 @@
   "private": true,
   "description": "Napo — canal de venda próprio de pizza napolitana congelada premium",
   "engines": {
-    "node": "20.17.0"
+    "node": "22.18.0"
   },
   "packageManager": "pnpm@11.3.0",
   "scripts": {
-    "preinstall": "npx -y only-allow pnpm",
+    "preinstall": "node scripts/only-pnpm.mjs",
     "prepare": "node scripts/setup-hooks.mjs",
     "dev": "pnpm --filter @napo/web dev",
     "build": "pnpm --filter @napo/web build",

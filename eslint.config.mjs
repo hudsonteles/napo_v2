@@ -78,7 +78,7 @@ export default tseslint.config(
 
   // Ambiente de testes (Vitest) e scripts de config.
   {
-    files: ['**/*.test.ts', '**/*.config.{ts,mjs,js}', 'vitest.config.ts'],
+    files: ['**/*.test.ts', '**/*.config.{ts,mjs,js}', 'vitest.config.ts', 'scripts/**/*.mjs'],
     languageOptions: { globals: { ...globals.node } },
   },
 );
