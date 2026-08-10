@@ -1,0 +1,7 @@
+description = "Detalha um item do ROADMAP em spec.md + design.md + tests.md (Fluxo 4)"
+
+prompt = """
+Leia o arquivo `oria-orquestrador-ia/prompts/especificar.md` (ou `prompts/especificar.md` se você está na raiz do projeto) e execute as instruções contidas nele.
+
+Argumento do usuário: {{args}}
+"""

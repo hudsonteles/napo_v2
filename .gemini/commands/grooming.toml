@@ -1,0 +1,5 @@
+description = "Revisa Backlog + 💡 Ideias e propõe ações (cancelar/promover/manter) (Fluxo 6.3)"
+
+prompt = """
+Leia o arquivo `oria-orquestrador-ia/prompts/grooming.md` (ou `prompts/grooming.md` se você está na raiz do projeto) e execute as instruções contidas nele.
+"""

@@ -1,0 +1,5 @@
+description = "Setup do projeto + definição de arquitetura (Fluxos 0+1)"
+
+prompt = """
+Leia o arquivo `oria-orquestrador-ia/prompts/iniciar.md` (ou `prompts/iniciar.md` se você está na raiz do projeto) e execute as instruções contidas nele.
+"""

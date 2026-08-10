@@ -1,0 +1,7 @@
+description = "Implementa um spec aprovado via TDD-leve (Fluxo 5A)"
+
+prompt = """
+Leia o arquivo `oria-orquestrador-ia/prompts/implementar.md` (ou `prompts/implementar.md` se você está na raiz do projeto) e execute as instruções contidas nele.
+
+Argumento do usuário: {{args}}
+"""

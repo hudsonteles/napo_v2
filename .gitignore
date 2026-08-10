@@ -1,3 +1,9 @@
+# Kit de orquestração ORIA — repositório próprio, reutilizado entre projetos
+/oria-orquestrador-ia/
+
+# Área de trabalho temporária dos agentes
+/.tmp/
+
 node_modules/
 .pnpm-store/
 

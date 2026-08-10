@@ -1,0 +1,5 @@
+description = "Promove ideia 💡 → Backlog ou Próximos com ID, V/E/MoSCoW (Fluxo 6.2)"
+
+prompt = """
+Leia o arquivo `oria-orquestrador-ia/prompts/promover.md` (ou `prompts/promover.md` se você está na raiz do projeto) e execute as instruções contidas nele.
+"""

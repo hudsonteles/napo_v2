@@ -1,0 +1,5 @@
+description = "Captura nova ideia em 💡 Ideias do ROADMAP sem desviar do contexto (Fluxo 6.1)"
+
+prompt = """
+Leia o arquivo `oria-orquestrador-ia/prompts/ideia.md` (ou `prompts/ideia.md` se você está na raiz do projeto) e execute as instruções contidas nele.
+"""
