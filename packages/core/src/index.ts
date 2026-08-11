@@ -5,4 +5,12 @@
  * Toda regra que decide o que pode ser vendido, quando e por quanto mora aqui
  * e é testável com testes rápidos e determinísticos.
  */
-export { FUSO_HORARIO, hojeEmBrasilia, inicioDoDiaEmBrasilia } from './tempo';
+export {
+  FUSO_HORARIO,
+  diaDaSemanaEmBrasilia,
+  hojeEmBrasilia,
+  inicioDoDiaEmBrasilia,
+  instanteEmBrasilia,
+  somarDias,
+} from './tempo';
+export * from './disponibilidade';

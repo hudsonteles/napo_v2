@@ -44,3 +44,38 @@ export function inicioDoDiaEmBrasilia(instante: Date = new Date()): Date {
   const dia = hojeEmBrasilia(instante);
   return new Date(`${dia}T00:00:00-03:00`);
 }
+
+/**
+ * Instante UTC de um horário (`HH:MM`) num dia (`YYYY-MM-DD`) de Brasília.
+ *
+ * É o que permite o cutoff nascer da janela de entrega sem que nenhum cálculo
+ * toque no fuso da máquina (RN5).
+ *
+ * @example instanteEmBrasilia('2026-08-14', '17:00') // 2026-08-14T20:00:00Z
+ */
+export function instanteEmBrasilia(dia: string, hora: string): Date {
+  const [hh = '00', mm = '00'] = hora.split(':');
+  return new Date(`${dia}T${hh.padStart(2, '0')}:${mm.padStart(2, '0')}:00-03:00`);
+}
+
+/**
+ * Dia da semana de uma data de calendário: 0=domingo … 6=sábado.
+ *
+ * Mesma convenção do `EXTRACT(DOW)` do Postgres, para que a linha de
+ * `dias_semana_entrega` case com o cálculo sem tradução no meio.
+ */
+export function diaDaSemanaEmBrasilia(dia: string): number {
+  return new Date(`${dia}T12:00:00-03:00`).getUTCDay();
+}
+
+/**
+ * Soma dias de calendário a uma data `YYYY-MM-DD`, devolvendo outra data.
+ *
+ * Ancorado ao meio-dia para que a aritmética nunca escorregue de dia por
+ * causa de borda de fuso.
+ */
+export function somarDias(dia: string, quantidade: number): string {
+  const base = new Date(`${dia}T12:00:00-03:00`);
+  base.setUTCDate(base.getUTCDate() + quantidade);
+  return hojeEmBrasilia(base);
+}

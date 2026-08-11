@@ -111,9 +111,9 @@ ENTÃO o resultado não passa de 30
 ### T10 — Teto de freezer limita o acúmulo
 *Cobre: RN7*
 ```gherkin
-DADO 5 dias de produção até a sexta e nenhuma entrega intermediária
+DADO 6 dias de produção até a sexta e nenhuma entrega intermediária
 QUANDO a capacidade restante é calculada
-ENTÃO o resultado é limitado pelo freezer em 150, não pelos 150 do forno somado
+ENTÃO o resultado é 150, limitado pelo freezer e não pelos 180 do forno somado
 E o menor dos dois tetos é o que vale
 ```
 

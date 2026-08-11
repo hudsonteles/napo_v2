@@ -19,7 +19,7 @@
 | `packages/core/src/disponibilidade/index.ts` | Criar | Baixo | Barrel — expõe só o que a web consome |
 | `packages/core/src/disponibilidade/*.test.ts` | Criar | Baixo | Vitest determinístico, 3 arquivos espelhando os módulos de regra |
 | `packages/core/src/index.ts` | Modificar | Baixo | Reexporta o novo domínio |
-| `packages/core/src/tempo.ts` | Reutilizar | — | Helper único de fuso (RN5). Nenhuma data é calculada fora dele |
+| `packages/core/src/tempo.ts` | Modificar | Médio | Helper único de fuso (RN5). Ganha `instanteEmBrasilia`, `diaDaSemanaEmBrasilia` e `somarDias` — sem elas, o cutoff duplicaria lógica de fuso e violaria a própria RN5 |
 | `supabase/migrations/0003_operacao_calendario.sql` | Criar | Médio | `config_operacao`, dias de entrega/produção, exceções + RLS |
 | `supabase/migrations/0004_capacidade.sql` | Criar | **Alto** | `lotes`, `producao_planejada`, `reservas` + índices + RLS |
 | `supabase/migrations/0005_reservar_capacidade.sql` | Criar | **Alto** | RPC transacional da reserva — o único lugar com garantia de atomicidade |

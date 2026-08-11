@@ -30,7 +30,7 @@ Toolchain verificada: Node 22.18.0 · pnpm 11.3.0 · Supabase CLI 1.226.4 (Postg
 Arquivos: `supabase/migrations/0003_operacao_calendario.sql`, `supabase/seed.sql`, `supabase/tests/0003_calendario_rls_test.sql` · Testes: T16 · Depende: — · Paralelo: B · Est: 50min · **Docker: obrigatório** · `[x]`
 
 ### Bloco B — Núcleo puro
-Arquivos: `packages/core/src/disponibilidade/{tipos,cutoff,janela,capacidade,index}.ts` + 3 arquivos de teste, `packages/core/src/index.ts` · Testes: T1–T14 · Depende: — · Paralelo: A · Est: 90min · **Docker: não precisa** · `[ ]`
+Arquivos: `packages/core/src/disponibilidade/{tipos,cutoff,janela,capacidade,index}.ts` + 3 arquivos de teste, `packages/core/src/index.ts` · Testes: T1–T14 · Depende: — · Paralelo: A · Est: 90min · **Docker: não precisa** · `[x]`
 
 ### Bloco C — Capacidade e reserva no banco
 Arquivos: `supabase/migrations/0004_capacidade.sql`, `supabase/migrations/0005_reservar_capacidade.sql`, `supabase/tests/0004_reserva_concorrencia_test.sql` · Testes: T15, T18, T19 · Depende: A · Est: 70min · **Docker: obrigatório** · `[ ]`
@@ -75,3 +75,8 @@ A e B são disjuntos (SQL vs TypeScript puro) e independentes — B não precisa
 - **`config_operacao` legível só por admin, não por anon.** O design previa leitura anon para "config e calendário"; os tetos revelam capacidade instalada e o cálculo roda no servidor — só o calendário precisa ser público.
 - **Colunas de frete (`raio_km`, `frete_gratis_valor`) ficaram fora de `config_operacao`.** Pertencem a NAPO-005; criá-las agora seria antecipar trabalho de outro spec.
 - **`id uuid` + `unique(dia_semana)` em vez de PK natural** nas tabelas de calendário, para manter o padrão de `ARCHITECTURE.md` §4.2.
+- **`tempo.ts` passou de "Reutilizar" para "Modificar" no Mapa.** Ganhou `instanteEmBrasilia`, `diaDaSemanaEmBrasilia` e `somarDias`: implementá-las em `cutoff.ts` duplicaria lógica de fuso e violaria a RN5, que exige helper único.
+- **Buffer remove o dia só na faixa que antecede o cutoff, não depois dele.** Passado o cutoff o dia volta em ATP — vender lote pronto não depende de prazo de fermentação (RN4 + RN6 lidas juntas).
+- **T10 passou de 5 para 6 dias de produção no `tests.md`.** Com 5 dias os dois tetos empatam em 150 e o cenário não distinguiria qual venceu; com 6 o forno daria 180 e o teste prova que o freezer manda.
+- **Cutoff sem dia de produção em 14 dias fica no passado, e o dia sai da vitrine.** Falhar fechando a venda é o modo seguro; o oposto prometeria produção inexistente.
+- **Teste de mutação aplicado à RN7** (`min` → `max` nos dois tetos): 4 cenários quebraram, confirmando que a suíte prende a regra em vez de acompanhá-la.
