@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+
+/* Tokens do projeto (`packages/ui`) — fonte única do preto/branco/amarelo. */
+@import '@napo/ui/tokens.css';
+
+/*
+ * O Tailwind v4 descobre classes varrendo o próprio app; o catálogo de UI mora
+ * fora dele e resolve por symlink de workspace, que a varredura padrão ignora.
+ * Sem esta linha, os componentes de `packages/ui` chegam sem estilo.
+ */
+@source '../../../packages/ui/src';
+
+/* Arquitetura §7.1: movimento sempre respeita a preferência do sistema. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -12,6 +12,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // Os testes rodam em Node e não processam CSS. Sem esta config vazia o Vite
+  // carrega o `postcss.config.mjs` do Next, cuja notação de plugin por string ele
+  // não entende, e a suíte quebra antes do primeiro teste.
+  css: { postcss: { plugins: [] } },
   test: {
     environment: 'node',
     include: ['{app,src}/**/*.test.ts'],

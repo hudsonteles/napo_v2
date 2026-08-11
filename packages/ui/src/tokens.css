@@ -1,10 +1,41 @@
 /*
  * Tokens visuais do Napo — fonte única (preto / branco / amarelo).
- * Consumidos a partir do NAPO-003, quando o catálogo de UI e o primeiro
- * Gate Visual nascem. Componentes (shadcn) e patterns entram lá, não aqui.
+ * O catálogo de componentes nasceu no NAPO-002 e consome estes tokens; o NAPO-003
+ * herda a base e revisa a calibragem antes de estendê-la.
+ *
+ * `--font-sans` referencia a variável emitida pelo `next/font` no layout do app;
+ * o fallback existe para quem consumir o pacote fora do Next (ex.: preview).
  */
 @theme {
   --color-preto: #0a0a0a;
   --color-branco: #ffffff;
   --color-amarelo: #f5c518;
+
+  --color-superficie: #141414;
+  --color-superficie-alta: #1e1e1e;
+  --color-borda: #2a2a2a;
+  --color-borda-forte: #3d3d3d;
+  --color-texto-suave: #a1a1a1;
+  --color-erro: #f87171;
+  --color-amarelo-escuro: #d9ac0f;
+
+  --radius-card: 16px;
+  --radius-campo: 10px;
+
+  --font-sans: var(--font-inter), 'Inter', system-ui, sans-serif;
+
+  /* Cursor falso das casas do código — o <InputOTP> não tem caret nativo. */
+  --animate-caret-blink: caret-blink 1.25s ease-out infinite;
+
+  @keyframes caret-blink {
+    0%,
+    70%,
+    100% {
+      opacity: 1;
+    }
+    20%,
+    50% {
+      opacity: 0;
+    }
+  }
 }

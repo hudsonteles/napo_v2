@@ -13,6 +13,7 @@
   "dependencies": {
     "@napo/core": "workspace:*",
     "@napo/db": "workspace:*",
+    "@napo/ui": "workspace:*",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.4",
     "next": "^15.0.3",
@@ -21,6 +22,9 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3",
     "@types/node": "^20.17.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
