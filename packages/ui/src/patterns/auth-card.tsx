@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Card } from '../components/card';
+import { Marca } from '../components/marca';
 import { cn } from '../lib/cn';
 
 interface AuthCardProps {
@@ -23,14 +24,8 @@ interface AuthCardProps {
 function AuthCard({ titulo, subtitulo, icone, children, className }: AuthCardProps) {
   return (
     <Card className={cn('w-full max-w-[420px]', className)}>
-      <div className="mb-8 flex items-center gap-2">
-        <span
-          aria-hidden
-          className="grid h-9 w-9 place-items-center rounded-lg bg-amarelo font-bold text-preto"
-        >
-          N
-        </span>
-        <span className="text-xl font-bold tracking-tight">Napo</span>
+      <div className="mb-8">
+        <Marca />
       </div>
 
       {icone ? (

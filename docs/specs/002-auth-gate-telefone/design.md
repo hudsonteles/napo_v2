@@ -227,12 +227,14 @@ Todas aditivas e idempotentes. O único ponto de atenção é o índice único d
 | Toast de teto diário e de falha do Google | `<Toaster>` + `toast()` | shadcn (`sonner`) | ✨ CRIAR NOVO (via shadcn) |
 | Ícones de envelope, alerta e erro | `MailCheck`, `TriangleAlert`, `CircleAlert` | `lucide-react` | ♻️ REUSAR |
 | Logotipo do Google | SVG inline | marca de terceiro — não existe em `lucide` | ✨ CRIAR NOVO (asset) |
+| Logotipo da Napo na moldura | `<Marca>` | `packages/ui/src/components/` | ✨ CRIAR NOVO — **acrescentado no Gate Visual B**, ver [`drift.md`](./drift.md) D1 |
 
 #### 4.4.3 Componentes novos a criar (com justificativa)
 
 | Componente novo | Caminho destino | Por que existentes não servem |
 |---|---|---|
 | `<AuthCard>` | `packages/ui/src/patterns/auth-card.tsx` | Composição repetida em duas telas e cinco estados: marca, título, subtítulo e slot centralizado. Deixar solto seria replicar a mesma composição em cada página — o "markup cru extenso" que a arquitetura §2.2.1 proíbe. Compõe `<Card>`; não reinventa nada. |
+| `<Marca>` | `packages/ui/src/components/marca.tsx` | O logotipo aparece nas duas telas e vai aparecer em todas as do NAPO-003. Caminho de arquivo digitado à mão em cada uso torna a troca de arte uma caçada; o componente concentra a decisão de variante (fundo escuro/claro) num lugar só. Acrescentado no Gate Visual B — ver [`drift.md`](./drift.md) D1. |
 | 7 primitivos shadcn | `packages/ui/src/components/` | O catálogo está vazio — esta é a spec que o inaugura, conforme decisão do PM na Fase 0.5. É instalação de biblioteca externa já adotada pela arquitetura §2.2, não componente autoral. |
 
 #### 4.4.4 Markup cru aceito

@@ -51,6 +51,23 @@ O gargalo é o **forno, não o mercado**: a cozinha opera a 47% da capacidade (3
 - **Animações:** **Motion**, sempre respeitando `prefers-reduced-motion`
 - **Tokens visuais:** **`packages/ui/src/tokens.css`** — fonte única que o agente espelha ao gerar `preview.*` na FASE 3.5 do `/especificar`.
 - **Identidade:** preto, branco e amarelo. Referência de storytelling: Apple. Interface premium, nunca template genérico.
+
+#### 2.2.2 Marca e identidade visual (regra inviolável)
+
+**A Napo tem identidade visual própria e ela é obrigatória em toda superfície do produto.** Nenhuma tela, e-mail ou documento gerado pode inventar marca, usar iniciais em caixa colorida, texto simulando logotipo ou ícone genérico de biblioteca no lugar do logotipo.
+
+| Arquivo servido | Fonte original | Uso |
+| --- | --- | --- |
+| `apps/web/public/marca/logo-dark.png` | `docs/images/LOGO_DARK.png` | Logotipo para **fundo escuro** — é o padrão do app (fundo `--color-preto`) |
+| `apps/web/public/marca/logo-light.png` | `docs/images/LOGO_LIGHT.png` | Logotipo para **fundo claro** — e-mail, impresso, superfícies brancas |
+| `apps/web/public/favicon.ico` · `favicon-96x96.png` · `apple-touch-icon.png` | `docs/images/favicon/` | Aba do navegador e atalho de celular |
+| `apps/web/public/icone-192.png` · `icone-512.png` | `docs/images/favicon/web-app-manifest-*.png` | `site.webmanifest` (instalação como app) |
+| — | `docs/images/Icone.png` | Ícone isolado em alta resolução (2136 px). **Fonte**, não é servido: peso de 1,7 MB. Derive o tamanho necessário. |
+
+- **`docs/images/` é a fonte da verdade da marca.** `apps/web/public/` recebe apenas as derivações servidas ao navegador. Arte nova entra primeiro em `docs/images/`.
+- **Consuma pelo componente `<Marca>`** (`packages/ui/src/components/marca.tsx`), nunca por `<img>` solto com o caminho digitado à mão — trocar a arte precisa ser uma edição em um arquivo só.
+- **O logotipo não é reescrito, recolorido nem recomposto.** O `O` da palavra é a pizza vista de cima; é o ativo da marca, não um desenho decorativo.
+- **Tema:** o produto é escuro. Use `variante="clara"` só onde o fundo é comprovadamente claro.
 - **Imagens:** o site é construído com **placeholders nas proporções finais** — o ensaio fotográfico (NAPO-020) entra depois sem quebrar layout.
 
 ### 2.2.1 Library-First (regra inviolável — aplicação de `AGENTS.md` §2 item 11)
