@@ -36,7 +36,7 @@ Arquivos: `packages/core/src/disponibilidade/{tipos,cutoff,janela,capacidade,ind
 Arquivos: `supabase/migrations/0004_capacidade.sql`, `supabase/migrations/0005_reservar_capacidade.sql`, `supabase/tests/0004_reserva_concorrencia_test.sql` · Testes: T15, T18, T19 · Depende: A · Est: 70min · **Docker: obrigatório** · `[x]`
 
 ### Bloco D — API e snapshot
-Arquivos: `apps/web/src/features/disponibilidade/services/snapshot.ts`, `apps/web/src/features/disponibilidade/index.ts`, `apps/web/app/api/disponibilidade/route.ts`, `apps/web/app/api/disponibilidade/reserva/route.ts` · Testes: T17, T20, T23 · Depende: B, C · Est: 60min · **Docker: obrigatório** · `[ ]`
+Arquivos: `apps/web/src/features/disponibilidade/services/{snapshot,produtos}.ts`, `apps/web/src/features/disponibilidade/index.ts`, `apps/web/app/api/disponibilidade/route.ts`, `apps/web/app/api/disponibilidade/reserva/route.ts` + teste, `apps/web/vitest.config.ts`, `packages/core/src/disponibilidade/conflito.ts` + teste · Testes: T17, T20, T21, T23 · Depende: B, C · Est: 60min · **Docker: obrigatório** · `[x]`
 
 ### Bloco E — Verificação integrada
 Arquivos: `packages/db/src/types.generated.ts` (regenerado) · Testes: T21, T22 · Depende: D · Est: 40min · **Docker: obrigatório** · `[ ]`
@@ -81,4 +81,8 @@ A e B são disjuntos (SQL vs TypeScript puro) e independentes — B não precisa
 - **Cutoff sem dia de produção em 14 dias fica no passado, e o dia sai da vitrine.** Falhar fechando a venda é o modo seguro; o oposto prometeria produção inexistente.
 - **`lotes.produto_id` e `reservas.produto_id` ficaram sem FK.** A tabela `produtos` nasce em NAPO-003 e `pedidos` em NAPO-006; a FK entra junto com elas, comentada nas migrations.
 - **T18 não prova a corrida real — pgTAP roda em sessão única.** O teste prova a recusa por contagem e verifica, via `pg_get_functiondef`, que o advisory lock está declarado; a serialização em si fica garantida pelo lock.
+- **Drift resolvido no bloco D:** RN12/RN13 viraram funções puras (`avaliarViabilidade`, `devolucaoPorCancelamento`) porque `pedidos` é de NAPO-006. Ver `drift.md` — PM escolheu o caminho (a).
+- **Vitest adicionado ao `apps/web`** (design §6.1, aprovado pelo PM). Sem runner no app, nenhuma rota do R1 — inclusive o webhook do Mercado Pago — teria teste automatizado.
+- **Produtos vêm por query string (`?produtos=&massas=`) enquanto `produtos` não existe.** NAPO-003 substitui isso pela leitura do catálogo, que passa a ser a fonte da flag de massa.
+- **Editar código com regex no PowerShell corrompeu um arquivo de teste** e exigiu reescrita. Ferramentas de edição estruturada (Write/Edit) para código daqui em diante.
 - **Teste de mutação aplicado à RN7** (`min` → `max` nos dois tetos): 4 cenários quebraram, confirmando que a suíte prende a regra em vez de acompanhá-la.

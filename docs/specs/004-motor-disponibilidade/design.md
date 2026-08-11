@@ -108,6 +108,14 @@
 
 ---
 
+## 6. Dependências Novas
+
+### 6.1 Bibliotecas
+
+- `vitest@^2.1.4` como **devDependency de `apps/web`** — o app não tinha runner, então T17 e T23 não teriam como existir. Não é biblioteca nova no projeto: `ARCHITECTURE.md` §2.3 já declara Vitest, que só estava em `packages/core`. Decidido com o PM em 2026-08-10.
+
+---
+
 ## 7. Plano de Blocos
 
 - [ ] **Bloco A — Calendário e configuração:** migration `0003`, seed, `supabase/tests/0003` · cobre T16 · ~50 min

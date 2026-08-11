@@ -7,6 +7,8 @@
 export { calcularCutoff, janelaInicioDe, produzEm } from './cutoff';
 export { diasDeEntregaDoHorizonte, ehDiaDeEntrega } from './janela';
 export { calcularDisponibilidade, capacidadeRestante, proximoDiaComVaga } from './capacidade';
+export { avaliarViabilidade, devolucaoPorCancelamento } from './conflito';
+export type { Devolucao, Veredito } from './conflito';
 export type {
   ConfigOperacao,
   ConsumoDia,

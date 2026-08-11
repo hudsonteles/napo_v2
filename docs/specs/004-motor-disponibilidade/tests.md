@@ -11,8 +11,9 @@
 ## Convenções deste spec
 
 - **T1–T14** rodam em **Vitest** contra `packages/core` — puros, sem banco.
-- **T15–T18** rodam em **pgTAP** (`supabase test db`) — RLS e concorrência.
-- **T19–T22** rodam em **Vitest** contra as rotas, com Supabase local.
+- **T15, T18, T19** rodam em **pgTAP** (`supabase test db`) — RLS e reserva.
+- **T20–T22** rodam em **Vitest** contra `packages/core` — decisão pura, sem `pedidos` (ver `drift.md`).
+- **T17, T23** rodam contra as rotas, com Supabase local.
 
 ```gherkin
 Background:
@@ -206,22 +207,22 @@ ENTÃO a vaga aparece disponível novamente
 E nenhum job precisou rodar para isso
 ```
 
-### T20 — Pagamento fora da janela vira conflito, não pedido silencioso
+### T20 — Confirmação fora da janela é reportada como conflito, não resolvida
 *Cobre: RN12*
 ```gherkin
-DADO um pedido cujo pagamento confirma depois do cutoff do dia escolhido
-QUANDO o webhook processa a confirmação
-ENTÃO o pedido fica com estado de conflito de disponibilidade
-E nem realocação nem estorno acontecem automaticamente
+DADO um dia cujo cutoff já passou e sem lote pronto para atender
+QUANDO a viabilidade é avaliada no momento da confirmação
+ENTÃO o veredito é cutoff_vencido
+E nenhuma realocação ou estorno é escolhida pela função
 ```
 
-### T21 — Cancelamento devolve conforme a fase
+### T21 — A devolução de um cancelamento depende da fase
 *Cobre: RN13*
 ```gherkin
-DADO um pedido cancelado antes do cutoff
-QUANDO a disponibilidade do dia é recalculada
-ENTÃO a capacidade volta a estar livre
-E, para um pedido cancelado depois do cutoff, o que retorna é o lote pronto dentro da validade
+DADO um dia de entrega ainda antes do cutoff
+QUANDO a devolução por cancelamento é avaliada
+ENTÃO o que retorna é capacidade
+E, para um dia já depois do cutoff, o que retorna é lote
 ```
 
 ### T22 — Lote liberado reaparece sem intervenção no cálculo
