@@ -42,7 +42,7 @@ Arquivos: `apps/web/{postcss.config.mjs,app/globals.css,app/layout.tsx,package.j
 Arquivos: `apps/web/middleware.ts`, `src/lib/supabase/{admin,middleware}.ts`, `src/lib/{env,ip}.ts`, `src/features/auth/{services/sessao.ts,destino.ts,index.ts,components/*}`, `app/api/auth/{callback,sair}/route.ts`, `app/(conta)/{entrar/page.tsx,conta/{layout,page}.tsx}`, `app/(admin)/admin/{layout,page}.tsx` · Testes: T1, T2, T4-T8, T21-T23, T25, T28, T31, T38 · Depende: B, C · Est: 90min · Inline · `[x]`
 
 ### Bloco E — Gate de telefone
-Arquivos: `apps/web/src/lib/otp/{remetente,remetente-fake,remetente-meta}.ts`, `src/features/auth/services/{verificacao,consentimento}.ts`, `app/api/otp/{enviar,validar}/route.ts`, `app/(conta)/validar-telefone/page.tsx`, componentes do formulário · Testes: T3, T15-T20, T24, T30, T36, T37, T42, T43, T45, T46 · Depende: A, B, D · Est: 90min · Inline · `[ ]`
+Arquivos: `apps/web/src/lib/otp/{remetente,remetente-fake,remetente-meta}.ts`, `src/features/auth/services/{verificacao,consentimento}.ts`, `app/api/otp/{enviar,validar}/route.ts`, `app/(conta)/validar-telefone/page.tsx`, componentes do formulário · Testes: T3, T15-T20, T24, T30, T36, T37, T42, T43, T45, T46 · Depende: A, B, D · Est: 90min · Inline · `[x]`
 
 ### Bloco F — Ferramentas de admin
 Arquivos: `scripts/admin.mjs`, `.env.example` · Exercita pela linha de comando as funções já provadas em T32-T35 · Depende: B · Est: 30min · Inline · `[ ]`
@@ -90,3 +90,8 @@ Só se tornam bloqueantes se o PM escolher `Modo de execução: com checkpoints`
 - **Bloco D — client `service_role` centralizado em `src/lib/supabase/admin.ts`:** `features/disponibilidade` tinha uma cópia própria e passou a importar de lá (DRY, arquitetura §4.1).
 - **Bloco D — `@supabase/ssr` 0.5.2 → 0.7:** os genéricos do 0.5.2 não casam com o `supabase-js` 2.112 já instalado e faziam `.from('profiles')` inferir `never`. Só o `.rpc()` do NAPO-004 escapava do problema.
 - **Bloco D — `NEXT_PUBLIC_SITE_URL` obrigatória (design §6.2)** exigiu tocar `.github/workflows/ci.yml`, `.env.example` e `.env.local`, fora do Mapa: sem a variável o boot falha e o CI ficaria vermelho.
+- **Bloco E — `services/verificacao-repo.ts` criado fora do Mapa:** isola o I/O com `service_role` da orquestração, para que teto, expiração e tentativa sejam testáveis sem simular o PostgREST inteiro.
+- **Bloco E — consentimento gravado ANTES da conclusão, em vez de transação única:** o PostgREST não expõe transação de múltiplos comandos. A ordem preserva a invariante que importa — nunca existir cadastro concluído sem consentimento (RN15).
+- **Bloco E — recusa por unicidade grava o desafio e não envia (RN11):** assim a tentativa conta no teto e a resposta fica indistinguível do sucesso. Invalidar a linha tiraria a tentativa do teto e abriria enumeração ilimitada.
+- **Bloco E — T37 × T46 conciliados:** o serviço nunca loga o código; quem loga é o `RemetenteFake`, que é o que T46 exige e só entra com `WHATSAPP_PROVIDER=fake` (produção exige `meta`).
+- **Bloco E — `test/server-only-stub.ts` + alias no `vitest.config.ts`:** o pacote `server-only` lança fora do bundler do Next. A proteção real segue no build, que resolve a condição `react-server`.
