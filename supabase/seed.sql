@@ -38,3 +38,26 @@ values
   ('44444444-4444-4444-4444-444444444444', 'Cozinha', 'cozinha@napo.test', 'cozinha'),
   ('55555555-5555-5555-5555-555555555555', 'Gerente', 'gerente@napo.test', 'gerente'),
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Admin', 'admin@napo.test', 'admin');
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Operação (NAPO-004). Valores confirmados com o PM em 2026-08-10: entrega
+-- apenas na sexta, produção de segunda a sexta. A janela 17h–21h é premissa
+-- em aberto (spec §7) — trocá-la é UPDATE, não migration.
+--
+-- Com um único dia de entrega, o freezer é a restrição dominante: 5 dias de
+-- produção acumulam 150, exatamente a capacidade.
+-- ─────────────────────────────────────────────────────────────────────────────
+insert into public.config_operacao default values;
+
+insert into public.dias_semana_entrega (dia_semana, entrega, janela_inicio, janela_fim)
+values
+  (0, false, '17:00', '21:00'),
+  (1, false, '17:00', '21:00'),
+  (2, false, '17:00', '21:00'),
+  (3, false, '17:00', '21:00'),
+  (4, false, '17:00', '21:00'),
+  (5, true,  '17:00', '21:00'),
+  (6, false, '17:00', '21:00');
+
+insert into public.dias_semana_producao (dia_semana, produz)
+values (0, false), (1, true), (2, true), (3, true), (4, true), (5, true), (6, false);

@@ -34,7 +34,13 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_(Nenhum item em andamento. NAPO-001 está concluído — o próximo da fila é NAPO-002.)_
+- [ ] **NAPO-004** Motor de disponibilidade (calendário, cutoff, dois tetos)
+  - **Spec:** [`docs/specs/004-motor-disponibilidade/`](docs/specs/004-motor-disponibilidade/) — aprovado
+  - **Iniciado em:** 2026-08-10
+  - **Dependências:** NAPO-001 ✅ · **Bloqueia:** NAPO-006, NAPO-008
+  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
+  - **Notas:** coração do R1. Agenda única de dias de entrega com cutoff **derivado** do piso de fermentação (nunca digitado); antes do cutoff CTP, depois só ATP; sabor esgotado oferece o próximo dia **com vaga real**. Horizonte de 2 semanas deslizantes (rolamento Opção B). Tetos do R1: `teto_forno_dia = 30` + `capacidade_freezer = 150`; sub-teto de massa (consome vaga de forno igual a uma pizza, mas rende R$ 7,21 contra R$ 20,82). Tabela de etapas nasce vazia no schema. Spec §5.
+  - **Calendário confirmado em 2026-08-10:** entrega apenas na **sexta**, produção **seg–sex**, ambos configuráveis.
 
 ---
 
@@ -57,13 +63,6 @@ _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em An
   - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer."_ — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
   - **SEO permanece no R1 (decidido 2026-08-10):** avaliado adiar por receio de custo na Vercel e **descartado** — metadata, `sitemap.xml`, `robots.txt`, JSON-LD e URLs semânticas são texto no HTML que o build já gera; em página SSG servida do CDN o custo marginal é **zero**. Adiar não posterga custo, posterga receita: indexação de domínio novo leva semanas a meses, e trocar estrutura de URL depois exige mapa de 301 e descarta autoridade acumulada.
   - **Restrições de custo a respeitar na spec:** (a) `app/(site)/` fica **SSG com `revalidate` longo** — catálogo de pizza muda pouco, nada de SSR sem motivo; (b) decidir explicitamente se as fotos do ensaio (NAPO-020) passam pelo `next/image` ou vão **pré-otimizadas do Supabase Storage** — a cota de transformação de imagem é o custo real do catálogo, não o SEO.
-
-- [ ] **NAPO-004** Motor de disponibilidade (calendário, cutoff, dois tetos)
-  - **Spec:** `docs/specs/004-motor-disponibilidade/` _(a criar)_
-  - **Dependências:** NAPO-001
-  - **Bloqueia:** NAPO-006, NAPO-008
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** coração do R1. Agenda única de dias de entrega com cutoff **derivado** do piso de fermentação (nunca digitado); antes do cutoff CTP, depois só ATP; sabor esgotado oferece o próximo dia **com vaga real**. Horizonte de 2 semanas deslizantes (rolamento Opção B). Tetos do R1: `teto_forno_dia = 30` + `capacidade_freezer = 150`; sub-teto de massa (consome vaga de forno igual a uma pizza, mas rende R$ 7,21 contra R$ 20,82). Tabela de etapas nasce vazia no schema. Spec §5.
 
 - [ ] **NAPO-005** Endereços e frete por faixa de distância
   - **Spec:** `docs/specs/005-enderecos-frete/` _(a criar)_

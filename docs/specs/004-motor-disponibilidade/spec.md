@@ -1,7 +1,7 @@
 # 📋 Spec: Motor de disponibilidade (calendário, cutoff, dois tetos)
 
 **ID:** NAPO-004
-**Status:** Aprovado
+**Status:** Em Execução
 **Responsável:** Hudson
 **Data:** 2026-08-10
 **Item no Roadmap:** NAPO-004
