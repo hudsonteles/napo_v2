@@ -1,7 +1,7 @@
 # 📋 Spec: Autenticação, papéis e gate de telefone por WhatsApp
 
 **ID:** NAPO-002
-**Status:** Em Execução
+**Status:** Concluído
 **Responsável:** Hudson
 **Data:** 2026-08-11
 **Item no Roadmap:** NAPO-002

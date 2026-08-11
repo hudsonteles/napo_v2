@@ -98,3 +98,10 @@ Só se tornam bloqueantes se o PM escolher `Modo de execução: com checkpoints`
 - **Bloco F — script sem SDK, por `fetch` nativo contra o PostgREST:** instalar `supabase-js` na raiz do monorepo para duas chamadas HTTP não se paga. Formato E.164 é conferido localmente só para evitar viagem de rede; a regra completa segue no núcleo e no banco.
 - **Bloco F — duas asserções pgTAP passaram a contar `auditoria` por `registro_id`:** a tabela é acumulativa e contagem global ficava vermelha depois de qualquer uso real do banco local. Descoberto ao exercitar o script contra o Supabase local — o CI, que parte limpo, nunca teria mostrado.
 - **Gate Visual B — identidade visual real substituiu a marca improvisada do preview:** o PM forneceu logotipo, ícone e favicons em `docs/images/`. Detalhes e impacto em [`drift.md`](./drift.md) D1; a regra permanente virou `ARCHITECTURE.md` §2.2.2.
+
+---
+
+**Gate Visual B:** aprovado por Hudson em 2026-08-11, na aplicação real (dev server),
+já com a identidade visual do drift D1. Cobre T39-T41 e os 7 critérios visuais.
+
+**Concluído em:** 2026-08-11

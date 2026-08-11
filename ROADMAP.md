@@ -34,13 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-- [ ] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp
-  - **Spec:** [`docs/specs/002-auth-gate-telefone/`](docs/specs/002-auth-gate-telefone/) _(aprovado em 2026-08-11)_
-  - **Iniciado em:** 2026-08-11
-  - **Dependências:** NAPO-001 ✅
-  - **Bloqueia:** NAPO-006, NAPO-007, NAPO-008
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** Magic Link **e** Google, para cliente e equipe, com `role` decidindo o destino. Trigger impedindo auto-atribuição de `role`; middleware protege rota, RLS protege dado. OTP no WhatsApp via API oficial (Meta/BSP), com expiração 5–10 min, 3–5 tentativas, rate limit por número, telefone único entre contas validadas e override de admin. **Sem fallback SMS** — risco aceito. Spec §7.
+_(Sem itens em andamento. O próximo sai de 🟡 Próximos.)_
 
 ---
 
@@ -54,7 +48,7 @@ _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em An
   - **Bloqueia:** NAPO-006
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
   - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer."_ — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
-  - **Base de UI herdada do NAPO-002 (2026-08-11):** Tailwind v4, os tokens completos e 7 primitivos do shadcn (`Button`, `Input`, `Label`, `Checkbox`, `InputOTP`, `Card`, `Toaster`) mais o pattern `<AuthCard>` já nascem no NAPO-002, porque as telas de login vieram antes do site. Esta spec **herda a base pronta** e deve começar revisando a calibragem dela em vez de recriá-la.
+  - **Base de UI herdada do NAPO-002 (2026-08-11):** Tailwind v4, os tokens completos e 7 primitivos do shadcn (`Button`, `Input`, `Label`, `Checkbox`, `InputOTP`, `Card`, `Toaster`) mais os patterns `<AuthCard>` e `<Marca>` já nascem no NAPO-002, porque as telas de login vieram antes do site. Esta spec **herda a base pronta** e deve começar revisando a calibragem dela em vez de recriá-la.
   - **SEO permanece no R1 (decidido 2026-08-10):** avaliado adiar por receio de custo na Vercel e **descartado** — metadata, `sitemap.xml`, `robots.txt`, JSON-LD e URLs semânticas são texto no HTML que o build já gera; em página SSG servida do CDN o custo marginal é **zero**. Adiar não posterga custo, posterga receita: indexação de domínio novo leva semanas a meses, e trocar estrutura de URL depois exige mapa de 301 e descarta autoridade acumulada.
   - **Restrições de custo a respeitar na spec:** (a) `app/(site)/` fica **SSG com `revalidate` longo** — catálogo de pizza muda pouco, nada de SSR sem motivo; (b) decidir explicitamente se as fotos do ensaio (NAPO-020) passam pelo `next/image` ou vão **pré-otimizadas do Supabase Storage** — a cota de transformação de imagem é o custo real do catálogo, não o SEO.
 
@@ -197,6 +191,14 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 ## ✅ Concluídos
 
 _Histórico — adicionar mais recentes NO TOPO._
+
+- [x] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp · concluído 2026-08-11 · [`docs/specs/002-auth-gate-telefone/`](docs/specs/002-auth-gate-telefone/)
+  - Magic Link e Google pelo Supabase Auth, perfil criado no callback (nasce sempre `cliente`), destino decidido no servidor por papel, e guarda de rota em duas camadas: middleware confere sessão, layout de servidor confere papel e telefone **contra o banco** — claim em JWT ficaria velha e barraria quem acabou de validar.
+  - Gate de telefone por OTP no WhatsApp: código de 6 dígitos guardado como HMAC com pepper fora do banco, comparação em tempo constante, tetos por número e por IP aplicados **antes** do envio (cada mensagem é dinheiro pago à Meta) e recusa cega quando o número é de outra conta, para o endpoint não virar oráculo de enumeração de clientes.
+  - Consentimento versionado com IP, gravado antes da conclusão do cadastro; override de admin e promoção de papel como funções `SECURITY DEFINER` com auditoria atômica, exercitadas por `scripts/admin.mjs`.
+  - **Inaugura a base de UI do projeto:** Tailwind v4, tokens completos, 7 primitivos shadcn, o pattern `<AuthCard>` e o componente `<Marca>` — herdados pelo NAPO-003.
+  - 119 testes Vitest + 43 pgTAP. Divergência do preview aprovado registrada em `drift.md` (identidade visual real substituiu a marca provisória); regra permanente de marca em `ARCHITECTURE.md` §2.2.2.
+  - **Não sobe em produção sem NAPO-017** (elegibilidade do template de autenticação na Meta) **nem sem o SMTP customizado** capturado em 💡 Ideias — sem ele o Magic Link não sai fora do ambiente local.
 
 - [x] **NAPO-004** Motor de disponibilidade (calendário, cutoff, dois tetos) · concluído 2026-08-10 · [`docs/specs/004-motor-disponibilidade/`](docs/specs/004-motor-disponibilidade/)
   - Cutoff derivado com recuo por dia sem produção, horizonte deslizante com buffer, CTP/ATP, dois tetos (forno e freezer) e sub-teto de massa — tudo em `packages/core`, 30 testes determinísticos. Calendário e tetos configuráveis (`config_operacao`, entrega sexta, produção seg–sex). Reserva de 15 min atômica por advisory lock, sem `pg_cron`. `GET /api/disponibilidade` e `POST /api/disponibilidade/reserva`.
