@@ -33,7 +33,7 @@ Arquivos: `supabase/migrations/0003_operacao_calendario.sql`, `supabase/seed.sql
 Arquivos: `packages/core/src/disponibilidade/{tipos,cutoff,janela,capacidade,index}.ts` + 3 arquivos de teste, `packages/core/src/index.ts` · Testes: T1–T14 · Depende: — · Paralelo: A · Est: 90min · **Docker: não precisa** · `[x]`
 
 ### Bloco C — Capacidade e reserva no banco
-Arquivos: `supabase/migrations/0004_capacidade.sql`, `supabase/migrations/0005_reservar_capacidade.sql`, `supabase/tests/0004_reserva_concorrencia_test.sql` · Testes: T15, T18, T19 · Depende: A · Est: 70min · **Docker: obrigatório** · `[ ]`
+Arquivos: `supabase/migrations/0004_capacidade.sql`, `supabase/migrations/0005_reservar_capacidade.sql`, `supabase/tests/0004_reserva_concorrencia_test.sql` · Testes: T15, T18, T19 · Depende: A · Est: 70min · **Docker: obrigatório** · `[x]`
 
 ### Bloco D — API e snapshot
 Arquivos: `apps/web/src/features/disponibilidade/services/snapshot.ts`, `apps/web/src/features/disponibilidade/index.ts`, `apps/web/app/api/disponibilidade/route.ts`, `apps/web/app/api/disponibilidade/reserva/route.ts` · Testes: T17, T20, T23 · Depende: B, C · Est: 60min · **Docker: obrigatório** · `[ ]`
@@ -79,4 +79,6 @@ A e B são disjuntos (SQL vs TypeScript puro) e independentes — B não precisa
 - **Buffer remove o dia só na faixa que antecede o cutoff, não depois dele.** Passado o cutoff o dia volta em ATP — vender lote pronto não depende de prazo de fermentação (RN4 + RN6 lidas juntas).
 - **T10 passou de 5 para 6 dias de produção no `tests.md`.** Com 5 dias os dois tetos empatam em 150 e o cenário não distinguiria qual venceu; com 6 o forno daria 180 e o teste prova que o freezer manda.
 - **Cutoff sem dia de produção em 14 dias fica no passado, e o dia sai da vitrine.** Falhar fechando a venda é o modo seguro; o oposto prometeria produção inexistente.
+- **`lotes.produto_id` e `reservas.produto_id` ficaram sem FK.** A tabela `produtos` nasce em NAPO-003 e `pedidos` em NAPO-006; a FK entra junto com elas, comentada nas migrations.
+- **T18 não prova a corrida real — pgTAP roda em sessão única.** O teste prova a recusa por contagem e verifica, via `pg_get_functiondef`, que o advisory lock está declarado; a serialização em si fica garantida pelo lock.
 - **Teste de mutação aplicado à RN7** (`min` → `max` nos dois tetos): 4 cenários quebraram, confirmando que a suíte prende a regra em vez de acompanhá-la.
