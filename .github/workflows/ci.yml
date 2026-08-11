@@ -21,6 +21,7 @@ jobs:
       APP_ENV: local
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-anon-key-placeholder
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
       SUPABASE_SERVICE_ROLE_KEY: ci-service-role-key-must-not-leak
     steps:
       - uses: actions/checkout@v4

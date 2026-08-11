@@ -14,20 +14,22 @@
     "@napo/core": "workspace:*",
     "@napo/db": "workspace:*",
     "@napo/ui": "workspace:*",
-    "@supabase/ssr": "^0.5.2",
+    "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.45.4",
+    "lucide-react": "^1.31.0",
     "next": "^15.0.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "server-only": "^0.0.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
-    "postcss": "^8.5.26",
-    "tailwindcss": "^4.3.3",
     "@types/node": "^20.17.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"
   }

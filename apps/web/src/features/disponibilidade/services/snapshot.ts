@@ -1,23 +1,8 @@
-import { createClient } from '@supabase/supabase-js';
-
-import type { Database } from '@napo/db';
 import type { DiaSemana, Produto, Snapshot } from '@napo/core';
 
-import { publicEnv, getServerEnv } from '@/lib/env';
-
-/**
- * Client com `service_role` — **exclusivo de código de servidor** (RN3).
- *
- * A disponibilidade precisa somar lotes e reservas, que a RLS esconde de
- * qualquer sessão de cliente. O agregado sai daqui; as linhas nunca saem.
- */
-function createSupabaseAdminClient() {
-  return createClient<Database>(
-    publicEnv.NEXT_PUBLIC_SUPABASE_URL,
-    getServerEnv().SUPABASE_SERVICE_ROLE_KEY,
-    { auth: { persistSession: false, autoRefreshToken: false } },
-  );
-}
+// A disponibilidade precisa somar lotes e reservas, que a RLS esconde de
+// qualquer sessão de cliente. O agregado sai daqui; as linhas nunca saem.
+import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 /**
  * Monta o snapshot que alimenta o núcleo puro.

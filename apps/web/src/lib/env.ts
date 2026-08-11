@@ -16,11 +16,16 @@ import { z } from 'zod';
 const publicSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  // Base do link de retorno do Magic Link e do OAuth. Precisa ser explícita: em
+  // produção o app roda atrás de proxy, e `window.location` do navegador que
+  // pediu o link não é fonte confiável do domínio para onde ele deve voltar.
+  NEXT_PUBLIC_SITE_URL: z.string().url(),
 });
 
 const publicParsed = publicSchema.safeParse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
 });
 
 if (!publicParsed.success) {

@@ -39,7 +39,7 @@ Arquivos: `supabase/migrations/0006_auditoria.sql`, `0007_telefone.sql`, `0008_c
 Arquivos: `apps/web/{postcss.config.mjs,app/globals.css,app/layout.tsx,package.json}`, `packages/ui/src/{tokens.css,lib/cn.ts,components/*,patterns/auth-card.tsx}`, `packages/ui/package.json` · Testes: T39-T41 + os 7 critérios visuais · Depende: — · Paralelo (em tese): A, B · Est: 75min · Inline · `[x]`
 
 ### Bloco D — Fluxo de login
-Arquivos: `apps/web/middleware.ts`, `src/lib/supabase/{admin,middleware}.ts`, `src/lib/{env,ip}.ts`, `src/features/auth/{services/sessao.ts,destino.ts,index.ts,components/*}`, `app/api/auth/{callback,sair}/route.ts`, `app/(conta)/{entrar/page.tsx,conta/{layout,page}.tsx}`, `app/(admin)/admin/{layout,page}.tsx` · Testes: T1, T2, T4-T8, T21-T23, T25, T28, T31, T38 · Depende: B, C · Est: 90min · Inline · `[ ]`
+Arquivos: `apps/web/middleware.ts`, `src/lib/supabase/{admin,middleware}.ts`, `src/lib/{env,ip}.ts`, `src/features/auth/{services/sessao.ts,destino.ts,index.ts,components/*}`, `app/api/auth/{callback,sair}/route.ts`, `app/(conta)/{entrar/page.tsx,conta/{layout,page}.tsx}`, `app/(admin)/admin/{layout,page}.tsx` · Testes: T1, T2, T4-T8, T21-T23, T25, T28, T31, T38 · Depende: B, C · Est: 90min · Inline · `[x]`
 
 ### Bloco E — Gate de telefone
 Arquivos: `apps/web/src/lib/otp/{remetente,remetente-fake,remetente-meta}.ts`, `src/features/auth/services/{verificacao,consentimento}.ts`, `app/api/otp/{enviar,validar}/route.ts`, `app/(conta)/validar-telefone/page.tsx`, componentes do formulário · Testes: T3, T15-T20, T24, T30, T36, T37, T42, T43, T45, T46 · Depende: A, B, D · Est: 90min · Inline · `[ ]`
@@ -84,3 +84,9 @@ Só se tornam bloqueantes se o PM escolher `Modo de execução: com checkpoints`
 - **Bloco C — três arquivos fora do Mapa de Impacto:** `apps/web/next.config.ts` (`@napo/ui` em `transpilePackages`), `apps/web/vitest.config.ts` (PostCSS vazio) e `packages/ui/tsconfig.json`. Sem eles o catálogo TSX não transpila, o Vitest quebra ao ler o `postcss.config.mjs` do Next e o pacote não tem typecheck.
 - **Bloco C — alvo de toque de 44px acrescentado ao preview:** botões ganham `min-h-11`/`min-h-12` (o preview dava ~40px no `ghost` e nos links). T40 exige 44x44 e o ganho de 4px não altera o contrato visual.
 - **Bloco C — catálogo enxuto de propósito:** `<Button>` sai com as 4 variantes que as telas usam (`default`, `outline`, `ghost`, `link`); `destructive` e `secondary` do shadcn ficam de fora até existir tela que as peça (design §8).
+- **Bloco D — testes de fluxo com o client Supabase mockado, não com Supabase local:** `pnpm test` roda no job `quality` do CI, que não sobe Docker. Banco segue coberto por pgTAP no job `database`.
+- **Bloco D — atendente e cozinha caem em `/admin`:** a "fila de produção" da RN5 é o KDS do NAPO-012 e ainda não existe; o painel é a única tela de equipe. Troca de uma linha em `DESTINO_POR_PAPEL` quando o KDS nascer.
+- **Bloco D — `src/lib/ip.ts` adiado para o bloco E:** só a emissão de código consome o IP (RN7, RN15); criá-lo agora seria arquivo sem chamador.
+- **Bloco D — client `service_role` centralizado em `src/lib/supabase/admin.ts`:** `features/disponibilidade` tinha uma cópia própria e passou a importar de lá (DRY, arquitetura §4.1).
+- **Bloco D — `@supabase/ssr` 0.5.2 → 0.7:** os genéricos do 0.5.2 não casam com o `supabase-js` 2.112 já instalado e faziam `.from('profiles')` inferir `never`. Só o `.rpc()` do NAPO-004 escapava do problema.
+- **Bloco D — `NEXT_PUBLIC_SITE_URL` obrigatória (design §6.2)** exigiu tocar `.github/workflows/ci.yml`, `.env.example` e `.env.local`, fora do Mapa: sem a variável o boot falha e o CI ficaria vermelho.
