@@ -43,7 +43,7 @@ _(Nenhum item em andamento. O próximo da fila é NAPO-002.)_
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
 
 - [ ] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp
-  - **Spec:** `docs/specs/002-auth-gate-telefone/` _(a criar)_
+  - **Spec:** `docs/specs/002-auth-gate-telefone/` _(aprovado em 2026-08-11)_
   - **Dependências:** NAPO-001
   - **Bloqueia:** NAPO-006, NAPO-007, NAPO-008
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
@@ -55,6 +55,7 @@ _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em An
   - **Bloqueia:** NAPO-006
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
   - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer."_ — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
+  - **Base de UI herdada do NAPO-002 (2026-08-11):** Tailwind v4, os tokens completos e 7 primitivos do shadcn (`Button`, `Input`, `Label`, `Checkbox`, `InputOTP`, `Card`, `Toaster`) mais o pattern `<AuthCard>` já nascem no NAPO-002, porque as telas de login vieram antes do site. Esta spec **herda a base pronta** e deve começar revisando a calibragem dela em vez de recriá-la.
   - **SEO permanece no R1 (decidido 2026-08-10):** avaliado adiar por receio de custo na Vercel e **descartado** — metadata, `sitemap.xml`, `robots.txt`, JSON-LD e URLs semânticas são texto no HTML que o build já gera; em página SSG servida do CDN o custo marginal é **zero**. Adiar não posterga custo, posterga receita: indexação de domínio novo leva semanas a meses, e trocar estrutura de URL depois exige mapa de 301 e descarta autoridade acumulada.
   - **Restrições de custo a respeitar na spec:** (a) `app/(site)/` fica **SSG com `revalidate` longo** — catálogo de pizza muda pouco, nada de SSR sem motivo; (b) decidir explicitamente se as fotos do ensaio (NAPO-020) passam pelo `next/image` ou vão **pré-otimizadas do Supabase Storage** — a cota de transformação de imagem é o custo real do catálogo, não o SEO.
 
@@ -175,6 +176,7 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 - [ ] **NAPO-017** Verificação da empresa na Meta (WhatsApp Business API)
   - **Bloqueado por:** processo de verificação da Meta — **bloqueia o login em produção** (NAPO-002 não sobe sem isso)
   - **Desde:** 2026-08-10
+  - **⚠️ Prioridade elevada (2026-08-11, benchmarking do NAPO-002):** verificação da empresa pode **não bastar**. O acesso a _authentication templates_ passa por um caminho de escala da Meta que inclui limiar de volume (ordem de grandeza citada publicamente: milhares de conversas iniciadas pelo negócio por dia, por número). A Napo faz 303 pizzas/mês. O risco deixou de ser "o envio pode falhar" e passou a ser "o canal pode nunca ser liberado". **Descobrir a elegibilidade real é agora caminho crítico** — se negativa, a decisão de canal precisa ser reaberta antes do NAPO-006.
 
 - [ ] **NAPO-018** Contador: anexo do Simples e atividade mista
   - **Bloqueado por:** definição do contador (congelado industrializado vs. fresca no balcão — o Simples exige a segregação na declaração mensal)

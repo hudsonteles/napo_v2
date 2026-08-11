@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mockup — Entrar e validar telefone (NAPO-002)</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style type="text/tailwindcss">
+  @theme {
+    /* ── Tokens JÁ existentes em packages/ui/src/tokens.css ── */
+    --color-preto:   #0a0a0a;
+    --color-branco:  #ffffff;
+    --color-amarelo: #f5c518;
+
+    /* ── Tokens que esta spec ACRESCENTA a tokens.css (design.md §1) ── */
+    --color-superficie:       #141414;  /* card sobre o preto */
+    --color-superficie-alta:  #1e1e1e;  /* campo dentro do card */
+    --color-borda:            #2a2a2a;
+    --color-borda-forte:      #3d3d3d;
+    --color-texto-suave:      #a1a1a1;
+    --color-erro:             #f87171;
+    --color-amarelo-escuro:   #d9ac0f;  /* hover do primário */
+    --radius-card:  16px;
+    --radius-campo: 10px;
+    --font-sans: 'Inter', system-ui, sans-serif;
+  }
+</style>
+
+<style>
+  /* Andaime do mockup — NÃO faz parte do produto. Só existe para exibir
+     quatro estados lado a lado nesta página de revisão. */
+  .moldura { width: 420px; }
+  @media (max-width: 900px) { .moldura { width: 100%; } }
+</style>
+</head>
+
+<body class="bg-neutral-900 text-branco font-sans antialiased">
+
+<!--
+  ════════════════════════════════════════════════════════════════════════════
+  CABEÇALHO DE MAPEAMENTO  (contrato lido pelo /implementar)
+
+  CATÁLOGO USADO (packages/ui — HOJE VAZIO, tudo nasce nesta spec via shadcn/ui):
+    <Button>    <Input>    <Label>    <Checkbox>    <InputOTP>    <Card>
+    <Toaster> (sonner)     ícones: lucide-react
+
+  NOVO PATTERN AUTORAL (packages/ui/src/patterns/):
+    <AuthCard>  — moldura compartilhada pelas duas telas
+                  (logo + título + subtítulo + slot de conteúdo)
+
+  MARKUP CRU ACEITO:
+    · centralização de página  (min-h-dvh grid place-items-center px-4)
+    · empilhamento interno do form (space-y-*)
+    · divisor "ou" (linha + rótulo)
+
+  ATENÇÃO: os painéis lado a lado abaixo são ANDAIME DE REVISÃO.
+  No produto, cada tela ocupa a página inteira, centralizada.
+  ════════════════════════════════════════════════════════════════════════════
+-->
+
+<!-- ── Barra do mockup (não é produto) ────────────────────────────────────── -->
+<nav class="sticky top-0 z-10 border-b border-neutral-800 bg-neutral-900/90 backdrop-blur px-6 py-3 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+  <span class="font-semibold text-amarelo">NAPO-002 · Gate Visual A</span>
+  <a href="#a" class="text-neutral-400 hover:text-branco">1 · Entrar</a>
+  <a href="#b" class="text-neutral-400 hover:text-branco">2 · Link enviado</a>
+  <a href="#c" class="text-neutral-400 hover:text-branco">3 · Telefone</a>
+  <a href="#d" class="text-neutral-400 hover:text-branco">4 · Código</a>
+  <a href="#e" class="text-neutral-400 hover:text-branco">5 · Código incorreto</a>
+</nav>
+
+<main class="p-6 md:p-10 space-y-14">
+
+<!-- ═══════════════ TELA 1 — /entrar ═══════════════ -->
+<section id="a" class="space-y-4">
+  <header class="space-y-1">
+    <h2 class="text-lg font-semibold">1 · <code class="text-amarelo">/entrar</code> — estado inicial</h2>
+    <p class="text-sm text-neutral-400">Rota pública. Quem já tem sessão nunca chega aqui — o middleware redireciona pelo papel.</p>
+  </header>
+
+  <div class="moldura">
+    <!-- → <AuthCard titulo="Entrar ou criar conta" subtitulo="…"> -->
+    <div class="rounded-[16px] border border-borda bg-superficie p-8 shadow-2xl shadow-black/40">
+
+      <!-- → slot de marca do <AuthCard> -->
+      <div class="mb-8 flex items-center gap-2">
+        <span class="grid h-9 w-9 place-items-center rounded-lg bg-amarelo font-bold text-preto">N</span>
+        <span class="text-xl font-bold tracking-tight">Napo</span>
+      </div>
+
+      <h1 class="text-2xl font-semibold tracking-tight">Entrar ou criar conta</h1>
+      <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+        Sem senha. A gente manda um link para o seu e-mail.
+      </p>
+
+      <!-- → <form> com <Label> + <Input> + <Button> -->
+      <div class="mt-7 space-y-4">
+        <div class="space-y-2">
+          <!-- → <Label htmlFor="email"> -->
+          <label for="email" class="block text-sm font-medium">E-mail</label>
+          <!-- → <Input id="email" type="email" autoComplete="email"> -->
+          <input id="email" type="email" placeholder="voce@email.com"
+                 class="w-full rounded-[10px] border border-borda-forte bg-superficie-alta px-4 py-3 text-[15px] placeholder:text-neutral-500 outline-none focus:border-amarelo focus:ring-2 focus:ring-amarelo/30" />
+        </div>
+
+        <!-- → <Button className="w-full"> (variante primária = amarelo) -->
+        <button class="w-full rounded-[10px] bg-amarelo px-4 py-3 text-[15px] font-semibold text-preto transition hover:bg-amarelo-escuro">
+          Receber link de acesso
+        </button>
+      </div>
+
+      <!-- markup cru aceito: divisor -->
+      <div class="my-6 flex items-center gap-4">
+        <span class="h-px flex-1 bg-borda"></span>
+        <span class="text-xs uppercase tracking-widest text-neutral-500">ou</span>
+        <span class="h-px flex-1 bg-borda"></span>
+      </div>
+
+      <!-- → <Button variant="outline" className="w-full"> -->
+      <button class="flex w-full items-center justify-center gap-3 rounded-[10px] border border-borda-forte bg-transparent px-4 py-3 text-[15px] font-medium transition hover:bg-superficie-alta">
+        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6c1.9-5.6 7.1-9.7 13.6-9.7z"/>
+          <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.3z"/>
+          <path fill="#FBBC05" d="M10.4 28.8c-.5-1.4-.8-2.9-.8-4.4s.3-3 .8-4.4l-7.8-6C1 17.1 0 20.4 0 24s1 6.9 2.6 10l7.8-5.2z"/>
+          <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.8 2.2-8.4 2.2-6.5 0-11.7-4.1-13.6-9.7l-7.8 5.2C6.5 42.6 14.6 48 24 48z"/>
+        </svg>
+        Entrar com Google
+      </button>
+
+      <p class="mt-7 text-xs leading-relaxed text-neutral-500">
+        Ao continuar você concorda com os
+        <a href="#" class="underline underline-offset-2 hover:text-neutral-300">Termos de Uso</a> e a
+        <a href="#" class="underline underline-offset-2 hover:text-neutral-300">Política de Privacidade</a>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TELA 1b — link enviado ═══════════════ -->
+<section id="b" class="space-y-4">
+  <header class="space-y-1">
+    <h2 class="text-lg font-semibold">2 · <code class="text-amarelo">/entrar</code> — link enviado</h2>
+    <p class="text-sm text-neutral-400">Mesma tela, conteúdo trocado. Não muda de URL: voltar aqui não deve significar sair do fluxo.</p>
+  </header>
+
+  <div class="moldura">
+    <!-- → <AuthCard> com children de sucesso -->
+    <div class="rounded-[16px] border border-borda bg-superficie p-8 shadow-2xl shadow-black/40">
+      <div class="mb-8 flex items-center gap-2">
+        <span class="grid h-9 w-9 place-items-center rounded-lg bg-amarelo font-bold text-preto">N</span>
+        <span class="text-xl font-bold tracking-tight">Napo</span>
+      </div>
+
+      <!-- → ícone lucide: <MailCheck className="h-6 w-6" /> -->
+      <div class="mb-5 grid h-12 w-12 place-items-center rounded-full bg-amarelo/10 text-amarelo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="m16 19 2 2 4-4"/></svg>
+      </div>
+
+      <h1 class="text-2xl font-semibold tracking-tight">Link enviado</h1>
+      <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+        Mandamos um link de acesso para <span class="font-medium text-branco">hudson@email.com</span>.
+        Abra pelo mesmo aparelho — ele vale por 1 hora.
+      </p>
+
+      <div class="mt-7 space-y-3">
+        <!-- → <Button variant="outline" disabled> — reenvio com contador -->
+        <button disabled class="w-full cursor-not-allowed rounded-[10px] border border-borda bg-transparent px-4 py-3 text-[15px] font-medium text-neutral-500">
+          Reenviar em 0:52
+        </button>
+        <!-- → <Button variant="ghost" className="w-full"> -->
+        <button class="w-full rounded-[10px] px-4 py-2.5 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco">
+          Usar outro e-mail
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TELA 2 — passo 1 ═══════════════ -->
+<section id="c" class="space-y-4">
+  <header class="space-y-1">
+    <h2 class="text-lg font-semibold">3 · <code class="text-amarelo">/validar-telefone</code> — passo 1 (nome, número e aceites)</h2>
+    <p class="text-sm text-neutral-400">Exige sessão, não exige telefone. Cliente sem validar não sai daqui; equipe nunca chega aqui.</p>
+  </header>
+
+  <div class="moldura">
+    <!-- → <AuthCard titulo="Confirme seu WhatsApp"> -->
+    <div class="rounded-[16px] border border-borda bg-superficie p-8 shadow-2xl shadow-black/40">
+      <div class="mb-8 flex items-center gap-2">
+        <span class="grid h-9 w-9 place-items-center rounded-lg bg-amarelo font-bold text-preto">N</span>
+        <span class="text-xl font-bold tracking-tight">Napo</span>
+      </div>
+
+      <h1 class="text-2xl font-semibold tracking-tight">Confirme seu WhatsApp</h1>
+      <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+        É por ele que a gente avisa quando sua pizza sai para entrega — e é o número que o entregador liga se não achar a portaria.
+      </p>
+
+      <div class="mt-7 space-y-4">
+        <div class="space-y-2">
+          <label for="nome" class="block text-sm font-medium">Seu nome</label>
+          <!-- → <Input id="nome" autoComplete="name"> -->
+          <input id="nome" value="Hudson Teles"
+                 class="w-full rounded-[10px] border border-borda-forte bg-superficie-alta px-4 py-3 text-[15px] outline-none focus:border-amarelo focus:ring-2 focus:ring-amarelo/30" />
+        </div>
+
+        <div class="space-y-2">
+          <label for="tel" class="block text-sm font-medium">Celular com WhatsApp</label>
+          <!-- → <Input id="tel" inputMode="tel" autoComplete="tel-national"> + máscara -->
+          <input id="tel" inputmode="tel" placeholder="(61) 99999-9999"
+                 class="w-full rounded-[10px] border border-borda-forte bg-superficie-alta px-4 py-3 text-[15px] tracking-wide placeholder:text-neutral-500 outline-none focus:border-amarelo focus:ring-2 focus:ring-amarelo/30" />
+        </div>
+
+        <!-- → <Checkbox id="termos"> + <Label> -->
+        <div class="space-y-3 pt-1">
+          <label for="termos" class="flex cursor-pointer items-start gap-3 text-sm leading-relaxed">
+            <input id="termos" type="checkbox" checked class="mt-0.5 h-4 w-4 shrink-0 accent-[#f5c518]" />
+            <span class="text-texto-suave">
+              Li e aceito os <a href="#" class="text-branco underline underline-offset-2">Termos de Uso</a> e a
+              <a href="#" class="text-branco underline underline-offset-2">Política de Privacidade</a>.
+            </span>
+          </label>
+
+          <label for="mkt" class="flex cursor-pointer items-start gap-3 text-sm leading-relaxed">
+            <input id="mkt" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-[#f5c518]" />
+            <span class="text-texto-suave">Quero receber novidades e promoções pelo WhatsApp. <span class="text-neutral-500">(opcional)</span></span>
+          </label>
+        </div>
+
+        <!-- → <Button className="w-full"> — desabilitado enquanto o aceite não vier -->
+        <button class="w-full rounded-[10px] bg-amarelo px-4 py-3 text-[15px] font-semibold text-preto transition hover:bg-amarelo-escuro">
+          Enviar código no WhatsApp
+        </button>
+
+        <p class="text-center text-xs text-neutral-500">
+          Você recebe um código de 6 dígitos. Não cobramos nada por isso.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TELA 2 — passo 2 ═══════════════ -->
+<section id="d" class="space-y-4">
+  <header class="space-y-1">
+    <h2 class="text-lg font-semibold">4 · <code class="text-amarelo">/validar-telefone</code> — passo 2 (código)</h2>
+    <p class="text-sm text-neutral-400">Mesma rota, mesmo card. Um passo, uma decisão: digitar o código.</p>
+  </header>
+
+  <div class="moldura">
+    <div class="rounded-[16px] border border-borda bg-superficie p-8 shadow-2xl shadow-black/40">
+      <div class="mb-8 flex items-center gap-2">
+        <span class="grid h-9 w-9 place-items-center rounded-lg bg-amarelo font-bold text-preto">N</span>
+        <span class="text-xl font-bold tracking-tight">Napo</span>
+      </div>
+
+      <h1 class="text-2xl font-semibold tracking-tight">Digite o código</h1>
+      <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+        Enviamos 6 dígitos no WhatsApp <span class="font-medium text-branco">(61) 99150-4477</span>.
+      </p>
+
+      <!-- → <InputOTP maxLength={6}> com <InputOTPGroup>/<InputOTPSlot> -->
+      <div class="mt-7 flex gap-2.5" role="group" aria-label="Código de 6 dígitos">
+        <input value="4" class="h-14 w-full rounded-[10px] border border-borda-forte bg-superficie-alta text-center text-xl font-semibold outline-none focus:border-amarelo" />
+        <input value="7" class="h-14 w-full rounded-[10px] border border-borda-forte bg-superficie-alta text-center text-xl font-semibold outline-none focus:border-amarelo" />
+        <input value="2" class="h-14 w-full rounded-[10px] border border-borda-forte bg-superficie-alta text-center text-xl font-semibold outline-none focus:border-amarelo" />
+        <input value="9" class="h-14 w-full rounded-[10px] border-2 border-amarelo bg-superficie-alta text-center text-xl font-semibold outline-none" />
+        <input class="h-14 w-full rounded-[10px] border border-borda-forte bg-superficie-alta text-center text-xl font-semibold outline-none focus:border-amarelo" />
+        <input class="h-14 w-full rounded-[10px] border border-borda-forte bg-superficie-alta text-center text-xl font-semibold outline-none focus:border-amarelo" />
+      </div>
+
+      <div class="mt-6 space-y-3">
+        <button class="w-full rounded-[10px] bg-amarelo px-4 py-3 text-[15px] font-semibold text-preto transition hover:bg-amarelo-escuro">
+          Confirmar
+        </button>
+
+        <div class="flex items-center justify-between text-sm">
+          <span class="text-neutral-500">Reenviar em 0:47</span>
+          <!-- → <Button variant="link"> — caminho de exceção, discreto -->
+          <button class="text-texto-suave underline underline-offset-2 transition hover:text-branco">Trocar número</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TELA 2 — erro ═══════════════ -->
+<section id="e" class="space-y-4">
+  <header class="space-y-1">
+    <h2 class="text-lg font-semibold">5 · <code class="text-amarelo">/validar-telefone</code> — código incorreto</h2>
+    <p class="text-sm text-neutral-400">Tentativas restantes ditas em voz alta (design.md §4.5). Esconder não protege — o atacante conta sozinho.</p>
+  </header>
+
+  <div class="moldura">
+    <div class="rounded-[16px] border border-borda bg-superficie p-8 shadow-2xl shadow-black/40">
+      <div class="mb-8 flex items-center gap-2">
+        <span class="grid h-9 w-9 place-items-center rounded-lg bg-amarelo font-bold text-preto">N</span>
+        <span class="text-xl font-bold tracking-tight">Napo</span>
+      </div>
+
+      <h1 class="text-2xl font-semibold tracking-tight">Digite o código</h1>
+      <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+        Enviamos 6 dígitos no WhatsApp <span class="font-medium text-branco">(61) 99150-4477</span>.
+      </p>
+
+      <div class="mt-7 flex gap-2.5">
+        <input value="1" class="h-14 w-full rounded-[10px] border border-erro bg-erro/5 text-center text-xl font-semibold text-erro outline-none" />
+        <input value="2" class="h-14 w-full rounded-[10px] border border-erro bg-erro/5 text-center text-xl font-semibold text-erro outline-none" />
+        <input value="3" class="h-14 w-full rounded-[10px] border border-erro bg-erro/5 text-center text-xl font-semibold text-erro outline-none" />
+        <input value="4" class="h-14 w-full rounded-[10px] border border-erro bg-erro/5 text-center text-xl font-semibold text-erro outline-none" />
+        <input value="5" class="h-14 w-full rounded-[10px] border border-erro bg-erro/5 text-center text-xl font-semibold text-erro outline-none" />
+        <input value="6" class="h-14 w-full rounded-[10px] border border-erro bg-erro/5 text-center text-xl font-semibold text-erro outline-none" />
+      </div>
+
+      <!-- → mensagem de erro do campo (aria-live="polite") -->
+      <p class="mt-3 flex items-center gap-2 text-sm text-erro">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        Código incorreto. Restam 3 tentativas.
+      </p>
+
+      <div class="mt-6 space-y-3">
+        <button class="w-full rounded-[10px] bg-amarelo px-4 py-3 text-[15px] font-semibold text-preto transition hover:bg-amarelo-escuro">
+          Confirmar
+        </button>
+        <div class="flex items-center justify-between text-sm">
+          <button class="text-amarelo underline underline-offset-2">Reenviar código</button>
+          <button class="text-texto-suave underline underline-offset-2 transition hover:text-branco">Trocar número</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- → <Toaster position="top-center" /> do sonner — exemplo do teto diário -->
+  <div class="moldura pt-4">
+    <p class="mb-2 text-xs uppercase tracking-widest text-neutral-500">Toast — teto diário estourado</p>
+    <div class="flex items-start gap-3 rounded-[10px] border border-borda-forte bg-superficie-alta px-4 py-3 text-sm shadow-xl">
+      <svg class="mt-0.5 shrink-0 text-amarelo" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+      <span class="text-texto-suave">Limite de envios atingido. Tente de novo amanhã ou fale com a gente pelo WhatsApp da loja.</span>
+    </div>
+  </div>
+</section>
+
+</main>
+</body>
+</html>
