@@ -34,6 +34,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      auditoria: {
+        Row: {
+          acao: string
+          created_at: string
+          dados_antes: Json | null
+          dados_depois: Json | null
+          id: string
+          motivo: string | null
+          profile_id: string | null
+          registro_id: string
+          tabela: string
+        }
+        Insert: {
+          acao: string
+          created_at?: string
+          dados_antes?: Json | null
+          dados_depois?: Json | null
+          id?: string
+          motivo?: string | null
+          profile_id?: string | null
+          registro_id: string
+          tabela: string
+        }
+        Update: {
+          acao?: string
+          created_at?: string
+          dados_antes?: Json | null
+          dados_depois?: Json | null
+          id?: string
+          motivo?: string | null
+          profile_id?: string | null
+          registro_id?: string
+          tabela?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auditoria_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       config_operacao: {
         Row: {
           buffer_cutoff_min: number
@@ -75,6 +119,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      consentimentos: {
+        Row: {
+          aceito_em: string
+          created_at: string
+          id: string
+          ip: unknown | null
+          profile_id: string
+          tipo: Database["public"]["Enums"]["tipo_consentimento"]
+          updated_at: string
+          versao: string
+        }
+        Insert: {
+          aceito_em?: string
+          created_at?: string
+          id?: string
+          ip?: unknown | null
+          profile_id: string
+          tipo: Database["public"]["Enums"]["tipo_consentimento"]
+          updated_at?: string
+          versao: string
+        }
+        Update: {
+          aceito_em?: string
+          created_at?: string
+          id?: string
+          ip?: unknown | null
+          profile_id?: string
+          tipo?: Database["public"]["Enums"]["tipo_consentimento"]
+          updated_at?: string
+          versao?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consentimentos_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dias_semana_entrega: {
         Row: {
@@ -300,11 +385,100 @@ export type Database = {
           },
         ]
       }
+      telefone_verificacoes: {
+        Row: {
+          codigo_hash: string
+          created_at: string
+          expira_em: string
+          id: string
+          invalidado_em: string | null
+          ip: unknown | null
+          profile_id: string
+          telefone: string
+          tentativas: number
+          updated_at: string
+          validado_em: string | null
+        }
+        Insert: {
+          codigo_hash: string
+          created_at?: string
+          expira_em: string
+          id?: string
+          invalidado_em?: string | null
+          ip?: unknown | null
+          profile_id: string
+          telefone: string
+          tentativas?: number
+          updated_at?: string
+          validado_em?: string | null
+        }
+        Update: {
+          codigo_hash?: string
+          created_at?: string
+          expira_em?: string
+          id?: string
+          invalidado_em?: string | null
+          ip?: unknown | null
+          profile_id?: string
+          telefone?: string
+          tentativas?: number
+          updated_at?: string
+          validado_em?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "telefone_verificacoes_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      termos_versoes: {
+        Row: {
+          conteudo: string
+          created_at: string
+          id: string
+          publicado_em: string
+          tipo: Database["public"]["Enums"]["tipo_consentimento"]
+          updated_at: string
+          versao: string
+          vigente: boolean
+        }
+        Insert: {
+          conteudo: string
+          created_at?: string
+          id?: string
+          publicado_em?: string
+          tipo: Database["public"]["Enums"]["tipo_consentimento"]
+          updated_at?: string
+          versao: string
+          vigente?: boolean
+        }
+        Update: {
+          conteudo?: string
+          created_at?: string
+          id?: string
+          publicado_em?: string
+          tipo?: Database["public"]["Enums"]["tipo_consentimento"]
+          updated_at?: string
+          versao?: string
+          vigente?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      exigir_admin_e_motivo: {
+        Args: {
+          motivo: string
+        }
+        Returns: string
+      }
       horario_servidor: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -312,6 +486,14 @@ export type Database = {
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      promover_usuario: {
+        Args: {
+          alvo: string
+          novo_role: Database["public"]["Enums"]["user_role"]
+          motivo: string
+        }
+        Returns: undefined
       }
       reservar_capacidade: {
         Args: {
@@ -341,9 +523,18 @@ export type Database = {
         }
         Returns: number
       }
+      validar_telefone_manual: {
+        Args: {
+          alvo: string
+          telefone_e164: string
+          motivo: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       status_reserva: "ativa" | "consumida" | "expirada" | "cancelada"
+      tipo_consentimento: "termos" | "privacidade" | "marketing"
       tipo_excecao_calendario: "sem_producao" | "sem_entrega" | "entrega_extra"
       user_role: "cliente" | "atendente" | "cozinha" | "gerente" | "admin"
     }

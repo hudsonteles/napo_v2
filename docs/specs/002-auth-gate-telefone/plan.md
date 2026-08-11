@@ -33,7 +33,7 @@ Pontos que condicionam a execução:
 Arquivos: `packages/core/src/telefone/{e164,index}.ts`, `packages/core/src/otp/{codigo,index}.ts`, `packages/core/src/index.ts` · Testes: T9-T14 · Depende: — · Paralelo (em tese): B, C · Est: 45min · Inline · `[x]`
 
 ### Bloco B — Banco (schema, RLS, funções de admin)
-Arquivos: `supabase/migrations/0006_auditoria.sql`, `0007_telefone.sql`, `0008_consentimentos.sql`, `0009_admin_functions.sql`, `supabase/tests/{0005,0006}_*.sql`, `supabase/seed.sql`, `supabase/config.toml` · Testes: T26, T27, T29, T32-T35, T44 · Depende: — · Paralelo (em tese): A, C · Est: 75min · Inline · `[ ]`
+Arquivos: `supabase/migrations/0006_auditoria.sql`, `0007_telefone.sql`, `0008_consentimentos.sql`, `0009_admin_functions.sql`, `supabase/tests/{0005,0006}_*.sql`, `supabase/seed.sql`, `supabase/config.toml`, `packages/db/src/types.generated.ts` · Testes: T26, T27, T29, T32-T35, T44 · Depende: — · Paralelo (em tese): A, C · Est: 75min · Inline · `[x]`
 
 ### Bloco C — Base de UI (Tailwind + catálogo)
 Arquivos: `apps/web/{postcss.config.mjs,app/globals.css,app/layout.tsx,package.json}`, `packages/ui/src/{tokens.css,lib/cn.ts,components/*,patterns/auth-card.tsx}`, `packages/ui/package.json` · Testes: T39-T41 + os 7 critérios visuais · Depende: — · Paralelo (em tese): A, B · Est: 75min · Inline · `[ ]`
@@ -77,4 +77,7 @@ Só se tornam bloqueantes se o PM escolher `Modo de execução: com checkpoints`
 ## Decisões de execução
 
 - **Bloco A — dois casos do T9/T10 corrigidos no teste, não na implementação:** `0061991504477` não é número brasileiro em convenção alguma (trocado por `005561991504477`), e `+1 415 555 2671` colide com o formato nacional (DDD 14 sem nono dígito), então a recusa correta é `nao_celular`.
+- **T27 não é reimplementado:** "ninguém altera a própria role" já é provado por `0002_profiles_rls_test.sql` (T11 do NAPO-001) contra o mesmo trigger. Duplicar a asserção não aumenta cobertura.
+- **Google desabilitado no `config.toml` local:** o CLI aborta `db reset` inteiro se `env(...)` não existir, e o provedor não funciona local de qualquer forma (arch §6.1). Em staging/prod é configurado no painel do Supabase. Instruções de como ligar local ficam no próprio arquivo.
+- **`auditoria` sem `updated_at`,** contra a convenção da arch §4.2: linha de auditoria que pode ser atualizada não é auditoria. Sem grant de escrita para ninguém — nem admin.
 - **T1-T8 e T39-T41 sem Playwright:** os fluxos viram testes de integração de servidor (Vitest + Supabase local) e os critérios de teclado/mobile/contraste viram auditoria do Gate Visual B. Playwright entra no NAPO-006, onde `ARCHITECTURE.md` §2.3 o previu; instalá-lo aqui cobriria só metade do fluxo, já que o Google OAuth não roda local.

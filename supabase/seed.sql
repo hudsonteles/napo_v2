@@ -30,14 +30,26 @@ values
   ('00000000-0000-0000-0000-000000000000', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'authenticated', 'authenticated', 'admin@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}');
 
 -- Perfis correspondentes, um por role.
-insert into public.profiles (id, nome, email, role)
+--
+-- NAPO-002: `cliente1` nasce COM telefone validado e `cliente2` SEM — é o par
+-- que torna o gate testável à mão sem precisar de dois cadastros novos a cada
+-- reset. Equipe fica sem telefone de propósito: ela não passa pelo gate (RN4),
+-- e um seed com telefone em todo mundo esconderia uma regressão nisso.
+insert into public.profiles (id, nome, email, role, telefone, telefone_validado_em)
 values
-  ('11111111-1111-1111-1111-111111111111', 'Cliente Um', 'cliente1@napo.test', 'cliente'),
-  ('22222222-2222-2222-2222-222222222222', 'Cliente Dois', 'cliente2@napo.test', 'cliente'),
-  ('33333333-3333-3333-3333-333333333333', 'Atendente', 'atendente@napo.test', 'atendente'),
-  ('44444444-4444-4444-4444-444444444444', 'Cozinha', 'cozinha@napo.test', 'cozinha'),
-  ('55555555-5555-5555-5555-555555555555', 'Gerente', 'gerente@napo.test', 'gerente'),
-  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Admin', 'admin@napo.test', 'admin');
+  ('11111111-1111-1111-1111-111111111111', 'Cliente Um', 'cliente1@napo.test', 'cliente', '+5561991504477', now()),
+  ('22222222-2222-2222-2222-222222222222', 'Cliente Dois', 'cliente2@napo.test', 'cliente', null, null),
+  ('33333333-3333-3333-3333-333333333333', 'Atendente', 'atendente@napo.test', 'atendente', null, null),
+  ('44444444-4444-4444-4444-444444444444', 'Cozinha', 'cozinha@napo.test', 'cozinha', null, null),
+  ('55555555-5555-5555-5555-555555555555', 'Gerente', 'gerente@napo.test', 'gerente', null, null),
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Admin', 'admin@napo.test', 'admin', null, null);
+
+-- Consentimentos do cliente já validado, para que o estado do seed seja coerente
+-- com o que o fluxo real produz (RN15).
+insert into public.consentimentos (profile_id, tipo, versao, ip)
+values
+  ('11111111-1111-1111-1111-111111111111', 'termos', '0', '127.0.0.1'),
+  ('11111111-1111-1111-1111-111111111111', 'privacidade', '0', '127.0.0.1');
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Operação (NAPO-004). Valores confirmados com o PM em 2026-08-10: entrega

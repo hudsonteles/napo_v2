@@ -96,9 +96,14 @@ enabled = true
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "http://localhost:3000"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://127.0.0.1:3000"]
+# NAPO-002: o callback é a única rota que recebe o `code` do PKCE. Ambas as formas
+# do host local entram porque o navegador e o `next dev` divergem entre si.
+additional_redirect_urls = [
+  "http://localhost:3000/api/auth/callback",
+  "http://127.0.0.1:3000/api/auth/callback",
+]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.
@@ -220,6 +225,23 @@ redirect_uri = ""
 url = ""
 # If enabled, the nonce check will be skipped. Required for local sign in with Google auth.
 skip_nonce_check = false
+
+# NAPO-002 — Google, o segundo caminho de entrada (RN2).
+#
+# Desabilitado em LOCAL de propósito (ARCHITECTURE §6.1): o provedor exige
+# credencial real, e o CLI aborta o `db reset` inteiro se a variável não existir
+# — quebrar o ambiente de todo mundo para um provedor que não funciona local é
+# troca ruim. Em staging e produção o Google é configurado no painel do Supabase,
+# que é onde a configuração daqueles projetos de fato vive.
+#
+# Para exercitar o Google localmente: preencha as duas variáveis no ambiente,
+# troque `enabled` para true e rode `pnpm db:start` de novo.
+[auth.external.google]
+enabled = false
+client_id = ""
+secret = ""
+# Obrigatório para login com Google no ambiente local.
+skip_nonce_check = true
 
 # Use Firebase Auth as a third-party provider alongside Supabase Auth.
 [auth.third_party.firebase]
