@@ -14,3 +14,5 @@ export {
   somarDias,
 } from './tempo';
 export * from './disponibilidade';
+export * from './otp';
+export * from './telefone';

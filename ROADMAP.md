@@ -34,20 +34,19 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_(Nenhum item em andamento. O próximo da fila é NAPO-002.)_
+- [ ] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp
+  - **Spec:** [`docs/specs/002-auth-gate-telefone/`](docs/specs/002-auth-gate-telefone/) _(aprovado em 2026-08-11)_
+  - **Iniciado em:** 2026-08-11
+  - **Dependências:** NAPO-001 ✅
+  - **Bloqueia:** NAPO-006, NAPO-007, NAPO-008
+  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
+  - **Notas:** Magic Link **e** Google, para cliente e equipe, com `role` decidindo o destino. Trigger impedindo auto-atribuição de `role`; middleware protege rota, RLS protege dado. OTP no WhatsApp via API oficial (Meta/BSP), com expiração 5–10 min, 3–5 tentativas, rate limit por número, telefone único entre contas validadas e override de admin. **Sem fallback SMS** — risco aceito. Spec §7.
 
 ---
 
 ## 🟡 Próximos (Ordem importa — pegar de cima pra baixo)
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
-
-- [ ] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp
-  - **Spec:** `docs/specs/002-auth-gate-telefone/` _(aprovado em 2026-08-11)_
-  - **Dependências:** NAPO-001
-  - **Bloqueia:** NAPO-006, NAPO-007, NAPO-008
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** Magic Link **e** Google, para cliente e equipe, com `role` decidindo o destino. Trigger impedindo auto-atribuição de `role`; middleware protege rota, RLS protege dado. OTP no WhatsApp via API oficial (Meta/BSP), com expiração 5–10 min, 3–5 tentativas, rate limit por número, telefone único entre contas validadas e override de admin. **Sem fallback SMS** — risco aceito. Spec §7.
 
 - [ ] **NAPO-003** Site público, catálogo e SEO
   - **Spec:** `docs/specs/003-site-catalogo/` _(a criar)_

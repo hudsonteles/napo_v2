@@ -1,0 +1,80 @@
+# Plano de Implementação — NAPO-002 Autenticação, papéis e gate de telefone
+
+**Spec:** [`spec.md`](./spec.md) · **Design:** [`design.md`](./design.md) · **Tests:** [`tests.md`](./tests.md) · **Preview:** [`preview.html`](./preview.html)
+**Tamanho detectado:** GRANDE
+**Critério:** N_arquivos=46, N_testes=46, sensitivo=SIM (auth · RBAC · LGPD/PII)
+**Plano criado em:** 2026-08-11
+**Modo de execução:** com checkpoints (aprovado por Hudson em 2026-08-11 — paradas após B e após D)
+
+---
+
+## Stack (derivada de ARCHITECTURE.md)
+
+`TypeScript strict · Next.js 15 App Router · Supabase (Postgres + Auth, sem ORM) · pnpm workspaces · Vitest + pgTAP · Tailwind v4 + shadcn/ui (catálogo em packages/ui) · Vercel`
+
+Pontos que condicionam a execução:
+- `packages/core` é TypeScript puro — não importa React, Supabase nem faz HTTP.
+- Toda alteração de banco é migration versionada; RLS deny-by-default é verificada mecanicamente pelo teste do NAPO-001.
+- O catálogo de UI está **vazio** (só `tokens.css`) — esta spec o inaugura.
+
+## Agentes elegíveis (após fitness)
+
+- ✅ **Elegíveis:** `test-engineer` (Vitest/pgTAP), `security-auditor` (spec inteira é sensitiva), `project-planner` (esta etapa).
+- ❌ **Não elegíveis:** `database-architect` (fitness pressupõe SQL+ORM; aqui é Supabase/SQL direto) · `backend-specialist` (fitness pressupõe framework HTTP tradicional; aqui são Route Handlers do Next) · `seo-specialist`, `devops-engineer`, `mobile-developer` (sem bloco correspondente).
+- 🟡 **Com ressalva:** `frontend-specialist` — a fitness matrix o marca como não elegível quando o design system é rígido, e aqui shadcn/ui é mandatado pela arquitetura §2.2. As opiniões anti-default do agente conflitariam com o contrato visual já aprovado no Gate Visual A.
+
+**Delegação: nenhuma.** Todos os blocos rodam inline no agente principal — o PM não solicitou subagentes, e a regra `AGENTS.md` §2.9 exige que paralelismo previsto seja declarado como executável ou impossível em vez de silenciosamente não acontecer. Os blocos A, B e C **são** disjuntos e paralelizáveis em tese; na prática serão executados em sequência.
+
+---
+
+## Blocos
+
+### Bloco A — Núcleo puro (telefone + código)
+Arquivos: `packages/core/src/telefone/{e164,index}.ts`, `packages/core/src/otp/{codigo,index}.ts`, `packages/core/src/index.ts` · Testes: T9-T14 · Depende: — · Paralelo (em tese): B, C · Est: 45min · Inline · `[x]`
+
+### Bloco B — Banco (schema, RLS, funções de admin)
+Arquivos: `supabase/migrations/0006_auditoria.sql`, `0007_telefone.sql`, `0008_consentimentos.sql`, `0009_admin_functions.sql`, `supabase/tests/{0005,0006}_*.sql`, `supabase/seed.sql`, `supabase/config.toml` · Testes: T26, T27, T29, T32-T35, T44 · Depende: — · Paralelo (em tese): A, C · Est: 75min · Inline · `[ ]`
+
+### Bloco C — Base de UI (Tailwind + catálogo)
+Arquivos: `apps/web/{postcss.config.mjs,app/globals.css,app/layout.tsx,package.json}`, `packages/ui/src/{tokens.css,lib/cn.ts,components/*,patterns/auth-card.tsx}`, `packages/ui/package.json` · Testes: T39-T41 + os 7 critérios visuais · Depende: — · Paralelo (em tese): A, B · Est: 75min · Inline · `[ ]`
+
+### Bloco D — Fluxo de login
+Arquivos: `apps/web/middleware.ts`, `src/lib/supabase/{admin,middleware}.ts`, `src/lib/{env,ip}.ts`, `src/features/auth/{services/sessao.ts,destino.ts,index.ts,components/*}`, `app/api/auth/{callback,sair}/route.ts`, `app/(conta)/{entrar/page.tsx,conta/{layout,page}.tsx}`, `app/(admin)/admin/{layout,page}.tsx` · Testes: T1, T2, T4-T8, T21-T23, T25, T28, T31, T38 · Depende: B, C · Est: 90min · Inline · `[ ]`
+
+### Bloco E — Gate de telefone
+Arquivos: `apps/web/src/lib/otp/{remetente,remetente-fake,remetente-meta}.ts`, `src/features/auth/services/{verificacao,consentimento}.ts`, `app/api/otp/{enviar,validar}/route.ts`, `app/(conta)/validar-telefone/page.tsx`, componentes do formulário · Testes: T3, T15-T20, T24, T30, T36, T37, T42, T43, T45, T46 · Depende: A, B, D · Est: 90min · Inline · `[ ]`
+
+### Bloco F — Ferramentas de admin
+Arquivos: `scripts/admin.mjs`, `.env.example` · Exercita pela linha de comando as funções já provadas em T32-T35 · Depende: B · Est: 30min · Inline · `[ ]`
+
+---
+
+## Grafo de dependências
+
+```
+A ─┐
+B ─┼──→ D ──→ E
+C ─┘         ↑
+A ───────────┘
+B ──→ F
+```
+
+Total estimado: ~6h de execução.
+
+## Checkpoints intermediários sugeridos
+
+- **Após Bloco B:** o schema é a parte de reversão mais cara da spec (índice único de telefone, funções `SECURITY DEFINER`). Vale confirmar antes de construir em cima.
+- **Após Bloco D:** login funcionando de ponta a ponta é o primeiro momento em que o PM consegue *usar* a spec — bom ponto para olhar antes do gate de telefone.
+
+Só se tornam bloqueantes se o PM escolher `Modo de execução: com checkpoints`.
+
+## Notas de execução
+
+- Commits incrementais: `feat(NAPO-002): bloco [letra] — [resumo] (Tx, Ty verdes)`.
+- Bloco C e as telas dos blocos D e E disparam o protocolo 4.0 (mockup-driven scaffolding) — `design.md` §4.4 é o mapa de tradução.
+- Gate Visual B acontece no fim (Etapa 7), com dev server no ar e aprovação explícita do PM.
+
+## Decisões de execução
+
+- **Bloco A — dois casos do T9/T10 corrigidos no teste, não na implementação:** `0061991504477` não é número brasileiro em convenção alguma (trocado por `005561991504477`), e `+1 415 555 2671` colide com o formato nacional (DDD 14 sem nono dígito), então a recusa correta é `nao_celular`.
+- **T1-T8 e T39-T41 sem Playwright:** os fluxos viram testes de integração de servidor (Vitest + Supabase local) e os critérios de teclado/mobile/contraste viram auditoria do Gate Visual B. Playwright entra no NAPO-006, onde `ARCHITECTURE.md` §2.3 o previu; instalá-lo aqui cobriria só metade do fluxo, já que o Google OAuth não roda local.
