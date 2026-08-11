@@ -55,8 +55,13 @@ select throws_ok(
 
 reset role;
 
+-- Restrito ao alvo deste teste: ver a nota em `0005_telefone_rls_test.sql`.
 select is(
-  (select count(*)::int from public.auditoria),
+  (
+    select count(*)::int
+    from public.auditoria
+    where registro_id = '30000000-0000-0000-0000-000000000001'
+  ),
   0,
   'tentativa recusada não gera linha de auditoria (T32)'
 );

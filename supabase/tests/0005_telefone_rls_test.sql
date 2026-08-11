@@ -93,8 +93,15 @@ select set_config('request.jwt.claims',
   json_build_object('sub', '20000000-0000-0000-0000-00000000000a', 'role', 'authenticated')::text, true);
 set local role authenticated;
 
+-- Conta só o que este teste produziu: `auditoria` é acumulativa e o banco local
+-- carrega o rastro de qualquer uso anterior. Contagem global deixaria o teste
+-- vermelho por motivo que não é regressão.
 select is(
-  (select count(*)::int from public.auditoria),
+  (
+    select count(*)::int
+    from public.auditoria
+    where registro_id = '20000000-0000-0000-0000-000000000001'
+  ),
   1,
   'admin enxerga a auditoria (T33)'
 );

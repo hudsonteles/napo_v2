@@ -45,7 +45,7 @@ Arquivos: `apps/web/middleware.ts`, `src/lib/supabase/{admin,middleware}.ts`, `s
 Arquivos: `apps/web/src/lib/otp/{remetente,remetente-fake,remetente-meta}.ts`, `src/features/auth/services/{verificacao,consentimento}.ts`, `app/api/otp/{enviar,validar}/route.ts`, `app/(conta)/validar-telefone/page.tsx`, componentes do formulário · Testes: T3, T15-T20, T24, T30, T36, T37, T42, T43, T45, T46 · Depende: A, B, D · Est: 90min · Inline · `[x]`
 
 ### Bloco F — Ferramentas de admin
-Arquivos: `scripts/admin.mjs`, `.env.example` · Exercita pela linha de comando as funções já provadas em T32-T35 · Depende: B · Est: 30min · Inline · `[ ]`
+Arquivos: `scripts/admin.mjs`, `.env.example` · Exercita pela linha de comando as funções já provadas em T32-T35 · Depende: B · Est: 30min · Inline · `[x]`
 
 ---
 
@@ -95,3 +95,5 @@ Só se tornam bloqueantes se o PM escolher `Modo de execução: com checkpoints`
 - **Bloco E — recusa por unicidade grava o desafio e não envia (RN11):** assim a tentativa conta no teto e a resposta fica indistinguível do sucesso. Invalidar a linha tiraria a tentativa do teto e abriria enumeração ilimitada.
 - **Bloco E — T37 × T46 conciliados:** o serviço nunca loga o código; quem loga é o `RemetenteFake`, que é o que T46 exige e só entra com `WHATSAPP_PROVIDER=fake` (produção exige `meta`).
 - **Bloco E — `test/server-only-stub.ts` + alias no `vitest.config.ts`:** o pacote `server-only` lança fora do bundler do Next. A proteção real segue no build, que resolve a condição `react-server`.
+- **Bloco F — script sem SDK, por `fetch` nativo contra o PostgREST:** instalar `supabase-js` na raiz do monorepo para duas chamadas HTTP não se paga. Formato E.164 é conferido localmente só para evitar viagem de rede; a regra completa segue no núcleo e no banco.
+- **Bloco F — duas asserções pgTAP passaram a contar `auditoria` por `registro_id`:** a tabela é acumulativa e contagem global ficava vermelha depois de qualquer uso real do banco local. Descoberto ao exercitar o script contra o Supabase local — o CI, que parte limpo, nunca teria mostrado.
