@@ -39,7 +39,7 @@ Arquivos: `supabase/migrations/0004_capacidade.sql`, `supabase/migrations/0005_r
 Arquivos: `apps/web/src/features/disponibilidade/services/{snapshot,produtos}.ts`, `apps/web/src/features/disponibilidade/index.ts`, `apps/web/app/api/disponibilidade/route.ts`, `apps/web/app/api/disponibilidade/reserva/route.ts` + teste, `apps/web/vitest.config.ts`, `packages/core/src/disponibilidade/conflito.ts` + teste · Testes: T17, T20, T21, T23 · Depende: B, C · Est: 60min · **Docker: obrigatório** · `[x]`
 
 ### Bloco E — Verificação integrada
-Arquivos: `packages/db/src/types.generated.ts` (regenerado) · Testes: T21, T22 · Depende: D · Est: 40min · **Docker: obrigatório** · `[ ]`
+Arquivos: `packages/db/src/types.generated.ts` (regenerado), `packages/core/src/disponibilidade/capacidade.test.ts` · Testes: T22 · Depende: D · Est: 40min · **Docker: obrigatório** · `[x]`
 
 ---
 
@@ -86,3 +86,7 @@ A e B são disjuntos (SQL vs TypeScript puro) e independentes — B não precisa
 - **Produtos vêm por query string (`?produtos=&massas=`) enquanto `produtos` não existe.** NAPO-003 substitui isso pela leitura do catálogo, que passa a ser a fonte da flag de massa.
 - **Editar código com regex no PowerShell corrompeu um arquivo de teste** e exigiu reescrita. Ferramentas de edição estruturada (Write/Edit) para código daqui em diante.
 - **Teste de mutação aplicado à RN7** (`min` → `max` nos dois tetos): 4 cenários quebraram, confirmando que a suíte prende a regra em vez de acompanhá-la.
+
+---
+
+**Concluído em:** 2026-08-10

@@ -141,6 +141,28 @@ describe('calcularDisponibilidade', () => {
   });
 });
 
+describe('lote liberado no admin', () => {
+  it('T22 — lote reprogramado é considerado na consulta seguinte, sem recálculo manual', () => {
+    // Depois do cutoff: em ATP só o lote pronto do dia conta.
+    const snap = snapshot(new Date('2026-08-13T12:00:00Z'));
+    const antes = calcularDisponibilidade(snap).find((d) => d.data === '2026-08-14');
+    expect(antes?.produtos.find((p) => p.produtoId === MARGHERITA)?.disponivel).toBe(0);
+
+    // O gerente reprograma o lote perdido (NAPO-008 fará isso no banco).
+    snap.lotes = [
+      {
+        produtoId: MARGHERITA,
+        quantidade: 8,
+        validade: '2026-09-01',
+        diaEntregaAlocado: '2026-08-14',
+      },
+    ];
+
+    const depois = calcularDisponibilidade(snap).find((d) => d.data === '2026-08-14');
+    expect(depois?.produtos.find((p) => p.produtoId === MARGHERITA)?.disponivel).toBe(8);
+  });
+});
+
 describe('proximoDiaComVaga', () => {
   it('T14 — produto esgotado aponta o próximo dia com vaga real', () => {
     const snap = snapshot(new Date('2026-08-13T12:00:00Z'), {

@@ -34,13 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-- [ ] **NAPO-004** Motor de disponibilidade (calendário, cutoff, dois tetos)
-  - **Spec:** [`docs/specs/004-motor-disponibilidade/`](docs/specs/004-motor-disponibilidade/) — aprovado
-  - **Iniciado em:** 2026-08-10
-  - **Dependências:** NAPO-001 ✅ · **Bloqueia:** NAPO-006, NAPO-008
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** coração do R1. Agenda única de dias de entrega com cutoff **derivado** do piso de fermentação (nunca digitado); antes do cutoff CTP, depois só ATP; sabor esgotado oferece o próximo dia **com vaga real**. Horizonte de 2 semanas deslizantes (rolamento Opção B). Tetos do R1: `teto_forno_dia = 30` + `capacidade_freezer = 150`; sub-teto de massa (consome vaga de forno igual a uma pizza, mas rende R$ 7,21 contra R$ 20,82). Tabela de etapas nasce vazia no schema. Spec §5.
-  - **Calendário confirmado em 2026-08-10:** entrega apenas na **sexta**, produção **seg–sex**, ambos configuráveis.
+_(Nenhum item em andamento. O próximo da fila é NAPO-002.)_
 
 ---
 
@@ -200,6 +194,9 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 
 _Histórico — adicionar mais recentes NO TOPO._
 
+- [x] **NAPO-004** Motor de disponibilidade (calendário, cutoff, dois tetos) · concluído 2026-08-10 · [`docs/specs/004-motor-disponibilidade/`](docs/specs/004-motor-disponibilidade/)
+  - Cutoff derivado com recuo por dia sem produção, horizonte deslizante com buffer, CTP/ATP, dois tetos (forno e freezer) e sub-teto de massa — tudo em `packages/core`, 30 testes determinísticos. Calendário e tetos configuráveis (`config_operacao`, entrega sexta, produção seg–sex). Reserva de 15 min atômica por advisory lock, sem `pg_cron`. `GET /api/disponibilidade` e `POST /api/disponibilidade/reserva`.
+  - **RN12/RN13 entregues como decisão pura** (`avaliarViabilidade`, `devolucaoPorCancelamento`): a tabela `pedidos` é de NAPO-006, que vai plugá-las no webhook. Ver `drift.md`.
 - [x] **Tooling: sincronia de banco entre máquinas** · concluído 2026-08-10 — git hooks versionados (`.githooks/post-merge` + `post-rewrite`) armados no `pnpm install`; todo `git pull` com migration nova roda `migration up` + regenera tipos no Supabase local. Degrada com aviso se o stack estiver desligado ou se uma migration foi reescrita (sugere `db:reset`). DevX, sem spec.
 - [x] **NAPO-001** Fundação: monorepo, Next.js 15, Supabase local e CI · concluído 2026-08-10 · [`docs/specs/001-fundacao/`](docs/specs/001-fundacao/)
   - Monorepo pnpm (`apps/web` + `packages/core|db|ui`), `packages/core` puro garantido por lint. Migrations `0001/0002` com RLS deny-by-default, enum de role e trigger anti-auto-promoção (validado por pgTAP). `env.ts` (Zod) mantendo `service_role` fora do browser, helper `tempo.ts` fixado em `America/Sao_Paulo`, CI em dois jobs. Publicação (staging/prod) permanece em NAPO-021.

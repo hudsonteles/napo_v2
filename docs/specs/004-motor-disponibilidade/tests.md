@@ -271,23 +271,23 @@ E a mensagem informa a ausência de data, em vez de aceitar o pedido
 ## Checklist de Conclusão
 
 ### Testes
-- [ ] T1..T23 verdes (`pnpm test` + `pnpm db:test`)
-- [ ] Cada RN do `spec.md` com ≥1 teste correspondente
+- [x] T1..T23 verdes — 34 em Vitest (30 core + 4 web) e 24 em pgTAP
+- [x] Cada RN do `spec.md` com ≥1 teste correspondente
 
 ### Qualidade
-- [ ] Lint verde (`pnpm lint`)
-- [ ] Typecheck verde (`pnpm typecheck`)
-- [ ] Build verde (`pnpm build`) — inclusive o bundle do cliente
-- [ ] Tipos do banco sem drift (`pnpm db:types:check`)
-- [ ] Sem `console.log` esquecidos · sem `TODO` sem ideia vinculada
+- [x] Lint verde (`pnpm lint`)
+- [x] Typecheck verde (`pnpm typecheck`) — 3 projetos
+- [x] Build verde (`pnpm build`) · `service_role` ausente do bundle do cliente
+- [x] Tipos do banco sem drift (`pnpm db:types:check`, exit 0)
+- [x] Sem `console.log` esquecidos · sem `TODO` sem ideia vinculada
 
 ### Escopo
-- [ ] Apenas arquivos do Mapa de Impacto (`design.md` §1) modificados
-- [ ] Nenhuma funcionalidade fora do `spec.md`
-- [ ] `package.json` sem dependência nova (este spec não prevê nenhuma)
+- [x] Apenas arquivos do Mapa de Impacto (`design.md` §1) modificados
+- [x] Nenhuma funcionalidade fora do `spec.md`
+- [x] `package.json` ganhou apenas `vitest` em `apps/web`, registrado em `design.md` §6.1
 
 ### Fechamento
-- [ ] Retrospectiva feita (`AGENTS.md` §5.1)
-- [ ] `ROADMAP.md` com NAPO-004 em ✅ Concluídos
-- [ ] `spec.md` com **Status: Concluído**
-- [ ] Push para `origin/main`
+- [x] Retrospectiva feita (`AGENTS.md` §5.1)
+- [x] `ROADMAP.md` com NAPO-004 em ✅ Concluídos
+- [x] `spec.md` com **Status: Concluído**
+- [x] Push para `origin/main`
