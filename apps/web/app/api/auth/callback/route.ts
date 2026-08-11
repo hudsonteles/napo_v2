@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { destinoAposLogin, ROTA_ENTRAR } from '@/features/auth';
-import { garantirPerfil } from '@/features/auth';
+import { destinoAposLogin, garantirPerfil, ROTA_ENTRAR } from '@/features/auth';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';

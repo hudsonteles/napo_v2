@@ -1,21 +1,11 @@
 /**
- * Feature de autenticação — expõe só o que rotas, layouts e middleware
- * consomem; o resto é interno (ARCHITECTURE §3.2).
+ * Superfície de servidor da feature de autenticação — o que rotas e layouts
+ * consomem (ARCHITECTURE §3.2).
+ *
+ * O middleware e os componentes de cliente importam `./destino` diretamente, e
+ * não por aqui, de propósito: este barrel arrasta os serviços de sessão, que
+ * dependem de `next/headers` e não existem no edge nem no browser.
  */
-export {
-  areaDaRota,
-  caminhoInternoSeguro,
-  decidirAcesso,
-  destinoAposLogin,
-  destinoPorPapel,
-  resolverDestino,
-  rotaExigeSessao,
-  ROTA_ENTRAR,
-  ROTA_VALIDAR_TELEFONE,
-  type Acesso,
-  type AreaProtegida,
-  type Papel,
-  type PerfilSessao,
-} from './destino';
+export { destinoAposLogin, ROTA_ENTRAR, type PerfilSessao } from './destino';
 
 export { carregarPerfilDaSessao, exigirAcesso, garantirPerfil } from './services/sessao';
