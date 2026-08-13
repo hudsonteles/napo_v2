@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Refinamento do card (NAPO-003)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+      }
+    </style>
+
+    <style>
+      /* carimbo de esgotado — estêncil diagonal sobre a foto */
+      .carimbo {
+        transform: rotate(-11deg);
+        letter-spacing: 0.22em;
+        border: 2px solid currentColor;
+        box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.45);
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ REFINAMENTO DO CARD (opção A escolhida pelo PM) ══
+      Problema relatado: disco grande demais e conteúdo sem delimitação — "fica meio perdido".
+      Três variações de contenção + selos redesenhados. Não é rota do site.
+    -->
+
+    <header class="border-b border-borda">
+      <div class="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+        <img src="./logo-dark.png" alt="Napo" class="h-7 w-auto" />
+        <h1 class="mt-6 text-3xl font-extrabold tracking-tight sm:text-4xl">
+          O card, contido
+        </h1>
+        <p class="mt-3 max-w-2xl leading-relaxed text-texto-suave">
+          O disco continua, menor e dentro de uma moldura. Três formas de delimitar, e os selos
+          refeitos. Redimensione a janela: todas respondem de 320&nbsp;px a 1440&nbsp;px.
+        </p>
+        <nav class="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-mono text-xs text-amarelo">
+          <a href="#a1" class="underline underline-offset-4">A1 · moldura centrada</a>
+          <a href="#a2" class="underline underline-offset-4">A2 · assimétrica</a>
+          <a href="#a3" class="underline underline-offset-4">A3 · painel</a>
+          <a href="#selos" class="underline underline-offset-4">selos</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-5 sm:px-8">
+      <!-- ════════════ A1 — MOLDURA CENTRADA ════════════ -->
+      <section id="a1" class="border-b border-borda py-14 sm:py-20">
+        <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">Variação A1</p>
+        <h2 class="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">Moldura centrada</h2>
+        <p class="mt-3 max-w-xl text-sm leading-relaxed text-texto-suave">
+          Card com borda e fundo. O disco cai para ~65% da largura e ganha respiro em volta; uma
+          divisória separa a informação da ação. É a leitura mais direta: foto, dado, botão.
+        </p>
+
+        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <article
+            class="group flex flex-col overflow-hidden rounded-card border border-borda bg-superficie transition hover:border-borda-forte"
+          >
+            <div class="relative px-8 pt-8 pb-2">
+              <div class="mx-auto aspect-square w-[68%] overflow-hidden rounded-full">
+                <img
+                  src="./fotos/margherita.jpeg"
+                  alt="Pizza Margherita vista de cima"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              </div>
+              <!-- → <Badge variant="ranking"> — carimbo circular, encostado no disco -->
+              <div
+                class="absolute top-6 right-6 grid h-11 w-11 place-items-center rounded-full bg-amarelo text-preto"
+              >
+                <span class="text-lg leading-none font-extrabold">1</span>
+              </div>
+            </div>
+
+            <div class="flex flex-1 flex-col p-5 pt-3 text-center">
+              <h3 class="text-lg font-semibold">Margherita</h3>
+              <p class="mt-1 text-sm text-texto-suave">Molho de tomate, muçarela e manjericão.</p>
+              <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+              <p class="mt-4 text-2xl font-extrabold tracking-tight">R$ 39,90</p>
+              <p class="mt-1 font-mono text-xs text-texto-suave">12 disponíveis</p>
+            </div>
+
+            <div class="flex items-center gap-2 border-t border-borda p-4">
+              <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                <button disabled class="cursor-not-allowed px-3 py-2.5">
+                  <i data-lucide="minus" class="h-4 w-4"></i>
+                </button>
+                <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                <button disabled class="cursor-not-allowed px-3 py-2.5">
+                  <i data-lucide="plus" class="h-4 w-4"></i>
+                </button>
+              </div>
+              <button
+                disabled
+                class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500"
+              >
+                Adicionar
+              </button>
+            </div>
+          </article>
+
+          <article
+            class="group flex flex-col overflow-hidden rounded-card border border-borda bg-superficie transition hover:border-borda-forte"
+          >
+            <div class="relative px-8 pt-8 pb-2">
+              <div class="mx-auto aspect-square w-[68%] overflow-hidden rounded-full">
+                <img
+                  src="./fotos/calabresa.jpeg"
+                  alt="Pizza de calabresa"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              </div>
+            </div>
+            <div class="flex flex-1 flex-col p-5 pt-3 text-center">
+              <h3 class="text-lg font-semibold">Calabresa</h3>
+              <p class="mt-1 text-sm text-texto-suave">Calabresa fatiada, cebola e muçarela.</p>
+              <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+              <p class="mt-4 text-2xl font-extrabold tracking-tight">R$ 39,90</p>
+              <p class="mt-1 font-mono text-xs text-amarelo">restam 4</p>
+            </div>
+            <div class="flex items-center gap-2 border-t border-borda p-4">
+              <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                <button disabled class="cursor-not-allowed px-3 py-2.5">
+                  <i data-lucide="minus" class="h-4 w-4"></i>
+                </button>
+                <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                <button disabled class="cursor-not-allowed px-3 py-2.5">
+                  <i data-lucide="plus" class="h-4 w-4"></i>
+                </button>
+              </div>
+              <button
+                disabled
+                class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500"
+              >
+                Adicionar
+              </button>
+            </div>
+          </article>
+
+          <!-- estado ESGOTADO com o carimbo novo -->
+          <article class="flex flex-col overflow-hidden rounded-card border border-borda bg-superficie">
+            <div class="relative px-8 pt-8 pb-2">
+              <div class="mx-auto aspect-square w-[68%] overflow-hidden rounded-full">
+                <img
+                  src="./fotos/peperoni.jpeg"
+                  alt="Pizza de pepperoni"
+                  class="h-full w-full object-cover opacity-45 grayscale"
+                />
+              </div>
+              <div class="absolute inset-0 grid place-items-center">
+                <span
+                  class="carimbo rounded-sm px-4 py-1.5 font-mono text-sm font-bold text-texto-suave uppercase"
+                  >Esgotado</span
+                >
+              </div>
+            </div>
+            <div class="flex flex-1 flex-col p-5 pt-3 text-center">
+              <h3 class="text-lg font-semibold text-texto-suave">Pepperoni</h3>
+              <p class="mt-1 text-sm text-texto-suave">Pepperoni levemente picante e muçarela.</p>
+              <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+              <p class="mt-4 text-2xl font-extrabold tracking-tight text-texto-suave">R$ 45,90</p>
+              <p class="mt-1 font-mono text-xs text-texto-suave">volta em 28.08</p>
+            </div>
+            <div class="border-t border-borda p-4">
+              <button
+                disabled
+                class="min-h-11 w-full cursor-not-allowed rounded-campo border border-borda text-sm font-medium text-neutral-500"
+              >
+                Avise-me quando voltar
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ════════════ A2 — ASSIMÉTRICA ════════════ -->
+      <section id="a2" class="border-b border-borda py-14 sm:py-20">
+        <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">Variação A2</p>
+        <h2 class="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">Assimétrica</h2>
+        <p class="mt-3 max-w-xl text-sm leading-relaxed text-texto-suave">
+          Disco pequeno à esquerda, nome e preço à direita dele, ação em largura total embaixo.
+          Cabe mais produto na tela, o preço fica alinhado entre os cards e o card fica baixo — bom
+          para os 12 sabores sem rolagem longa. O disco vira âncora, não protagonista.
+        </p>
+
+        <div class="mt-10 grid gap-5 sm:grid-cols-2">
+          <article
+            class="group rounded-card border border-borda bg-superficie p-5 transition hover:border-borda-forte"
+          >
+            <div class="flex items-start gap-5">
+              <div class="relative shrink-0">
+                <div class="aspect-square w-24 overflow-hidden rounded-full sm:w-28">
+                  <img
+                    src="./fotos/margherita.jpeg"
+                    alt="Pizza Margherita vista de cima"
+                    class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div
+                  class="absolute -top-1 -right-1 grid h-8 w-8 place-items-center rounded-full bg-amarelo text-preto"
+                >
+                  <span class="text-sm leading-none font-extrabold">1</span>
+                </div>
+              </div>
+
+              <div class="min-w-0 flex-1">
+                <div class="flex items-baseline justify-between gap-3">
+                  <h3 class="truncate text-lg font-semibold">Margherita</h3>
+                  <p class="font-mono text-lg font-bold whitespace-nowrap">39,90</p>
+                </div>
+                <p class="mt-1 line-clamp-2 text-sm text-texto-suave">
+                  Molho de tomate, muçarela e manjericão.
+                </p>
+                <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+                <p class="mt-1 font-mono text-xs text-texto-suave">12 disponíveis</p>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-center gap-2 border-t border-borda pt-4">
+              <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                <button disabled class="cursor-not-allowed px-3 py-2.5">
+                  <i data-lucide="minus" class="h-4 w-4"></i>
+                </button>
+                <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                <button disabled class="cursor-not-allowed px-3 py-2.5">
+                  <i data-lucide="plus" class="h-4 w-4"></i>
+                </button>
+              </div>
+              <button
+                disabled
+                class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500"
+              >
+                Adicionar
+              </button>
+            </div>
+          </article>
+
+          <article
+            class="group rounded-card border border-borda bg-superficie p-5 transition hover:border-borda-forte"
+          >
+            <div class="flex items-start gap-5">
+              <div class="shrink-0">
+                <div class="aspect-square w-24 overflow-hidden rounded-full sm:w-28">
+                  <img
+                    src="./fotos/nutella.jpeg"
+                    alt="Pizza de Nutella com avelã"
+                    class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                </div>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-baseline justify-between gap-3">
+                  <h3 class="truncate text-lg font-semibold">Nutella com Avelã</h3>
+                  <p class="font-mono text-lg font-bold whitespace-nowrap">49,90</p>
+                </div>
+                <p class="mt-1 line-clamp-2 text-sm text-texto-suave">
+                  Nutella e avelã tostada em pedaços.
+                </p>
+                <p class="mt-2 flex items-center gap-1.5 text-xs font-medium text-erro">
+                  <i data-lucide="alert-triangle" class="h-3.5 w-3.5"></i> Contém avelã
+                </p>
+                <p class="mt-1 font-mono text-xs text-texto-suave">9 disponíveis</p>
+              </div>
+            </div>
+            <div class="mt-4 flex items-center gap-2 border-t border-borda pt-4">
+              <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                <button disabled class="cursor-not-allowed px-3 py-2.5">
+                  <i data-lucide="minus" class="h-4 w-4"></i>
+                </button>
+                <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                <button disabled class="cursor-not-allowed px-3 py-2.5">
+                  <i data-lucide="plus" class="h-4 w-4"></i>
+                </button>
+              </div>
+              <button
+                disabled
+                class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500"
+              >
+                Adicionar
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ════════════ A3 — PAINEL ════════════ -->
+      <section id="a3" class="border-b border-borda py-14 sm:py-20">
+        <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">Variação A3</p>
+        <h2 class="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">Painel</h2>
+        <p class="mt-3 max-w-xl text-sm leading-relaxed text-texto-suave">
+          O disco vive num painel de tom diferente no topo do card — vira “palco”, com moldura
+          clara, sem precisar de borda ao redor da foto. A informação fica num bloco visualmente
+          separado embaixo. É a que melhor resolve “imagem solta” sem encolher demais a pizza.
+        </p>
+
+        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <article
+            class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte"
+          >
+            <div class="relative bg-superficie-alta px-6 py-7">
+              <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+                <img
+                  src="./fotos/margherita.jpeg"
+                  alt="Pizza Margherita vista de cima"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              </div>
+              <!-- selo de ranking: fita horizontal ancorada na base do painel -->
+              <div
+                class="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-1.5 rounded-full bg-amarelo px-3 py-1 text-preto"
+              >
+                <span class="text-xs leading-none font-extrabold">1º</span>
+                <span class="font-mono text-[10px] tracking-widest uppercase">mais pedida</span>
+              </div>
+            </div>
+
+            <div class="flex flex-1 flex-col bg-superficie p-5 pt-7">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="text-lg font-semibold">Margherita</h3>
+                <p class="font-mono text-lg font-bold">39,90</p>
+              </div>
+              <p class="mt-1.5 text-sm text-texto-suave">Molho de tomate, muçarela e manjericão.</p>
+              <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+
+              <div class="mt-5 flex items-center gap-2">
+                <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                  <button disabled class="cursor-not-allowed px-3 py-2.5">
+                    <i data-lucide="minus" class="h-4 w-4"></i>
+                  </button>
+                  <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                  <button disabled class="cursor-not-allowed px-3 py-2.5">
+                    <i data-lucide="plus" class="h-4 w-4"></i>
+                  </button>
+                </div>
+                <button
+                  disabled
+                  class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500"
+                >
+                  Adicionar
+                </button>
+              </div>
+              <p class="mt-2.5 font-mono text-xs text-texto-suave">12 disponíveis</p>
+            </div>
+          </article>
+
+          <article
+            class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte"
+          >
+            <div class="bg-superficie-alta px-6 py-7">
+              <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+                <img
+                  src="./fotos/calabresa.jpeg"
+                  alt="Pizza de calabresa"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              </div>
+            </div>
+            <div class="flex flex-1 flex-col bg-superficie p-5">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="text-lg font-semibold">Calabresa</h3>
+                <p class="font-mono text-lg font-bold">39,90</p>
+              </div>
+              <p class="mt-1.5 text-sm text-texto-suave">Calabresa fatiada, cebola e muçarela.</p>
+              <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+              <div class="mt-5 flex items-center gap-2">
+                <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                  <button disabled class="cursor-not-allowed px-3 py-2.5">
+                    <i data-lucide="minus" class="h-4 w-4"></i>
+                  </button>
+                  <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                  <button disabled class="cursor-not-allowed px-3 py-2.5">
+                    <i data-lucide="plus" class="h-4 w-4"></i>
+                  </button>
+                </div>
+                <button
+                  disabled
+                  class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500"
+                >
+                  Adicionar
+                </button>
+              </div>
+              <p class="mt-2.5 font-mono text-xs text-amarelo">restam 4 — última chamada da fornada</p>
+            </div>
+          </article>
+
+          <article class="flex flex-col overflow-hidden rounded-card border border-borda">
+            <div class="relative bg-superficie-alta px-6 py-7">
+              <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full">
+                <img
+                  src="./fotos/peperoni.jpeg"
+                  alt="Pizza de pepperoni"
+                  class="h-full w-full object-cover opacity-40 grayscale"
+                />
+              </div>
+              <div class="absolute inset-0 grid place-items-center">
+                <span
+                  class="carimbo rounded-sm px-4 py-1.5 font-mono text-sm font-bold text-texto-suave uppercase"
+                  >Esgotado</span
+                >
+              </div>
+            </div>
+            <div class="flex flex-1 flex-col bg-superficie p-5">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="text-lg font-semibold text-texto-suave">Pepperoni</h3>
+                <p class="font-mono text-lg font-bold text-texto-suave">45,90</p>
+              </div>
+              <p class="mt-1.5 text-sm text-texto-suave">Pepperoni levemente picante e muçarela.</p>
+              <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+              <div class="mt-5">
+                <button
+                  disabled
+                  class="min-h-11 w-full cursor-not-allowed rounded-campo border border-borda text-sm font-medium text-neutral-500"
+                >
+                  Avise-me quando voltar
+                </button>
+              </div>
+              <p class="mt-2.5 font-mono text-xs text-texto-suave">volta na fornada de 28.08</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ════════════ SELOS ════════════ -->
+      <section id="selos" class="py-14 sm:py-20">
+        <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">Selos</p>
+        <h2 class="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl">
+          Ranking e esgotado, refeitos
+        </h2>
+        <p class="mt-3 max-w-xl text-sm leading-relaxed text-texto-suave">
+          A pílula cinza genérica saiu. O ranking virou marca circular amarela — lida como selo de
+          qualidade, não como etiqueta de loja. O esgotado virou carimbo diagonal sobre a foto
+          dessaturada, que é como uma cozinha marca o que acabou.
+        </p>
+
+        <div class="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <p class="font-mono text-xs text-texto-suave">ranking · disco</p>
+            <div class="relative mt-4 w-40">
+              <div class="aspect-square overflow-hidden rounded-full">
+                <img src="./fotos/margherita.jpeg" alt="" class="h-full w-full object-cover" />
+              </div>
+              <div
+                class="absolute -top-2 -right-2 grid h-12 w-12 place-items-center rounded-full bg-amarelo text-preto ring-4 ring-preto"
+              >
+                <span class="text-xl leading-none font-extrabold">1</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="font-mono text-xs text-texto-suave">ranking · fita</p>
+            <div class="relative mt-4 w-40">
+              <div class="aspect-square overflow-hidden rounded-full">
+                <img src="./fotos/calabresa.jpeg" alt="" class="h-full w-full object-cover" />
+              </div>
+              <div
+                class="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-1.5 rounded-full bg-amarelo px-3 py-1 text-preto ring-4 ring-preto"
+              >
+                <span class="text-xs leading-none font-extrabold">2º</span>
+                <span class="font-mono text-[10px] tracking-widest uppercase">mais pedida</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="font-mono text-xs text-texto-suave">esgotado · carimbo</p>
+            <div class="relative mt-4 w-40">
+              <div class="aspect-square overflow-hidden rounded-full">
+                <img
+                  src="./fotos/peperoni.jpeg"
+                  alt=""
+                  class="h-full w-full object-cover opacity-40 grayscale"
+                />
+              </div>
+              <div class="absolute inset-0 grid place-items-center">
+                <span
+                  class="carimbo rounded-sm px-3 py-1 font-mono text-xs font-bold text-texto-suave uppercase"
+                  >Esgotado</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p class="font-mono text-xs text-texto-suave">escasso · anel</p>
+            <div class="relative mt-4 w-40">
+              <div
+                class="aspect-square overflow-hidden rounded-full ring-2 ring-amarelo ring-offset-4 ring-offset-preto"
+              >
+                <img src="./fotos/4queijos.jpeg" alt="" class="h-full w-full object-cover" />
+              </div>
+              <div
+                class="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full bg-preto px-2.5 py-1 font-mono text-[10px] tracking-widest text-amarelo uppercase ring-1 ring-amarelo/40"
+              >
+                restam 4
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-borda">
+      <p class="mx-auto max-w-6xl px-5 py-8 text-sm text-texto-suave sm:px-8">
+        Escolhida a variação, ela vale para vitrine, home e página de produto — um componente só.
+      </p>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

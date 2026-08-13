@@ -43,14 +43,14 @@ _(Sem itens em andamento. O próximo sai de 🟡 Próximos.)_
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
 
 - [ ] **NAPO-003** Site público, catálogo e SEO
-  - **Spec:** `docs/specs/003-site-catalogo/` _(a criar)_
+  - **Spec:** [`docs/specs/003-site-catalogo/`](docs/specs/003-site-catalogo/) — **aprovada em 2026-08-13**
   - **Dependências:** NAPO-001
   - **Bloqueia:** NAPO-006
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer."_ — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
+  - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Assada na pedra. Em casa, só aquecer."_ (eixo alterado pelo PM em 2026-08-13) — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
   - **Base de UI herdada do NAPO-002 (2026-08-11):** Tailwind v4, os tokens completos e 7 primitivos do shadcn (`Button`, `Input`, `Label`, `Checkbox`, `InputOTP`, `Card`, `Toaster`) mais os patterns `<AuthCard>` e `<Marca>` já nascem no NAPO-002, porque as telas de login vieram antes do site. Esta spec **herda a base pronta** e deve começar revisando a calibragem dela em vez de recriá-la.
   - **SEO permanece no R1 (decidido 2026-08-10):** avaliado adiar por receio de custo na Vercel e **descartado** — metadata, `sitemap.xml`, `robots.txt`, JSON-LD e URLs semânticas são texto no HTML que o build já gera; em página SSG servida do CDN o custo marginal é **zero**. Adiar não posterga custo, posterga receita: indexação de domínio novo leva semanas a meses, e trocar estrutura de URL depois exige mapa de 301 e descarta autoridade acumulada.
-  - **Restrições de custo a respeitar na spec:** (a) `app/(site)/` fica **SSG com `revalidate` longo** — catálogo de pizza muda pouco, nada de SSR sem motivo; (b) decidir explicitamente se as fotos do ensaio (NAPO-020) passam pelo `next/image` ou vão **pré-otimizadas do Supabase Storage** — a cota de transformação de imagem é o custo real do catálogo, não o SEO.
+  - **Restrições de custo a respeitar na spec:** (a) `app/(site)/` fica **SSG com `revalidate` longo** — catálogo de pizza muda pouco, nada de SSR sem motivo; (b) **decidido na spec:** fotos **pré-otimizadas versionadas no repositório**, servidas por `<img>` sem `next/image` — a cota de transformação de imagem da Vercel é o custo real do catálogo, e otimizar uma vez custa zero por visita.
 
 - [ ] **NAPO-005** Endereços e frete por faixa de distância
   - **Spec:** `docs/specs/005-enderecos-frete/` _(a criar)_
@@ -150,6 +150,9 @@ Adiadas no R1 **com o dado já capturado** (ligam depois sem migração):
 
 Ainda abertas, para as fases seguintes:
 
+- [ ] **Orçamento de eventos online (simulador + captação de lead)** — página pública onde o cliente informa o número de pessoas e monta o pacote: louças e talheres, bebidas (refrigerante e água) e garçons a **R$ 250 cada**. O **forno de pedra no local e a pizza assada na hora são obrigatórios** — fazem parte do serviço e nunca aparecem como item opcional no simulador. Preço por pessoa **decrescente por volume**: R$ 99,00/pessoa a partir de 10 pessoas até R$ 64,90/pessoa em 100 pessoas. **Todos os valores editáveis no admin** — é essa exigência que torna o item dependente do NAPO-008 e o tira do NAPO-003. Resolve a ideia "como um lead de evento entra no pipeline antes do bot existir" e antecipa parte da precificação assistida do NAPO-010. Precisa de: faixas de preço por volume, catálogo de itens opcionais, calculadora em `packages/core`, formulário de lead com consentimento LGPD e telas de admin. **Depende de NAPO-008.** Registrado em 2026-08-13. **Origem:** Gate Visual A do NAPO-003, quando o PM notou que o site não tinha porta de entrada para eventos. O NAPO-003 entrega a porta (página `/eventos` + CTA de WhatsApp); o simulador é este item.
+- [ ] **Promoções, cupons e descontos** — não existe nada disso no R1: a única regra promocional é frete grátis acima de R$ 150 (NAPO-005). A definir o que "promoção" significa para a Napo — cupom de desconto, desconto por quantidade, combo, ou **preço menor em fornada distante para encher o forno ocioso** (a que mais conversa com o gargalo do negócio). Mexe em preço, checkout, margem e painel econômico ao mesmo tempo. Registrado em 2026-08-13. **Origem:** Gate Visual A do NAPO-003.
+
 - [ ] **Migração dos dados atuais** (clientes, receitas, estoque) — precisa acontecer antes do go-live do R1. Registrado em 2026-08-10.
 - [ ] **Conciliação de pagamentos** (Mercado Pago + Stone + repasses). Registrado em 2026-08-10.
 - [ ] **Sinal/depósito e política de cancelamento de eventos** — o registro de decisões trata pagamento só no contexto de delivery. Registrado em 2026-08-10.
@@ -183,8 +186,9 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
   - **Desde:** 2026-08-10
 
 - [ ] **NAPO-020** Ensaio de fotografia dos produtos
-  - **Bloqueado por:** agendamento com fotógrafo — o catálogo premium (NAPO-003) depende das imagens
+  - **Bloqueado por:** agendamento com fotógrafo — **restam 3 produtos**: Lombo Canadense, Massa doce e Massa salgada
   - **Desde:** 2026-08-10
+  - **⬇️ Deixou de bloquear o NAPO-003 (2026-08-13):** o PM indicou `docs/images/ensaio/` com fotos utilizáveis de 9 dos 12 produtos, mais forno e produção. As 9 já entraram no contrato visual, cortadas em quadrado e comprimidas. Os 3 restantes nascem com placeholder na mesma proporção. **Briefing das que faltam:** top-down, pizza centralizada, fundo indiferente (o recorte circular apara o entorno).
 
 ---
 

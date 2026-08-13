@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Vitrine /sabores (NAPO-003)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+      }
+    </style>
+    <style>
+      /* carimbo de esgotado — estêncil diagonal sobre a foto */
+      .carimbo {
+        transform: rotate(-11deg);
+        letter-spacing: 0.22em;
+        border: 2px solid currentColor;
+        box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.45);
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — Vitrine /sabores ══
+      CATÁLOGO USADO:      <Marca>, <Button> (default|outline|ghost)
+      NOVOS A CRIAR:       <CabecalhoSite>, <RodapeSite> (patterns)
+                           <Badge>, <SeletorQuantidade> (components)
+                           <CardProduto> (A3 painel), <SeletorFornada>, <BarraFornada> (features/catalogo)
+      MARKUP CRU ACEITO:   container raiz, grid da vitrine, faixa de filtros
+      ESTADOS:             disponível · escasso · esgotado (com rota para a próxima fornada) · 1º mais pedida
+      FORNADA:             o cliente escolhe o dia de entrega. O motor (NAPO-004) já devolve todos os dias
+                           do horizonte; a disponibilidade de cada card é relativa à fornada ativa.
+    -->
+
+    <!-- → <CabecalhoSite> -->
+    <header class="sticky top-0 z-50 border-b border-borda bg-preto/85 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
+        <a href="./preview-home.html">
+          <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-8 w-auto" />
+        </a>
+        <nav class="flex items-center gap-1 sm:gap-2">
+          <a href="./preview-sabores.html" class="rounded-campo px-3 py-2 text-sm font-medium">Sabores</a>
+          <a
+            href="./preview-conteudo.html"
+            class="hidden rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco sm:block"
+            >Como aquecer</a
+          >
+          <button
+            disabled
+            class="ml-1 flex cursor-not-allowed items-center gap-2 rounded-campo bg-superficie-alta px-4 py-2 text-sm font-semibold text-neutral-500"
+          >
+            <i data-lucide="shopping-bag" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Carrinho</span>
+            <span class="rounded-full bg-borda px-1.5 text-[11px]">0</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-5 py-12 sm:px-8 sm:py-16">
+      <h1
+        class="text-[clamp(2rem,6vw,3.75rem)] leading-[1.02] font-extrabold tracking-[-0.03em] text-balance"
+      >
+        Cardápio de pizza congelada
+      </h1>
+      <p class="mt-5 max-w-lg leading-relaxed text-texto-suave">
+        Doze opções, todas assadas na pedra e congeladas prontas. Escolha a fornada e monte seu
+        pedido — preços sem frete.
+      </p>
+
+      <!-- ═══ → <SeletorFornada /> — dias vindos de GET /api/disponibilidade ═══ -->
+      <section
+        class="mt-10 rounded-card border border-borda bg-superficie p-5 sm:p-6"
+        aria-label="Escolha da fornada"
+      >
+        <div class="flex flex-wrap items-baseline justify-between gap-3">
+          <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">Entregar em</p>
+          <p class="font-mono text-xs text-texto-suave">pedidos desta fornada até quarta, 18h</p>
+        </div>
+
+        <div class="mt-4 flex gap-3 overflow-x-auto pb-1">
+          <button class="min-w-[8.5rem] shrink-0 rounded-campo bg-amarelo px-4 py-3 text-left text-preto">
+            <span class="font-mono text-[10px] tracking-widest uppercase opacity-70">esta sexta</span>
+            <span class="mt-0.5 block text-lg leading-none font-extrabold">21.08</span>
+            <span class="mt-1.5 block font-mono text-[11px] opacity-80">83 pizzas disponíveis</span>
+          </button>
+          <button
+            class="min-w-[8.5rem] shrink-0 rounded-campo border border-borda-forte px-4 py-3 text-left transition hover:bg-superficie-alta"
+          >
+            <span class="font-mono text-[10px] tracking-widest text-texto-suave uppercase">próxima</span>
+            <span class="mt-0.5 block text-lg leading-none font-extrabold">28.08</span>
+            <span class="mt-1.5 block font-mono text-[11px] text-texto-suave">130 pizzas disponíveis</span>
+          </button>
+          <button
+            class="min-w-[8.5rem] shrink-0 rounded-campo border border-borda-forte px-4 py-3 text-left transition hover:bg-superficie-alta"
+          >
+            <span class="font-mono text-[10px] tracking-widest text-texto-suave uppercase">sexta</span>
+            <span class="mt-0.5 block text-lg leading-none font-extrabold">04.09</span>
+            <span class="mt-1.5 block font-mono text-[11px] text-texto-suave">130 pizzas disponíveis</span>
+          </button>
+        </div>
+
+        <div class="mt-5 h-2 w-full overflow-hidden rounded-full bg-preto">
+          <div class="h-full rounded-full bg-amarelo" style="width: 36%"></div>
+        </div>
+        <p class="mt-2 font-mono text-xs text-texto-suave">47 das 130 pizzas de 21.08 já vendidas</p>
+      </section>
+
+      <!-- faixa de filtro por categoria -->
+      <div class="mt-8 flex flex-wrap gap-2">
+        <button class="rounded-full bg-branco px-4 py-2 text-sm font-semibold text-preto">
+          Todos <span class="opacity-60">12</span>
+        </button>
+        <button
+          class="rounded-full border border-borda-forte px-4 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco"
+        >
+          Salgadas <span class="opacity-60">7</span>
+        </button>
+        <button
+          class="rounded-full border border-borda-forte px-4 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco"
+        >
+          Doces <span class="opacity-60">3</span>
+        </button>
+        <button
+          class="rounded-full border border-borda-forte px-4 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco"
+        >
+          Massas <span class="opacity-60">2</span>
+        </button>
+      </div>
+
+      <!-- ═══ GRID — 1 col <640 · 2 col <1024 · 3 col ≥1024 ═══ -->
+      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/margherita.jpeg" alt="Pizza Margherita" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            </div>
+            <div class="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-1.5 rounded-full bg-amarelo px-3 py-1 text-preto ring-4 ring-superficie"><span class="text-xs leading-none font-extrabold">1º</span><span class="font-mono text-[10px] tracking-widest uppercase">mais pedida</span></div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5 pt-7">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Margherita</h2>
+              <p class="font-mono text-lg font-bold">39,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Molho de tomate, muçarela e manjericão.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">12 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/calabresa.jpeg" alt="Pizza Calabresa" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Calabresa</h2>
+              <p class="font-mono text-lg font-bold">39,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Calabresa fatiada, cebola e muçarela.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-amarelo">4 disponíveis — última chamada</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/nutella.jpeg" alt="Pizza Nutella com Avelã" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Nutella com Avelã</h2>
+              <p class="font-mono text-lg font-bold">49,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Nutella e avelã tostada em pedaços.</p>
+            <p class="mt-2 flex items-center gap-1.5 text-xs font-medium text-erro"><i data-lucide="alert-triangle" class="h-3.5 w-3.5"></i> Contém avelã, glúten, leite, soja</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">9 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <div>
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/peperoni.jpeg" alt="Pizza Pepperoni" class="h-full w-full object-cover opacity-40 grayscale" />
+            </div>
+            <div class="absolute inset-0 grid place-items-center"><span class="carimbo rounded-sm px-4 py-1.5 font-mono text-sm font-bold text-texto-suave uppercase">Esgotado</span></div>
+          </div>
+          </div>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold text-texto-suave">Pepperoni</h2>
+              <p class="font-mono text-lg font-bold text-texto-suave">45,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Pepperoni levemente picante e muçarela.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+            <div class="mt-5"><button class="min-h-11 w-full rounded-campo border border-amarelo/40 text-sm font-semibold text-amarelo transition hover:bg-amarelo/10">Comprar para 28.08 &rarr;</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">esgotado nesta fornada · 20 un. em 28.08</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <div class="grid h-full place-items-center bg-preto/40"><img src="./logo-dark.png" alt="" class="h-7 w-auto opacity-20" aria-hidden="true" /><span class="sr-only">Foto em produção</span></div>
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Lombo Canadense</h2>
+              <p class="font-mono text-lg font-bold">39,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Lombo canadense, muçarela e orégano.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">8 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/frango.jpeg" alt="Pizza Frango com Catupiry" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Frango com Catupiry</h2>
+              <p class="font-mono text-lg font-bold">45,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Frango desfiado, catupiry e muçarela.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">15 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/peito_peru_gorgonzola.jpeg" alt="Pizza Peito de Peru c/ Gorgonzola" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Peito de Peru c/ Gorgonzola</h2>
+              <p class="font-mono text-lg font-bold">45,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Peito de peru, gorgonzola e muçarela.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">6 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/4queijos.jpeg" alt="Pizza 4 Queijos" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">4 Queijos</h2>
+              <p class="font-mono text-lg font-bold">45,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Muçarela, provolone, parmesão e gorgonzola.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">11 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/banana.jpeg" alt="Pizza Banana" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Banana</h2>
+              <p class="font-mono text-lg font-bold">39,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Banana, canela e açúcar.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">14 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <img src="./fotos/chocolate.jpeg" alt="Pizza Chocolate Nestlé" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Chocolate Nestlé</h2>
+              <p class="font-mono text-lg font-bold">45,90</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Chocolate ao leite sobre a massa doce.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite, soja</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">10 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <div class="grid h-full place-items-center bg-preto/40"><img src="./logo-dark.png" alt="" class="h-7 w-auto opacity-20" aria-hidden="true" /><span class="sr-only">Foto em produção</span></div>
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Massa salgada</h2>
+              <p class="font-mono text-lg font-bold">15,00</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Só a massa, pré-assada. Você monta o recheio.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">22 disponíveis</p>
+          </div>
+        </article>
+
+        <!-- -> <CardProduto /> - variacao A3 (painel) -->
+        <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+          <a href="./preview-produto.html" class="block">
+          <div class="relative bg-superficie-alta px-6 py-7">
+            <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+              <div class="grid h-full place-items-center bg-preto/40"><img src="./logo-dark.png" alt="" class="h-7 w-auto opacity-20" aria-hidden="true" /><span class="sr-only">Foto em produção</span></div>
+            </div>
+          </div>
+          </a>
+          <div class="flex flex-1 flex-col bg-superficie p-5">
+            <div class="flex items-baseline justify-between gap-3">
+              <h2 class="text-lg font-semibold">Massa doce</h2>
+              <p class="font-mono text-lg font-bold">15,00</p>
+            </div>
+            <p class="mt-1.5 text-sm text-texto-suave">Massa levemente adocicada, pré-assada.</p>
+            <p class="mt-2 text-xs text-texto-suave">Contém glúten</p>
+            <div class="mt-5 flex items-center gap-2"><div class="flex items-center rounded-campo border border-borda text-neutral-500"><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button><span class="w-8 text-center text-sm text-texto-suave">1</span><button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button></div><button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button></div><p class="mt-2.5 font-mono text-xs text-texto-suave">18 disponíveis</p>
+          </div>
+        </article>
+      </div>
+
+      <p
+        class="mt-14 flex items-start gap-3 border-t border-borda pt-8 text-sm leading-relaxed text-texto-suave"
+      >
+        <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0"></i>
+        <span>
+          Todos os produtos são feitos na mesma cozinha, onde também se manipula
+          <strong class="font-medium text-branco">glúten, leite, soja e avelã</strong>. Pode conter
+          traços mesmo quando o ingrediente não está na receita.
+        </span>
+      </p>
+    </main>
+
+    <!-- → <RodapeSite> -->
+    <footer class="border-t border-borda">
+      <div
+        class="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-12 sm:px-8 lg:flex-row lg:justify-between"
+      >
+        <div>
+          <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-7 w-auto" />
+          <p class="mt-4 max-w-xs text-sm leading-relaxed text-texto-suave">
+            Pizza napolitana congelada, assada na pedra. Brasília&nbsp;/&nbsp;DF.
+          </p>
+        </div>
+        <nav class="flex flex-wrap gap-x-10 gap-y-6 text-sm">
+          <div class="space-y-3">
+            <p class="text-xs font-medium tracking-widest text-texto-suave uppercase">Produto</p>
+            <a href="./preview-sabores.html" class="block text-texto-suave hover:text-branco">Sabores</a>
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco">Como aquecer</a>
+          </div>
+          <div class="space-y-3">
+            <p class="text-xs font-medium tracking-widest text-texto-suave uppercase">Legal</p>
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco">Termos de uso</a>
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco">Privacidade</a>
+          </div>
+        </nav>
+      </div>
+      <div class="border-t border-borda">
+        <p class="mx-auto max-w-6xl px-5 py-6 text-xs text-texto-suave sm:px-8">
+          © 2026 Napo · CNPJ 00.000.000/0001-00 · Brasília/DF
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

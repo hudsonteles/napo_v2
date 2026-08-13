@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Home (NAPO-003)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- @theme espelhando packages/ui/src/tokens.css — não inventar valores -->
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+      }
+    </style>
+
+    <style>
+      /*
+       * DISCO — a pizza vista de cima é o sistema visual do site.
+       * No app é uma <img> quadrada com máscara circular; aqui o miolo é simulado
+       * em CSS para o PM julgar o layout antes do ensaio (NAPO-020).
+       */
+      .disco {
+        aspect-ratio: 1 / 1;
+        border-radius: 9999px;
+        position: relative;
+        overflow: hidden;
+      }
+      .disco-placeholder {
+        background: #1e1e1e;
+        box-shadow: inset 0 0 0 1px #2a2a2a;
+      }
+      .disco-foto {
+        background:
+          radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.14) 0%, transparent 18%),
+          radial-gradient(
+            circle at 50% 50%,
+            #e9b552 0%,
+            #d99a3c 46%,
+            #a86524 74%,
+            #74441a 88%,
+            #3a220d 100%
+          );
+      }
+      .disco-foto::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image:
+          radial-gradient(circle at 34% 30%, #8c2b22 0 5.5%, transparent 6%),
+          radial-gradient(circle at 66% 36%, #8c2b22 0 4.5%, transparent 5%),
+          radial-gradient(circle at 44% 62%, #8c2b22 0 5%, transparent 5.5%),
+          radial-gradient(circle at 70% 66%, #8c2b22 0 4%, transparent 4.5%),
+          radial-gradient(circle at 26% 55%, #f2e2c0 0 7%, transparent 7.5%),
+          radial-gradient(circle at 58% 48%, #f2e2c0 0 8%, transparent 8.5%);
+        opacity: 0.85;
+      }
+      .disco-foto::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 9999px;
+        box-shadow:
+          inset 0 0 0 6% rgba(120, 68, 24, 0.55),
+          inset 0 0 26px rgba(0, 0, 0, 0.55);
+        z-index: 1;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — Home ══
+      CATÁLOGO USADO:      <Marca>, <Button> (default|outline|ghost), <Card>
+      NOVOS A CRIAR:       <CabecalhoSite>, <RodapeSite> (packages/ui/patterns)
+                           <Badge>, <SeletorQuantidade> (packages/ui/components)
+                           <Disco>, <CardProduto>, <BarraFornada> (features/catalogo/components)
+      MARKUP CRU ACEITO:   container raiz, grids de seção, régua comparativa
+      DIREÇÃO VISUAL:      a pizza vista de cima é o sistema — discos, não retângulos.
+                           A capacidade do forno vira elemento gráfico (dado real do NAPO-004).
+    -->
+
+    <!-- → <CabecalhoSite> — estrutura aprovada pelo PM, agora com carrinho -->
+    <header class="sticky top-0 z-50 border-b border-borda bg-preto/85 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
+        <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-8 w-auto" />
+        <nav class="flex items-center gap-1 sm:gap-2">
+          <a
+            href="./preview-sabores.html"
+            class="rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco"
+            >Sabores</a
+          >
+          <a
+            href="./preview-conteudo.html#eventos"
+            class="hidden rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco sm:block"
+            >Eventos</a
+          >
+          <a
+            href="./preview-conteudo.html"
+            class="hidden rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco sm:block"
+            >Como aquecer</a
+          >
+          <!-- → <Button size="auto" disabled> — carrinho chega no NAPO-006 -->
+          <button
+            disabled
+            title="O carrinho abre com o NAPO-006"
+            class="ml-1 flex cursor-not-allowed items-center gap-2 rounded-campo bg-superficie-alta px-4 py-2 text-sm font-semibold text-neutral-500"
+          >
+            <i data-lucide="shopping-bag" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Carrinho</span>
+            <span class="rounded-full bg-borda px-1.5 text-[11px]">0</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ═════════════ HERO — altura travada na viewport (header + hero = 100dvh) ═════════════ -->
+      <section
+        class="relative flex h-[calc(100dvh-65px)] items-center overflow-hidden border-b border-borda"
+      >
+        <!-- imagem: fundo inteiro no mobile, metade direita no desktop -->
+        <div class="absolute inset-0 lg:left-1/2" aria-hidden="true">
+          <img src="./fotos/forno.jpeg" alt="" class="h-full w-full object-cover" />
+          <!-- mobile: véu escuro para o texto passar por cima da foto -->
+          <div class="absolute inset-0 bg-preto/75 lg:hidden"></div>
+          <!-- desktop: fusão lateral, a imagem não termina em aresta -->
+          <div
+            class="absolute inset-0 hidden bg-gradient-to-r from-preto via-preto/40 to-transparent lg:block"
+          ></div>
+        </div>
+
+        <div class="relative mx-auto w-full max-w-6xl px-5 sm:px-8">
+          <div class="lg:w-[54%]">
+            <!-- marcador de fornada — tipografia técnica, assinatura da marca -->
+            <p class="font-mono text-[clamp(0.65rem,1.6vw,0.75rem)] tracking-[0.25em] text-amarelo uppercase">
+              Fornada 34 · sexta, 21.08
+            </p>
+
+            <!-- clamp na tipografia: o hero cabe de 320px a 1440px sem estourar a altura -->
+            <h1
+              class="mt-[clamp(1rem,3vh,2rem)] text-[clamp(2.25rem,6.5vw,4.5rem)] leading-[0.95] font-extrabold tracking-[-0.03em]"
+            >
+              Longa<br />
+              fermentação.<br />
+              Assada <span class="text-amarelo">na pedra</span>.
+            </h1>
+
+            <p
+              class="mt-[clamp(1rem,2.5vh,2rem)] max-w-md text-[clamp(0.95rem,1.9vw,1.125rem)] leading-relaxed text-texto-suave"
+            >
+              Em casa, só aquecer. A sua cozinha não tem forno de pedra — a nossa tem, e a pizza
+              sai de lá pronta.
+            </p>
+
+            <div class="mt-[clamp(1.25rem,3vh,2.5rem)] flex flex-col gap-3 sm:flex-row sm:items-center">
+              <a
+                href="./preview-sabores.html"
+                class="inline-flex min-h-12 items-center justify-center gap-2 rounded-campo bg-amarelo px-6 py-3 text-[15px] font-semibold text-preto transition hover:bg-amarelo-escuro"
+              >
+                Ver os 12 sabores
+                <i data-lucide="arrow-right" class="h-4 w-4"></i>
+              </a>
+              <a
+                href="./preview-conteudo.html"
+                class="inline-flex min-h-12 items-center justify-center rounded-campo border border-borda-forte px-6 py-3 text-[15px] font-medium transition hover:bg-superficie-alta"
+              >
+                Como aquecer
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- convite a rolar: sinaliza que a fornada continua abaixo da dobra -->
+        <a
+          href="#fornada"
+          class="absolute bottom-5 left-1/2 -translate-x-1/2 text-texto-suave transition hover:text-branco"
+          aria-label="Ver a fornada da semana"
+        >
+          <i data-lucide="chevron-down" class="h-6 w-6"></i>
+        </a>
+      </section>
+
+      <!-- ═════════════ A FORNADA — o gargalo do forno vira narrativa ═════════════ -->
+      <!-- → <BarraFornada /> — números vêm do motor de disponibilidade (NAPO-004) -->
+      <section id="fornada" class="border-b border-borda bg-superficie">
+        <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+          <div class="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">
+                A fornada desta semana
+              </p>
+              <p class="mt-5 text-5xl font-extrabold tracking-tight sm:text-6xl">
+                47<span class="text-borda-forte">/130</span>
+              </p>
+              <p class="mt-2 text-texto-suave">pizzas desta fornada já têm dono</p>
+            </div>
+
+            <div class="max-w-sm">
+              <p class="text-sm leading-relaxed text-texto-suave">
+                O forno assa 130 por semana — não é escassez de marketing, é o tamanho da pedra.
+                Esgotou nesta sexta? A próxima fornada já está aberta.
+              </p>
+              <!-- → <SeletorFornada compacto /> — o motor devolve todo o horizonte (NAPO-004) -->
+              <div class="mt-5 flex flex-wrap gap-2">
+                <a href="./preview-sabores.html" class="rounded-campo bg-amarelo px-3 py-2 font-mono text-xs font-semibold text-preto">
+                  21.08 · 83 pizzas
+                </a>
+                <a href="./preview-sabores.html" class="rounded-campo border border-borda-forte px-3 py-2 font-mono text-xs text-texto-suave transition hover:bg-superficie-alta hover:text-branco">
+                  28.08 · 130 pizzas
+                </a>
+                <a href="./preview-sabores.html" class="rounded-campo border border-borda-forte px-3 py-2 font-mono text-xs text-texto-suave transition hover:bg-superficie-alta hover:text-branco">
+                  04.09 · 130 pizzas
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-8 h-3 w-full overflow-hidden rounded-full bg-preto">
+            <div class="h-full rounded-full bg-amarelo" style="width: 36%"></div>
+          </div>
+          <div class="mt-3 flex justify-between font-mono text-xs text-texto-suave">
+            <span>36% do forno ocupado</span>
+            <span>pedidos até quarta, 18h</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════════════ AS MAIS PEDIDAS — 3 em ordem (ranking_mais_pedidas) ═════════════ -->
+      <section class="border-b border-borda">
+        <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <h2 class="text-[clamp(1.75rem,5vw,3rem)] font-extrabold tracking-tight">As mais pedidas</h2>
+            <a href="./preview-sabores.html" class="inline-flex items-center gap-2 text-sm text-texto-suave underline underline-offset-4 transition hover:text-branco">
+              Ver os 12 <i data-lucide="arrow-right" class="h-4 w-4"></i>
+            </a>
+          </div>
+
+          <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <!-- -> <CardProduto ranking={1} /> - variacao A3 (painel) -->
+          <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+            <a href="./preview-produto.html" class="block">
+              <div class="relative bg-superficie-alta px-6 py-7">
+                <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+                  <img src="./fotos/margherita.jpeg" alt="Pizza Margherita" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                </div>
+                <div class="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-1.5 rounded-full bg-amarelo px-3 py-1 text-preto ring-4 ring-superficie">
+                  <span class="text-xs leading-none font-extrabold">1º</span>
+                  <span class="font-mono text-[10px] tracking-widest uppercase">mais pedida</span>
+                </div>
+              </div>
+            </a>
+            <div class="flex flex-1 flex-col bg-superficie p-5 pt-7">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="text-lg font-semibold">Margherita</h3>
+                <p class="font-mono text-lg font-bold">39,90</p>
+              </div>
+              <p class="mt-1.5 text-sm text-texto-suave">Molho de tomate, muçarela e manjericão.</p>
+              <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+              <div class="mt-5 flex items-center gap-2">
+                <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                  <button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button>
+                  <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                  <button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button>
+                </div>
+                <button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button>
+              </div>
+              <p class="mt-2.5 font-mono text-xs text-texto-suave">12 disponíveis</p>
+            </div>
+          </article>
+
+          <!-- -> <CardProduto ranking={2} /> - variacao A3 (painel) -->
+          <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+            <a href="./preview-produto.html" class="block">
+              <div class="relative bg-superficie-alta px-6 py-7">
+                <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+                  <img src="./fotos/calabresa.jpeg" alt="Pizza Calabresa" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                </div>
+                <div class="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-1.5 rounded-full bg-amarelo px-3 py-1 text-preto ring-4 ring-superficie">
+                  <span class="text-xs leading-none font-extrabold">2º</span>
+                  <span class="font-mono text-[10px] tracking-widest uppercase">mais pedida</span>
+                </div>
+              </div>
+            </a>
+            <div class="flex flex-1 flex-col bg-superficie p-5 pt-7">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="text-lg font-semibold">Calabresa</h3>
+                <p class="font-mono text-lg font-bold">39,90</p>
+              </div>
+              <p class="mt-1.5 text-sm text-texto-suave">Calabresa fatiada, cebola e muçarela.</p>
+              <p class="mt-2 text-xs text-texto-suave">Contém glúten, leite</p>
+              <div class="mt-5 flex items-center gap-2">
+                <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                  <button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button>
+                  <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                  <button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button>
+                </div>
+                <button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button>
+              </div>
+              <p class="mt-2.5 font-mono text-xs text-amarelo">4 disponíveis — última chamada</p>
+            </div>
+          </article>
+
+          <!-- -> <CardProduto ranking={3} /> - variacao A3 (painel) -->
+          <article class="group flex flex-col overflow-hidden rounded-card border border-borda transition hover:border-borda-forte">
+            <a href="./preview-produto.html" class="block">
+              <div class="relative bg-superficie-alta px-6 py-7">
+                <div class="mx-auto aspect-square w-[74%] overflow-hidden rounded-full shadow-2xl shadow-black/50">
+                  <img src="./fotos/nutella.jpeg" alt="Pizza Nutella com Avelã" class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+                </div>
+                <div class="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center gap-1.5 rounded-full bg-amarelo px-3 py-1 text-preto ring-4 ring-superficie">
+                  <span class="text-xs leading-none font-extrabold">3º</span>
+                  <span class="font-mono text-[10px] tracking-widest uppercase">mais pedida</span>
+                </div>
+              </div>
+            </a>
+            <div class="flex flex-1 flex-col bg-superficie p-5 pt-7">
+              <div class="flex items-baseline justify-between gap-3">
+                <h3 class="text-lg font-semibold">Nutella com Avelã</h3>
+                <p class="font-mono text-lg font-bold">49,90</p>
+              </div>
+              <p class="mt-1.5 text-sm text-texto-suave">Nutella e avelã tostada em pedaços.</p>
+              <p class="mt-2 flex items-center gap-1.5 text-xs font-medium text-erro"><i data-lucide="alert-triangle" class="h-3.5 w-3.5"></i> Contém avelã, glúten, leite</p>
+              <div class="mt-5 flex items-center gap-2">
+                <div class="flex items-center rounded-campo border border-borda text-neutral-500">
+                  <button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="minus" class="h-4 w-4"></i></button>
+                  <span class="w-8 text-center text-sm text-texto-suave">1</span>
+                  <button disabled class="cursor-not-allowed px-3 py-2.5"><i data-lucide="plus" class="h-4 w-4"></i></button>
+                </div>
+                <button disabled class="min-h-11 flex-1 cursor-not-allowed rounded-campo bg-superficie-alta text-sm font-semibold text-neutral-500">Adicionar</button>
+              </div>
+              <p class="mt-2.5 font-mono text-xs text-texto-suave">9 disponíveis</p>
+            </div>
+          </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════════════ A DIFERENÇA É O FORNO ═════════════ -->
+      <section class="border-b border-borda">
+        <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28">
+          <h2 class="max-w-3xl text-4xl font-extrabold tracking-tight text-balance sm:text-6xl">
+            O concorrente não é a pizzaria<br class="hidden sm:block" />
+            da esquina. É o freezer do mercado.
+          </h2>
+
+          <!-- comparação como régua, não como duas caixas simétricas -->
+          <!-- cabeçalho da régua: sem ele, o leitor não sabe de quem é cada lado -->
+          <div class="mt-14 grid gap-2 sm:grid-cols-[1fr_auto_1fr]">
+            <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">
+              Congelada de supermercado
+            </p>
+            <p class="hidden sm:block sm:px-8"></p>
+            <p class="font-mono text-xs tracking-[0.25em] text-amarelo uppercase sm:text-right">
+              Napo
+            </p>
+          </div>
+
+          <div class="mt-4">
+            <div class="grid items-center gap-2 border-t border-borda py-6 sm:grid-cols-[1fr_auto_1fr]">
+              <p class="text-lg text-texto-suave">Massa crua na embalagem</p>
+              <p class="font-mono text-xs tracking-widest text-borda-forte uppercase sm:px-8">
+                massa
+              </p>
+              <p class="text-lg font-medium sm:text-right">Fermentação longa, de véspera</p>
+            </div>
+            <div class="grid items-center gap-2 border-t border-borda py-6 sm:grid-cols-[1fr_auto_1fr]">
+              <p class="text-lg text-texto-suave">Você assa em casa, do zero</p>
+              <p class="font-mono text-xs tracking-widest text-borda-forte uppercase sm:px-8">
+                forno
+              </p>
+              <p class="text-lg font-medium sm:text-right">
+                Assada <span class="text-amarelo">na pedra</span>, no forno italiano
+              </p>
+            </div>
+            <div
+              class="grid items-center gap-2 border-t border-b border-borda py-6 sm:grid-cols-[1fr_auto_1fr]"
+            >
+              <p class="text-lg text-texto-suave">Nunca fica boa — e a culpa não é sua</p>
+              <p class="font-mono text-xs tracking-widest text-borda-forte uppercase sm:px-8">
+                em casa
+              </p>
+              <p class="text-lg font-medium sm:text-right">Oito minutos e está na mesa</p>
+            </div>
+          </div>
+
+          <p class="mt-10 max-w-xl leading-relaxed text-texto-suave">
+            A fermentação longa também é o que deixa a massa leve — dela você não sai pesado.
+          </p>
+        </div>
+      </section>
+
+      <!-- ═════════════ EVENTOS — porta de entrada; o simulador é item próprio ═════════════ -->
+      <section class="border-b border-borda">
+        <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
+          <div class="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-center lg:gap-16">
+            <div class="relative overflow-hidden rounded-card border border-borda">
+              <img
+                src="./fotos/capa.jpeg"
+                alt="Pizzas fatiadas em tábua, servidas em evento"
+                class="aspect-[4/3] w-full object-cover"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-preto/70 to-transparent"></div>
+            </div>
+
+            <div>
+              <p class="font-mono text-xs tracking-[0.25em] text-amarelo uppercase">Eventos</p>
+              <h2 class="mt-5 text-[clamp(1.75rem,5vw,3rem)] leading-[1.05] font-extrabold tracking-tight text-balance">
+                Sua festa com pizza saindo da pedra na hora.
+              </h2>
+              <p class="mt-5 max-w-md leading-relaxed text-texto-suave">
+                Levamos o forno até você. De 10 a 100 pessoas, com opção de louças e talheres,
+                bebidas e garçons — a partir de <strong class="font-medium text-branco">R$ 64,90 por pessoa</strong>
+                nos grupos maiores.
+              </p>
+
+              <dl class="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 font-mono text-sm">
+                <div class="border-t border-borda pt-3">
+                  <dt class="text-xs text-texto-suave">A partir de 10 pessoas</dt>
+                  <dd class="mt-1 text-lg font-bold">R$ 99,00<span class="text-xs font-normal text-texto-suave">/pessoa</span></dd>
+                </div>
+                <div class="border-t border-amarelo/30 pt-3">
+                  <dt class="text-xs text-texto-suave">Até 100 pessoas</dt>
+                  <dd class="mt-1 text-lg font-bold text-amarelo">R$ 64,90<span class="text-xs font-normal text-texto-suave">/pessoa</span></dd>
+                </div>
+              </dl>
+
+              <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="./preview-conteudo.html#eventos"
+                  class="inline-flex min-h-12 items-center justify-center gap-2 rounded-campo bg-amarelo px-6 py-3 text-[15px] font-semibold text-preto transition hover:bg-amarelo-escuro"
+                >
+                  <i data-lucide="message-circle" class="h-4 w-4"></i>
+                  Pedir um orçamento
+                </a>
+                <a
+                  href="./preview-conteudo.html#eventos"
+                  class="inline-flex min-h-12 items-center justify-center rounded-campo border border-borda-forte px-6 py-3 text-[15px] font-medium transition hover:bg-superficie-alta"
+                >
+                  Como funciona
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═════════════ ENTREGA E ÁREA (RN10) ═════════════ -->
+      <section>
+        <div class="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
+          <div class="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
+            <div>
+              <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">Entrega</p>
+              <h2 class="mt-5 text-4xl font-extrabold tracking-tight text-balance sm:text-5xl">
+                Brasília, às sextas.
+              </h2>
+              <p class="mt-5 max-w-md leading-relaxed text-texto-suave">
+                Produção por encomenda, sem estoque parado. Você escolhe a sexta, a gente assa
+                naquela semana. Raio de 12&nbsp;km a partir da cozinha.
+              </p>
+            </div>
+
+            <dl>
+              <div class="flex justify-between border-t border-borda py-4">
+                <dt class="text-texto-suave">Até 4 km</dt>
+                <dd class="font-mono font-medium">R$ 6,00</dd>
+              </div>
+              <div class="flex justify-between border-t border-borda py-4">
+                <dt class="text-texto-suave">4 a 8 km</dt>
+                <dd class="font-mono font-medium">R$ 10,00</dd>
+              </div>
+              <div class="flex justify-between border-t border-borda py-4">
+                <dt class="text-texto-suave">8 a 12 km</dt>
+                <dd class="font-mono font-medium">R$ 14,00</dd>
+              </div>
+              <div class="flex justify-between border-t border-b border-amarelo/30 py-4">
+                <dt class="font-medium text-amarelo">Acima de R$ 150</dt>
+                <dd class="font-mono font-semibold text-amarelo">grátis</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- → <RodapeSite> — estrutura aprovada pelo PM -->
+    <footer class="border-t border-borda">
+      <div
+        class="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-12 sm:px-8 lg:flex-row lg:justify-between"
+      >
+        <div>
+          <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-7 w-auto" />
+          <p class="mt-4 max-w-xs text-sm leading-relaxed text-texto-suave">
+            Pizza napolitana congelada, assada na pedra. Brasília&nbsp;/&nbsp;DF.
+          </p>
+        </div>
+
+        <nav class="flex flex-wrap gap-x-10 gap-y-6 text-sm">
+          <div class="space-y-3">
+            <p class="text-xs font-medium tracking-widest text-texto-suave uppercase">Produto</p>
+            <a href="./preview-sabores.html" class="block text-texto-suave hover:text-branco"
+              >Sabores</a
+            >
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco"
+              >Como aquecer</a
+            >
+            <a href="./preview-conteudo.html#eventos" class="block text-texto-suave hover:text-branco"
+              >Eventos</a
+            >
+          </div>
+          <div class="space-y-3">
+            <p class="text-xs font-medium tracking-widest text-texto-suave uppercase">Legal</p>
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco"
+              >Termos de uso</a
+            >
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco"
+              >Privacidade</a
+            >
+          </div>
+        </nav>
+      </div>
+      <div class="border-t border-borda">
+        <p class="mx-auto max-w-6xl px-5 py-6 text-xs text-texto-suave sm:px-8">
+          © 2026 Napo · CNPJ 00.000.000/0001-00 · Brasília/DF
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

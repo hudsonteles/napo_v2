@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Conteúdo: como aquecer, legal e 404 (NAPO-003)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — três rotas de conteúdo em um arquivo ══
+      ROTAS COBERTAS:      /como-aquecer · /legal/termos (provisório) · not-found.tsx
+      CATÁLOGO USADO:      <Marca>, <Button> (outline|default), <Card>
+      NOVOS A CRIAR:       <CabecalhoSite>, <RodapeSite> (patterns) — já contabilizados nas outras telas
+      MARKUP CRU ACEITO:   container de texto (max-w-2xl), listas, <details> do FAQ
+      NOTA:                as três compartilham a shell; cada uma é uma rota separada no app.
+    -->
+
+    <!-- → <CabecalhoSite> -->
+    <header class="sticky top-0 z-50 border-b border-borda bg-preto/85 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
+        <a href="./preview-home.html">
+          <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-8 w-auto" />
+        </a>
+        <nav class="flex items-center gap-1 sm:gap-2">
+          <a
+            href="./preview-sabores.html"
+            class="rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco"
+            >Sabores</a
+          >
+          <a href="#como-aquecer" class="rounded-campo px-3 py-2 text-sm font-medium text-branco"
+            >Como aquecer</a
+          >
+          <button
+            disabled
+            class="ml-1 cursor-not-allowed rounded-campo bg-superficie-alta px-4 py-2 text-sm font-semibold text-neutral-500"
+          >
+            Peça já
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- navegação entre as três rotas — só do preview, não vai para o app -->
+    <div class="border-b border-borda bg-superficie">
+      <div class="mx-auto flex max-w-6xl gap-4 px-5 py-3 text-xs sm:px-8">
+        <span class="text-texto-suave">Rotas neste arquivo:</span>
+        <a href="#como-aquecer" class="text-amarelo underline underline-offset-4">/como-aquecer</a>
+        <a href="#eventos" class="text-amarelo underline underline-offset-4">/eventos</a>
+        <a href="#legal" class="text-amarelo underline underline-offset-4">/legal/termos</a>
+        <a href="#erro" class="text-amarelo underline underline-offset-4">404</a>
+      </div>
+    </div>
+
+    <main>
+      <!-- ═══════════ ROTA 1 — /como-aquecer ═══════════ -->
+      <section id="como-aquecer" class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+        <h1 class="max-w-2xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+          A parte difícil já foi feita
+        </h1>
+        <p class="mt-5 max-w-xl text-lg leading-relaxed text-texto-suave">
+          A pizza sai do nosso forno italiano assada na pedra e é congelada na hora. No seu
+          forno, o que falta são minutos — não uma receita.
+        </p>
+
+        <ol class="mt-12 grid gap-5 sm:grid-cols-3">
+          <li class="rounded-card border border-borda bg-superficie p-7">
+            <span class="text-3xl font-semibold text-amarelo">1</span>
+            <p class="mt-4 font-medium">Pré-aqueça a 220 °C</p>
+            <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+              Dez minutos de forno vazio. Quanto mais quente, mais perto do resultado original.
+            </p>
+          </li>
+          <li class="rounded-card border border-borda bg-superficie p-7">
+            <span class="text-3xl font-semibold text-amarelo">2</span>
+            <p class="mt-4 font-medium">Direto na grade, congelada</p>
+            <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+              Sem forma, sem papel e sem descongelar. Descongelar antes molha a massa.
+            </p>
+          </li>
+          <li class="rounded-card border border-borda bg-superficie p-7">
+            <span class="text-3xl font-semibold text-amarelo">3</span>
+            <p class="mt-4 font-medium">8 a 10 minutos</p>
+            <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+              Até a borda dourar e o queijo borbulhar. Corte fora do forno.
+            </p>
+          </li>
+        </ol>
+
+        <!-- FAQ — vira FAQPage no JSON-LD -->
+        <h2 class="mt-20 text-3xl font-semibold tracking-tight">Perguntas frequentes</h2>
+        <div class="mt-8 max-w-3xl divide-y divide-borda rounded-card border border-borda bg-superficie">
+          <details class="group px-6 py-5" open>
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-medium">
+              Preciso descongelar antes?
+              <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 text-texto-suave"></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-texto-suave">
+              Não. A pizza vai do freezer direto para o forno pré-aquecido. Descongelar solta água
+              na massa e tira a crocância.
+            </p>
+          </details>
+          <details class="group px-6 py-5">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-medium">
+              Quanto tempo dura no freezer?
+              <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 text-texto-suave"></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-texto-suave">
+              90 dias a −18 °C. A validade de cada sabor está na página do produto.
+            </p>
+          </details>
+          <details class="group px-6 py-5">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-medium">
+              Onde vocês entregam?
+              <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 text-texto-suave"></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-texto-suave">
+              Brasília, num raio de 12 km a partir da cozinha, às sextas. Frete de R$ 6 a R$ 14
+              conforme a distância, grátis acima de R$ 150.
+            </p>
+          </details>
+          <details class="group px-6 py-5">
+            <summary class="flex cursor-pointer items-center justify-between gap-4 font-medium">
+              Tenho alergia. Como sei o que posso comer?
+              <i data-lucide="chevron-down" class="h-4 w-4 shrink-0 text-texto-suave"></i>
+            </summary>
+            <p class="mt-3 text-sm leading-relaxed text-texto-suave">
+              Cada sabor lista o que contém e o que pode conter por contato. Importante: todos são
+              feitos na mesma cozinha, que manipula glúten, leite, soja e avelã — pode haver traços
+              mesmo quando o ingrediente não está na receita.
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <!-- ═══════════ ROTA 4 — /eventos (porta de entrada; simulador é item próprio) ═══════════ -->
+      <section id="eventos" class="border-t border-borda">
+        <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+          <p class="font-mono text-xs tracking-[0.25em] text-amarelo uppercase">Eventos</p>
+          <h1 class="mt-6 max-w-3xl text-[clamp(2rem,6vw,3.5rem)] leading-[1.03] font-extrabold tracking-tight text-balance">
+            Levamos o forno até a sua festa
+          </h1>
+          <p class="mt-5 max-w-xl text-lg leading-relaxed text-texto-suave">
+            A massa fermenta na nossa cozinha e assa na pedra, no seu evento. De 10 a 100 pessoas,
+            em Brasília.
+          </p>
+
+          <!-- faixas de preço como conteúdo: o cálculo interativo é item separado do ROADMAP -->
+          <div class="mt-12 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-card border border-borda bg-superficie p-6">
+              <p class="font-mono text-xs tracking-widest text-texto-suave uppercase">10 a 30 pessoas</p>
+              <p class="mt-4 font-mono text-3xl font-extrabold">R$ 99,00</p>
+              <p class="mt-1 text-sm text-texto-suave">por pessoa</p>
+            </div>
+            <div class="rounded-card border border-borda bg-superficie p-6">
+              <p class="font-mono text-xs tracking-widest text-texto-suave uppercase">30 a 60 pessoas</p>
+              <p class="mt-4 font-mono text-3xl font-extrabold">R$ 82,00</p>
+              <p class="mt-1 text-sm text-texto-suave">por pessoa</p>
+            </div>
+            <div class="rounded-card border border-amarelo/30 bg-superficie p-6">
+              <p class="font-mono text-xs tracking-widest text-amarelo uppercase">60 a 100 pessoas</p>
+              <p class="mt-4 font-mono text-3xl font-extrabold text-amarelo">R$ 64,90</p>
+              <p class="mt-1 text-sm text-texto-suave">por pessoa</p>
+            </div>
+          </div>
+          <p class="mt-4 font-mono text-xs text-texto-suave">
+            valores de referência · quanto maior o grupo, menor o preço por pessoa
+          </p>
+
+          <!-- o forno no local nao e opcional: e o servico -->
+          <h2 class="mt-16 text-3xl font-extrabold tracking-tight">O que está sempre incluído</h2>
+          <div class="mt-8 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-card border border-amarelo/30 bg-superficie p-6">
+              <i data-lucide="flame" class="h-6 w-6 text-amarelo"></i>
+              <p class="mt-4 text-lg font-semibold">Forno de pedra no local</p>
+              <p class="mt-1.5 text-sm leading-relaxed text-texto-suave">
+                Levamos o forno até o seu evento. Não é adicional — é o serviço: sem forno na
+                festa, não é Napo.
+              </p>
+            </div>
+            <div class="rounded-card border border-amarelo/30 bg-superficie p-6">
+              <i data-lucide="chef-hat" class="h-6 w-6 text-amarelo"></i>
+              <p class="mt-4 text-lg font-semibold">Pizza assada na hora</p>
+              <p class="mt-1.5 text-sm leading-relaxed text-texto-suave">
+                Massa de longa fermentação, assada na pedra na frente dos seus convidados e
+                servida quente.
+              </p>
+            </div>
+          </div>
+
+          <h2 class="mt-14 text-3xl font-extrabold tracking-tight">O que você escolhe incluir</h2>
+          <div class="mt-8 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-card border border-borda bg-superficie p-5">
+              <i data-lucide="utensils" class="h-5 w-5 text-texto-suave"></i>
+              <p class="mt-3 font-medium">Louças e talheres</p>
+              <p class="mt-1 text-sm text-texto-suave">Você não lava nada depois.</p>
+            </div>
+            <div class="rounded-card border border-borda bg-superficie p-5">
+              <i data-lucide="cup-soda" class="h-5 w-5 text-texto-suave"></i>
+              <p class="mt-3 font-medium">Bebidas</p>
+              <p class="mt-1 text-sm text-texto-suave">Refrigerante e água.</p>
+            </div>
+            <div class="rounded-card border border-borda bg-superficie p-5">
+              <i data-lucide="user-round" class="h-5 w-5 text-texto-suave"></i>
+              <p class="mt-3 font-medium">Garçons</p>
+              <p class="mt-1 text-sm text-texto-suave">R$ 250 por garçom.</p>
+            </div>
+          </div>
+
+          <div class="mt-14 rounded-card border border-borda bg-superficie p-7 sm:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-6">
+              <div>
+                <h2 class="text-2xl font-extrabold tracking-tight">Vamos montar o seu?</h2>
+                <p class="mt-2 max-w-md text-sm leading-relaxed text-texto-suave">
+                  Conte a data, o número de pessoas e o local. Respondemos com o orçamento fechado.
+                </p>
+              </div>
+              <a
+                href="#"
+                class="inline-flex min-h-12 items-center justify-center gap-2 rounded-campo bg-amarelo px-6 py-3 text-[15px] font-semibold text-preto transition hover:bg-amarelo-escuro"
+              >
+                <i data-lucide="message-circle" class="h-4 w-4"></i>
+                Falar no WhatsApp
+              </a>
+            </div>
+            <!-- o simulador de orçamento é item próprio do ROADMAP (depende do admin, NAPO-008) -->
+            <p class="mt-6 border-t border-borda pt-5 font-mono text-xs text-texto-suave">
+              orçamento automático online · em breve
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ ROTA 2 — /legal/termos (provisório, texto real é NAPO-009) ═══════════ -->
+      <section id="legal" class="border-t border-borda">
+        <div class="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
+          <div class="max-w-2xl">
+            <h1 class="text-4xl font-semibold tracking-tight">Termos de uso</h1>
+
+            <!-- aviso visível de conteúdo provisório: honesto e temporário (NAPO-009) -->
+            <div
+              class="mt-6 flex items-start gap-3 rounded-card border border-amarelo/30 bg-amarelo/[0.06] p-5 text-sm leading-relaxed"
+            >
+              <i data-lucide="file-clock" class="mt-0.5 h-4 w-4 shrink-0 text-amarelo"></i>
+              <span class="text-texto-suave">
+                <strong class="font-medium text-branco">Conteúdo provisório.</strong>
+                O texto definitivo entra com o módulo de LGPD (NAPO-009), antes de qualquer
+                publicação. Esta rota existe para não deixar link quebrado no rodapé.
+              </span>
+            </div>
+
+            <div class="mt-8 space-y-4 leading-relaxed text-texto-suave">
+              <p>
+                Este documento reunirá as condições de venda, prazos de entrega, política de
+                cancelamento e responsabilidades da Napo Alimentos.
+              </p>
+              <p>
+                Enquanto não é publicado, qualquer dúvida sobre pedido ou entrega pode ser tratada
+                diretamente pelo nosso WhatsApp.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ ROTA 3 — not-found.tsx (RN1: produto inativo cai aqui) ═══════════ -->
+      <section id="erro" class="border-t border-borda">
+        <div class="mx-auto grid max-w-6xl place-items-center px-5 py-24 text-center sm:px-8 sm:py-32">
+          <p class="text-7xl font-semibold tracking-tight text-borda-forte">404</p>
+          <h1 class="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">
+            Esse sabor não está no cardápio
+          </h1>
+          <p class="mt-4 max-w-md leading-relaxed text-texto-suave">
+            A página que você procurou não existe — ou o sabor saiu de linha. Os que estão saindo do
+            forno estão todos aqui.
+          </p>
+          <div class="mt-9 flex flex-col gap-3 sm:flex-row">
+            <a
+              href="./preview-sabores.html"
+              class="inline-flex min-h-12 items-center justify-center gap-2 rounded-campo bg-amarelo px-6 py-3 text-[15px] font-semibold text-preto transition hover:bg-amarelo-escuro"
+            >
+              Ver os sabores
+            </a>
+            <a
+              href="./preview-home.html"
+              class="inline-flex min-h-12 items-center justify-center rounded-campo border border-borda-forte px-6 py-3 text-[15px] font-medium transition hover:bg-superficie-alta"
+            >
+              Voltar ao início
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- → <RodapeSite> -->
+    <footer class="border-t border-borda">
+      <div
+        class="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-12 sm:px-8 lg:flex-row lg:justify-between"
+      >
+        <div>
+          <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-7 w-auto" />
+          <p class="mt-4 max-w-xs text-sm leading-relaxed text-texto-suave">
+            Pizza napolitana congelada, assada em forno italiano. Brasília&nbsp;/&nbsp;DF.
+          </p>
+        </div>
+        <nav class="flex flex-wrap gap-x-10 gap-y-6 text-sm">
+          <div class="space-y-3">
+            <p class="text-xs font-medium tracking-widest text-texto-suave uppercase">Produto</p>
+            <a href="./preview-sabores.html" class="block text-texto-suave hover:text-branco">Sabores</a>
+            <a href="#como-aquecer" class="block text-texto-suave hover:text-branco">Como aquecer</a>
+          </div>
+          <div class="space-y-3">
+            <p class="text-xs font-medium tracking-widest text-texto-suave uppercase">Legal</p>
+            <a href="#legal" class="block text-texto-suave hover:text-branco">Termos de uso</a>
+            <a href="#legal" class="block text-texto-suave hover:text-branco">Privacidade</a>
+          </div>
+        </nav>
+      </div>
+      <div class="border-t border-borda">
+        <p class="mx-auto max-w-6xl px-5 py-6 text-xs text-texto-suave sm:px-8">
+          © 2026 Napo · CNPJ 00.000.000/0001-00 · Brasília/DF
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

@@ -319,10 +319,15 @@ Tudo persistido em `timestamptz` **UTC**. **Toda** decisão de data de negócio 
 
 ### 7.3 Conteúdo e regulação
 
-- **Eixo do site:** _"Longa fermentação. Forno italiano a 400°C. Em casa, só aquecer. A parte difícil já foi feita."_
+- **Eixo do site:** _"Longa fermentação. Assada na pedra. Em casa, só aquecer. A parte difícil já foi feita."_
+  Alterado pelo PM em 2026-08-13 (antes: _"Forno italiano a 400 °C"_). A pedra é imagem concreta e o argumento
+  continua não copiável: a casa do cliente não tem forno de pedra. Registrado em `docs/specs/003-site-catalogo/spec.md` §7.
 - **Alérgenos e validade** são obrigatórios no catálogo (rotulagem ANVISA). Nutella com Avelã carrega **avelã**; glúten e leite alcançam quase todo o catálogo.
 - **Proibido** alegação de saúde ou digestão — território regulado. Use formulação sensorial ("leve", "não pesa").
-- **Schema.org `Restaurant`** no site público.
+- **Schema.org:** `Restaurant` no site público **e `Product` + `Offer` em cada página de produto**.
+  `Restaurant` sozinho alimenta features locais; é `Product`+`Offer` que gera o resultado de e-commerce com
+  preço e disponibilidade. Preço e disponibilidade marcados são sempre os mesmos exibidos na tela
+  (NAPO-003 RN9) — divergência é motivo de penalização, não de ranking.
 
 ---
 

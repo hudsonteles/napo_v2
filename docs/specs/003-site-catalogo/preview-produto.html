@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Produto /sabores/[slug] (NAPO-003)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — Produto /sabores/nutella-com-avela ══
+      CATÁLOGO USADO:      <Marca>, <Button> (default|outline|ghost)
+      NOVOS A CRIAR:       <CabecalhoSite>, <RodapeSite> (patterns)
+                           <Badge>, <SeletorQuantidade> (components)
+                           <SeletorFornada>, <BlocoRotulagem>, <EstadoDisponibilidade> (features/catalogo)
+      MARKUP CRU ACEITO:   container raiz, grid de 2 colunas (mídia | compra), breadcrumb
+      DIREÇÃO:             disco em painel (A3) · rotulagem em bloco de etiqueta (monoespaçada)
+      ESTADOS:             disponível · escasso · esgotado com rota para a próxima fornada (ao final)
+    -->
+
+    <!-- → <CabecalhoSite> -->
+    <header class="sticky top-0 z-50 border-b border-borda bg-preto/85 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
+        <a href="./preview-home.html">
+          <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-8 w-auto" />
+        </a>
+        <nav class="flex items-center gap-1 sm:gap-2">
+          <a
+            href="./preview-sabores.html"
+            class="rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco"
+            >Sabores</a
+          >
+          <a
+            href="./preview-conteudo.html"
+            class="hidden rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco sm:block"
+            >Como aquecer</a
+          >
+          <button
+            disabled
+            class="ml-1 flex cursor-not-allowed items-center gap-2 rounded-campo bg-superficie-alta px-4 py-2 text-sm font-semibold text-neutral-500"
+          >
+            <i data-lucide="shopping-bag" class="h-4 w-4"></i>
+            <span class="hidden sm:inline">Carrinho</span>
+            <span class="rounded-full bg-borda px-1.5 text-[11px]">0</span>
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
+      <!-- breadcrumb — também vira BreadcrumbList no JSON-LD -->
+      <nav class="flex flex-wrap items-center gap-2 text-sm text-texto-suave">
+        <a href="./preview-home.html" class="hover:text-branco">Início</a>
+        <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
+        <a href="./preview-sabores.html" class="hover:text-branco">Sabores</a>
+        <i data-lucide="chevron-right" class="h-3.5 w-3.5"></i>
+        <span class="text-branco">Nutella com Avelã</span>
+      </nav>
+
+      <div class="mt-8 grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
+        <!-- ═══ COLUNA MÍDIA — disco em painel (A3), coerente com o card ═══ -->
+        <div>
+          <div class="overflow-hidden rounded-card border border-borda bg-superficie-alta">
+            <div class="p-8 sm:p-12">
+              <div
+                class="mx-auto aspect-square w-full max-w-md overflow-hidden rounded-full shadow-2xl shadow-black/60"
+              >
+                <img
+                  src="./fotos/nutella.jpeg"
+                  alt="Pizza de Nutella com avelã vista de cima"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- miniaturas: mesma proporção circular, prontas para o resto do ensaio -->
+          <div class="mt-3 grid grid-cols-4 gap-3">
+            <button class="aspect-square overflow-hidden rounded-full ring-2 ring-amarelo">
+              <img src="./fotos/nutella.jpeg" alt="" class="h-full w-full object-cover" />
+            </button>
+            <button
+              class="aspect-square overflow-hidden rounded-full opacity-60 ring-1 ring-borda transition hover:opacity-100"
+            >
+              <img src="./fotos/chocolate.jpeg" alt="" class="h-full w-full object-cover" />
+            </button>
+            <button
+              class="grid aspect-square place-items-center rounded-full bg-superficie-alta ring-1 ring-borda"
+            >
+              <img src="./logo-dark.png" alt="" class="h-4 w-auto opacity-20" aria-hidden="true" />
+            </button>
+            <button
+              class="grid aspect-square place-items-center rounded-full bg-superficie-alta ring-1 ring-borda"
+            >
+              <img src="./logo-dark.png" alt="" class="h-4 w-auto opacity-20" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+
+        <!-- ═══ COLUNA COMPRA ═══ -->
+        <div>
+          <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">
+            Doces · Premium
+          </p>
+          <h1
+            class="mt-4 text-[clamp(2rem,5.5vw,3.5rem)] leading-[1.02] font-extrabold tracking-[-0.03em]"
+          >
+            Nutella com Avelã
+          </h1>
+
+          <!-- denominação de venda — RDC 727: nome legal, não o comercial (RN2) -->
+          <p class="mt-3 text-sm text-texto-suave">
+            Pizza doce congelada pré-assada, sabor avelã com creme de cacau
+          </p>
+
+          <p class="mt-6 leading-relaxed text-texto-suave">
+            Creme de avelã com cacau e avelã tostada em pedaços, sobre a massa doce de longa
+            fermentação. Assada na pedra e congelada na hora.
+          </p>
+
+          <div class="mt-8 flex items-end gap-3">
+            <p class="text-[clamp(2rem,5vw,3rem)] leading-none font-extrabold tracking-tight">
+              R$ 49,90
+            </p>
+            <p class="pb-1 text-sm text-texto-suave">frete à parte</p>
+          </div>
+
+          <!-- ═══ → <SeletorFornada /> — a compra é sempre de uma fornada ═══ -->
+          <section class="mt-8 rounded-card border border-borda bg-superficie p-5">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">
+                Entregar em
+              </p>
+              <p class="font-mono text-xs text-texto-suave">pedidos até quarta, 18h</p>
+            </div>
+
+            <div class="mt-4 flex gap-2 overflow-x-auto pb-1">
+              <button class="shrink-0 rounded-campo bg-amarelo px-4 py-2.5 text-left text-preto">
+                <span class="block font-mono text-[10px] tracking-widest uppercase opacity-70">
+                  esta sexta
+                </span>
+                <span class="mt-0.5 block font-mono text-sm font-extrabold">21.08 · 9 un.</span>
+              </button>
+              <button
+                class="shrink-0 rounded-campo border border-borda-forte px-4 py-2.5 text-left transition hover:bg-superficie-alta"
+              >
+                <span class="block font-mono text-[10px] tracking-widest text-texto-suave uppercase">
+                  próxima
+                </span>
+                <span class="mt-0.5 block font-mono text-sm font-semibold text-texto-suave">
+                  28.08 · 20 un.
+                </span>
+              </button>
+              <button
+                class="shrink-0 rounded-campo border border-borda-forte px-4 py-2.5 text-left transition hover:bg-superficie-alta"
+              >
+                <span class="block font-mono text-[10px] tracking-widest text-texto-suave uppercase">
+                  sexta
+                </span>
+                <span class="mt-0.5 block font-mono text-sm font-semibold text-texto-suave">
+                  04.09 · 20 un.
+                </span>
+              </button>
+            </div>
+
+            <p class="mt-4 flex items-center gap-2 text-sm">
+              <span class="relative flex h-2 w-2">
+                <span class="absolute inline-flex h-full w-full rounded-full bg-amarelo opacity-60"></span>
+                <span class="relative inline-flex h-2 w-2 rounded-full bg-amarelo"></span>
+              </span>
+              <span class="font-medium">9 disponíveis para sexta, 21 de agosto</span>
+            </p>
+          </section>
+
+          <!-- → <SeletorQuantidade max={9} /> + <Button> · inativos até NAPO-006 -->
+          <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div
+              class="flex items-center justify-between rounded-campo border border-borda text-neutral-500 sm:justify-start"
+            >
+              <button disabled class="cursor-not-allowed px-4 py-3">
+                <i data-lucide="minus" class="h-4 w-4"></i>
+              </button>
+              <span class="w-10 text-center font-medium text-texto-suave">1</span>
+              <button disabled class="cursor-not-allowed px-4 py-3">
+                <i data-lucide="plus" class="h-4 w-4"></i>
+              </button>
+            </div>
+            <button
+              disabled
+              class="inline-flex min-h-13 flex-1 cursor-not-allowed items-center justify-center gap-2 rounded-campo bg-superficie-alta px-6 py-3.5 text-[15px] font-semibold text-neutral-500"
+            >
+              <i data-lucide="shopping-bag" class="h-4 w-4"></i>
+              Adicionar à fornada de 21.08
+            </button>
+          </div>
+          <p class="mt-2.5 flex items-center gap-2 text-sm text-texto-suave">
+            <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+            O pedido pelo site abre em breve. Por enquanto, falamos no WhatsApp.
+          </p>
+
+          <!-- ═══ → <BlocoRotulagem /> — RN2 e RN4, em vocabulário de etiqueta ═══ -->
+          <section class="mt-10">
+            <h2 class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">
+              Informação obrigatória
+            </h2>
+
+            <div class="mt-4 rounded-card border border-erro/30 bg-erro/[0.06] p-5">
+              <p class="flex items-center gap-2 text-sm font-semibold text-erro">
+                <i data-lucide="alert-triangle" class="h-4 w-4"></i>
+                Contém: avelã, glúten, leite, soja
+              </p>
+              <p class="mt-2.5 text-sm leading-relaxed text-texto-suave">
+                <strong class="font-medium text-branco">Pode conter</strong> traços de amendoim e
+                outras castanhas: a mesma cozinha manipula esses ingredientes e não há linha
+                separada.
+              </p>
+            </div>
+
+            <dl
+              class="mt-4 divide-y divide-dashed divide-borda-forte rounded-card border border-borda bg-superficie px-5 font-mono text-[13px]"
+            >
+              <div class="flex justify-between gap-4 py-3.5">
+                <dt class="text-texto-suave">PESO LÍQUIDO</dt>
+                <dd>450 g</dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3.5">
+                <dt class="text-texto-suave">VALIDADE</dt>
+                <dd>90 dias congelada</dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3.5">
+                <dt class="text-texto-suave">CONSERVAÇÃO</dt>
+                <dd class="max-w-[60%] text-right">−18 °C · não recongelar</dd>
+              </div>
+              <div class="flex justify-between gap-4 py-3.5">
+                <dt class="text-texto-suave">DIÂMETRO</dt>
+                <dd>30 cm · serve 2</dd>
+              </div>
+            </dl>
+          </section>
+        </div>
+      </div>
+
+      <!-- ═══ PREPARO ═══ -->
+      <section class="mt-16 border-t border-borda pt-12 sm:mt-20 sm:pt-16">
+        <h2 class="text-[clamp(1.75rem,5vw,3rem)] font-extrabold tracking-tight">Como aquecer</h2>
+        <p class="mt-3 max-w-xl leading-relaxed text-texto-suave">
+          Direto do freezer, sem descongelar. A parte difícil já foi feita.
+        </p>
+
+        <ol class="mt-10 grid gap-5 sm:grid-cols-3">
+          <li class="rounded-card border border-borda bg-superficie p-6">
+            <span class="text-2xl font-extrabold text-amarelo">1</span>
+            <p class="mt-3 font-medium">Pré-aqueça a 220 °C</p>
+            <p class="mt-1.5 text-sm leading-relaxed text-texto-suave">
+              Forno bem quente por 10 minutos antes de colocar a pizza.
+            </p>
+          </li>
+          <li class="rounded-card border border-borda bg-superficie p-6">
+            <span class="text-2xl font-extrabold text-amarelo">2</span>
+            <p class="mt-3 font-medium">Direto na grade</p>
+            <p class="mt-1.5 text-sm leading-relaxed text-texto-suave">
+              Sem forma e sem papel. Congelada, sem descongelar antes.
+            </p>
+          </li>
+          <li class="rounded-card border border-borda bg-superficie p-6">
+            <span class="text-2xl font-extrabold text-amarelo">3</span>
+            <p class="mt-3 font-medium">8 a 10 minutos</p>
+            <p class="mt-1.5 text-sm leading-relaxed text-texto-suave">
+              Até a borda dourar. Corte e sirva na hora.
+            </p>
+          </li>
+        </ol>
+      </section>
+
+      <!-- ═══ VARIAÇÕES DE ESTADO — não são seções da página real ═══ -->
+      <section class="mt-16 border-t border-borda pt-12">
+        <p class="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">
+          Variações do bloco de compra (referência, não é seção da página)
+        </p>
+
+        <div class="mt-6 grid gap-4 lg:grid-cols-3">
+          <!-- ESGOTADO na fornada ativa: caminho para a próxima -->
+          <div>
+            <p class="mb-2 text-xs text-texto-suave">Esgotado nesta fornada</p>
+            <div class="rounded-card border border-borda bg-superficie p-5">
+              <p class="flex items-center gap-2 text-sm font-medium text-texto-suave">
+                <span class="h-2 w-2 rounded-full bg-borda-forte"></span>
+                Esgotado para 21.08
+              </p>
+              <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+                Ainda cabem 20 na fornada de 28.08.
+              </p>
+              <button
+                class="mt-4 min-h-11 w-full rounded-campo border border-amarelo/40 text-sm font-semibold text-amarelo transition hover:bg-amarelo/10"
+              >
+                Comprar para 28.08 →
+              </button>
+            </div>
+          </div>
+
+          <!-- CARREGANDO — skeleton na altura final, sem CLS -->
+          <div>
+            <p class="mb-2 text-xs text-texto-suave">Carregando</p>
+            <div class="rounded-card border border-borda bg-superficie p-5">
+              <div class="flex items-center gap-2.5">
+                <span class="h-2 w-2 rounded-full bg-borda-forte"></span>
+                <span class="h-4 w-48 animate-pulse rounded bg-superficie-alta"></span>
+              </div>
+              <div class="mt-3 space-y-2">
+                <span class="block h-3.5 w-full animate-pulse rounded bg-superficie-alta"></span>
+                <span class="block h-3.5 w-2/3 animate-pulse rounded bg-superficie-alta"></span>
+              </div>
+              <div class="mt-4 h-11 w-full animate-pulse rounded-campo bg-superficie-alta"></div>
+            </div>
+          </div>
+
+          <!-- INDETERMINADO — motor fora do ar não vira "disponível" -->
+          <div>
+            <p class="mb-2 text-xs text-texto-suave">Motor indisponível</p>
+            <div class="rounded-card border border-borda bg-superficie p-5">
+              <p class="flex items-center gap-2.5 text-sm font-medium text-texto-suave">
+                <i data-lucide="wifi-off" class="h-4 w-4"></i>
+                Não foi possível conferir a disponibilidade
+              </p>
+              <p class="mt-2 text-sm leading-relaxed text-texto-suave">
+                Recarregue a página ou fale com a gente pelo WhatsApp para confirmar.
+              </p>
+              <button
+                disabled
+                class="mt-4 min-h-11 w-full cursor-not-allowed rounded-campo border border-borda text-sm font-medium text-neutral-500"
+              >
+                Adicionar
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- → <RodapeSite> -->
+    <footer class="mt-8 border-t border-borda">
+      <div
+        class="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-12 sm:px-8 lg:flex-row lg:justify-between"
+      >
+        <div>
+          <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-7 w-auto" />
+          <p class="mt-4 max-w-xs text-sm leading-relaxed text-texto-suave">
+            Pizza napolitana congelada, assada na pedra. Brasília&nbsp;/&nbsp;DF.
+          </p>
+        </div>
+        <nav class="flex flex-wrap gap-x-10 gap-y-6 text-sm">
+          <div class="space-y-3">
+            <p class="text-xs font-medium tracking-widest text-texto-suave uppercase">Produto</p>
+            <a href="./preview-sabores.html" class="block text-texto-suave hover:text-branco">Sabores</a>
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco"
+              >Como aquecer</a
+            >
+          </div>
+          <div class="space-y-3">
+            <p class="text-xs font-medium tracking-widest text-texto-suave uppercase">Legal</p>
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco"
+              >Termos de uso</a
+            >
+            <a href="./preview-conteudo.html" class="block text-texto-suave hover:text-branco"
+              >Privacidade</a
+            >
+          </div>
+        </nav>
+      </div>
+      <div class="border-t border-borda">
+        <p class="mx-auto max-w-6xl px-5 py-6 text-xs text-texto-suave sm:px-8">
+          © 2026 Napo · CNPJ 00.000.000/0001-00 · Brasília/DF
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
