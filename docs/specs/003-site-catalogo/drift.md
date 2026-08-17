@@ -19,6 +19,10 @@ O `design.md` §8 previu o risco "FK adicionada às tabelas do NAPO-004 rejeitar
 
 O `design.md` §2.1 enumera os campos obrigatórios da RN2. Adicionei `diametro_cm` e `porcoes` (nuláveis, fora do CHECK) porque o **preview aprovado** (`preview-produto.html`, bloco DIÂMETRO "30 cm · serve 2") os exibe. Extensão de exibição, não da regra.
 
+### D5 — 404 da marca vive na raiz (`app/not-found.tsx`), não em `(site)/not-found.tsx`
+
+O `design.md` §1 mapeia o 404 como `app/(site)/not-found.tsx`. Descoberto no Gate Visual B do checkpoint (PM apontou que `/sabores/slug-inexistente` mostrava o 404 **padrão do Next**): com `dynamicParams=false`, o slug desconhecido/inativo 404 no **roteamento**, e o Next resolve isso pelo not-found da **raiz** — o do grupo `(site)` só pega `notFound()` chamado dentro de páginas do grupo. Movido para `app/not-found.tsx` (global), compondo `CabecalhoSite`/`RodapeSite` na mão (o layout raiz não tem shell). Cobre 404 de produto e qualquer rota fora do mapa, mantém `dynamicParams=false` (sem consulta ao banco). O `(site)/not-found.tsx` foi removido (redundante). Verificado: HTTP 404 + corpo da marca + shell.
+
 ### D4 — T16/T17 seguem o comportamento real do Postgres/Supabase
 
 `tests.md` T16 diz "consultas a profiles/lotes/reservas/auditoria **retornam vazio**". Verificado empiricamente: anon tem privilégio amplo (padrão Supabase) e a RLS deny-by-default devolve **0 linhas** — não erro. Coerente com a RN12 ("não alcança nenhuma outra tabela") e com o padrão já usado no teste de calendário. T17: anon INSERT lança RLS violation (42501), mas UPDATE/DELETE **afetam 0 linhas** (RLS torna o alvo invisível) em vez de lançar — mesmo efeito de segurança, testado com `is_empty(... returning 1)`.
