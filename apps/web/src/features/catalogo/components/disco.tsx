@@ -13,10 +13,13 @@ export function Disco({
   fotoUrl,
   alt,
   className,
+  esmaecido = false,
 }: {
   fotoUrl: string | null;
   alt: string;
   className?: string;
+  /** Esgotado: a foto perde cor, e o carimbo entra por cima (design §4.4.5). */
+  esmaecido?: boolean;
 }) {
   return (
     <div
@@ -30,7 +33,10 @@ export function Disco({
         <img
           src={fotoUrl}
           alt={alt}
-          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          className={cn(
+            'h-full w-full object-cover transition duration-500 group-hover:scale-105',
+            esmaecido && 'opacity-40 grayscale',
+          )}
         />
       ) : (
         <div className="grid h-full place-items-center bg-preto/40">

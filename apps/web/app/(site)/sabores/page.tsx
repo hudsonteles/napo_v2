@@ -1,6 +1,11 @@
 import { Info } from 'lucide-react';
 
-import { lerCatalogo, VitrineFiltravel } from '@/features/catalogo';
+import {
+  DisponibilidadeProvider,
+  lerCatalogo,
+  SeletorFornada,
+  VitrineFiltravel,
+} from '@/features/catalogo';
 
 // SSG com revalidação longa (design §4.5): o catálogo muda por deploy, a
 // revalidação é rede de segurança. `force-static` garante que a página sai do
@@ -21,7 +26,10 @@ export default async function VitrinePage() {
         pedido — preços sem frete.
       </p>
 
-      <VitrineFiltravel produtos={produtos} categorias={categorias} />
+      <DisponibilidadeProvider>
+        <SeletorFornada />
+        <VitrineFiltravel produtos={produtos} categorias={categorias} />
+      </DisponibilidadeProvider>
 
       <p className="mt-14 flex items-start gap-3 border-t border-borda pt-8 text-sm leading-relaxed text-texto-suave">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />

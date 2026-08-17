@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 
 import { calcularDisponibilidade } from '@napo/core';
 
-import { carregarSnapshot, produtosDaQuery } from '@/features/disponibilidade';
+import {
+  carregarSnapshot,
+  produtosAtivosDoCatalogo,
+  produtosDaQuery,
+} from '@/features/disponibilidade';
 
 /**
  * Disponibilidade nunca vem de cache (RN10) — exceção declarada ao SSG de
@@ -13,9 +17,15 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const produtos = produtosDaQuery(searchParams.get('produtos'), searchParams.get('massas'));
+  const idsQuery = searchParams.get('produtos');
 
   try {
+    // Sem `?produtos=`, a rota responde sobre todo o catálogo ativo (design §3.2);
+    // com a query, preserva o contrato que o NAPO-004 já entregou e testou.
+    const produtos = idsQuery
+      ? produtosDaQuery(idsQuery, searchParams.get('massas'))
+      : await produtosAtivosDoCatalogo();
+
     const snapshot = await carregarSnapshot(produtos);
     const dias = calcularDisponibilidade(snapshot);
 
@@ -28,6 +38,9 @@ export async function GET(request: Request) {
           data: dia.data,
           cutoff: dia.cutoff.toISOString(),
           modo: dia.modo,
+          // Agregado do dia, para a barra de fornada. Continua sendo só número —
+          // lote e reserva não atravessam a fronteira (design §5).
+          capacidadeRestante: dia.capacidadeRestante,
           produtos: dia.produtos,
         })),
       },

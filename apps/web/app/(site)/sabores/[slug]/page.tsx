@@ -1,11 +1,15 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronRight, Clock, ShoppingBag } from 'lucide-react';
+import { ChevronRight, Clock } from 'lucide-react';
 import { centavosParaReais } from '@napo/core';
-import { Button } from '@napo/ui/components/button';
-import { SeletorQuantidade } from '@napo/ui/components/seletor-quantidade';
 
-import { BlocoRotulagem, Disco } from '@/features/catalogo';
+import {
+  BlocoRotulagem,
+  Disco,
+  DisponibilidadeProvider,
+  EstadoDisponibilidade,
+  SeletorFornada,
+} from '@/features/catalogo';
 import { lerProdutoPorSlug, lerSlugsAtivos } from '@/features/catalogo/services/catalogo';
 
 // As 12 páginas nascem no build; slug desconhecido é 404 sem tocar o banco
@@ -56,8 +60,9 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
 
-        {/* Compra */}
+        {/* Compra — a disponibilidade ao vivo é ilha cliente sobre esta coluna */}
         <div>
+          <DisponibilidadeProvider>
           <p className="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">
             {categoria.nome} · {faixa.nome}
           </p>
@@ -78,20 +83,15 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
             <p className="pb-1 text-sm text-texto-suave">frete à parte</p>
           </div>
 
-          {/* SeletorFornada + disponibilidade ao vivo chegam no bloco G */}
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <SeletorQuantidade valor={1} max={1} disabled />
-            <Button disabled largura="natural" className="min-h-13 flex-1 gap-2 bg-superficie-alta px-6 font-semibold text-neutral-500">
-              <ShoppingBag className="h-4 w-4" />
-              Adicionar
-            </Button>
-          </div>
+          <SeletorFornada />
+          <EstadoDisponibilidade produtoId={produto.id} />
           <p className="mt-2.5 flex items-center gap-2 text-sm text-texto-suave">
             <Clock className="h-3.5 w-3.5" />O pedido pelo site abre em breve. Por enquanto, falamos no
             WhatsApp.
           </p>
 
           <BlocoRotulagem produto={produto} />
+          </DisponibilidadeProvider>
         </div>
       </div>
 
