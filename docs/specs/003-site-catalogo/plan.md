@@ -34,7 +34,7 @@
 | **F** | Página de produto | `/sabores/[slug]` — `generateStaticParams`, `dynamicParams=false`, `<BlocoRotulagem>`, CTA inativo, 404 de slug | A + B + D | T2, T9 | `[x]` concluído |
 | **G** | Fornada e disponibilidade ao vivo | `<SeletorFornada>`, `<BarraFornada>`, `<EstadoDisponibilidade>` (ilhas cliente), estado na querystring, rota p/ próxima fornada (RN13/RN14); ajusta `produtos.ts` + rota de disponibilidade | E + F | T3, T4, T21, T22, T23 | `[x]` concluído |
 | **H** | SEO | `generateMetadata`, `sitemap.ts`, `robots.ts`, JSON-LD `Product`+`Offer`+`Restaurant` | E + F | T7, T25 | `[x]` concluído |
-| **I** | Conteúdo | `/como-aquecer`, `/eventos` (RN16), `/legal/*` provisório | D | T6, T14 | `[ ]` pendente |
+| **I** | Conteúdo | `/como-aquecer` (preparo+FAQ), `/eventos` (RN16), `/legal/termos`+`/legal/privacidade` provisórios | D | T6 | `[x]` concluído |
 | **C** | Seed dos 12 produtos | `0011_catalogo_seed.sql` — categorias, faixas, 12 produtos com **rotulagem real** | A + **rotulagem do PM** | integra T1, T2, T5 | `[ ]` **bloqueado (dado externo)** |
 
 ## Grafo de dependências
