@@ -73,6 +73,12 @@ Estas sugestões só bloqueiam se o PM escolher `Modo de execução: com checkpo
 - `plan.md` é a fonte de verdade do progresso — Status atualizado a cada bloco.
 - Nenhum token novo em `tokens.css` sem justificativa; nenhum componente novo além de `design.md` §4.4.3.
 
+## Status de fechamento (2026-08-17)
+
+**9 de 10 blocos concluídos** (A, B, C2, D, D2, E, F, G, H, I). Gate técnico verde: lint · typecheck · Vitest 152 · build · pgTAP 55. **Gate Visual B do site inteiro aprovado pelo PM** em 2026-08-17. Retrospectiva: nada a registrar.
+
+**Bloco C (seed de produção `0011`) permanece bloqueado** no levantamento de rotulagem do PM — é o único item entre aqui e um site pronto para produção. Enquanto isso o site roda sobre a fixture de teste; a spec fica `Em Execução`. Duas ideias saíram do Gate Visual B (copy do site derivada de config; indicador de precificação de frete) e foram registradas em 💡 Ideias do ROADMAP.
+
 ## Decisões de execução
 
 _(preenchida durante a implementação — 1 bullet por decisão, máx. 2 linhas: fato + motivo)_

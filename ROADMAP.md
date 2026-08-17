@@ -41,7 +41,8 @@ _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
   - **Bloqueia:** NAPO-006
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
   - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Assada na pedra. Em casa, só aquecer."_ (eixo alterado pelo PM em 2026-08-13) — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
-  - **Dependência de dado pendente:** o bloco C (seed dos 12 produtos) aguarda o **levantamento de rotulagem do PM**; os outros 8 blocos não dependem dele (RN2 impede publicar produto incompleto).
+  - **Progresso (2026-08-17):** 9 de 10 blocos concluídos e commitados (A, B, C2, D, D2, E, F, G, H, I) — catálogo, vitrine, página de produto, disponibilidade ao vivo, SEO, conteúdo e home. **Gate Visual B aprovado pelo PM em 2026-08-17.** Gate técnico verde: lint, typecheck, Vitest 152, build, pgTAP 55.
+  - **Único bloco pendente — C (seed de produção `0011`):** bloqueado no **levantamento de rotulagem do PM** (denominação de venda, peso, validade, conservação, preparo, "contém" e "pode conter" dos 12 produtos). Até lá o site roda sobre a fixture de teste (`supabase/seed.sql`); a RN2 (`CHECK`) impede publicar produto incompleto. O site **não vai ao ar** ao fim desta spec de qualquer forma — publicação é NAPO-021.
 
 ---
 
@@ -164,6 +165,9 @@ Ainda abertas, para as fases seguintes:
 - [ ] **SMTP customizado no Supabase Auth via Resend** — o SMTP embutido do Supabase entrega 2–4 e-mails por hora e é explicitamente proibido em produção; sem SMTP próprio o Magic Link não funciona fora do ambiente local, ou seja, **o login não sobe**. Decisão de 2026-08-11: Resend, como a arquitetura §2.1 já define, com `From: pedido@napobsb.com.br` e DKIM no domínio. Gmail avaliado a pedido do PM e **descartado** — conta gratuita reescreve o remetente para `@gmail.com`, sem DKIM do domínio próprio, no e-mail que menos pode cair em spam. Registrado em 2026-08-11. **Origem:** Gate Visual B do NAPO-002. **Bloqueia NAPO-021** (provisionar homologação e produção).
 
 ---
+
+- [ ] **Copy do site derivada de configuração, não cravada no código** — o site do NAPO-003 escreve à mão o que hoje é premissa de dado único: o **dia de entrega** ("Brasília, às sextas", rótulo "esta sexta" no seletor de fornada), as **faixas de frete** (R$6/R$10/R$14, grátis >R$150) e os **valores de evento** (R$99→R$64,90/pessoa, garçom R$250). O motor de entrega já é config-driven (`dias_semana_entrega`, NAPO-004), mas os textos não derivam dela. Quando o frete (NAPO-005) e a gestão no admin (NAPO-008) existirem, essas superfícies do site devem **ler** a config em vez de repetir números — senão ligar um segundo dia de entrega ou reajustar frete exige editar copy. Registrado em 2026-08-17. **Origem:** Gate Visual B do NAPO-003 (PM perguntou como escalar dias de entrega e tornar frete/evento gerenciáveis).
+- [ ] **Indicador de precificação de frete no admin** (combustível + parâmetros) — um assistente que sugere o frete por faixa a partir de custo real: preço do combustível ÷ consumo + desgaste por km, distância **rodoviária** ×2, dividido pela **densidade da rota** (entregas por viagem — referência NAPO-005: R$ 9,60/entrega em rota de 10), mais parcela do entregador e margem alvo; com **alerta quando a faixa cobra abaixo do custo** (o mesmo erro que a fórmula `km×2÷qtd` rejeitada cometia). Encaixa no **"simulador de viabilidade de frete"** já previsto nas notas do NAPO-008. Registrado em 2026-08-17. **Origem:** Gate Visual B do NAPO-003.
 
 ## ⏸️ Bloqueados (Aguardando externo)
 
