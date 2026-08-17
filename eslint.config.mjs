@@ -29,6 +29,9 @@ export default tseslint.config(
       'packages/db/src/types.generated.ts',
       'supabase/.temp/**',
       'supabase/.branches/**',
+      // Kit de orquestração vendorizado — gitignored, fora do produto e da CI.
+      // O eslint flat config não lê .gitignore, então alinhamos manualmente.
+      'oria-orquestrador-ia/**',
     ],
   },
 
