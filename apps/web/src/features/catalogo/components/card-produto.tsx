@@ -56,7 +56,7 @@ export function CardProduto({ item }: { item: ProdutoVitrine }) {
         ) : null}
 
         <div className="mt-5 flex items-center gap-2">
-          <SeletorQuantidade valor={1} onChange={() => {}} max={1} disabled />
+          <SeletorQuantidade valor={1} max={1} disabled />
           <Button
             disabled
             size="sm"

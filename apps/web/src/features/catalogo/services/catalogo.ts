@@ -64,3 +64,47 @@ export async function lerCatalogo(): Promise<CatalogoLido> {
 
   return { categorias, produtos };
 }
+
+/**
+ * Slugs dos produtos ativos, para `generateStaticParams` (design §5). A RLS
+ * anônima já exclui o inativo, então sua página nunca é gerada e o slug cai em
+ * 404 por `dynamicParams=false` — sem consultar banco (RN1/RN8/T9).
+ */
+export async function lerSlugsAtivos(): Promise<string[]> {
+  const supabase = createSupabaseAnonClient();
+  const { data, error } = await supabase.from('produtos').select('slug');
+  if (error) throw error;
+  return (data ?? []).map((r) => r.slug);
+}
+
+/**
+ * Um produto pela URL permanente (RN8), com faixa e categoria. `null` quando não
+ * existe OU está inativo (a RLS o esconde) — a página traduz isso em 404 (T9).
+ */
+export async function lerProdutoPorSlug(slug: string): Promise<ProdutoVitrine | null> {
+  const supabase = createSupabaseAnonClient();
+
+  const { data: linha, error } = await supabase
+    .from('produtos')
+    .select('*')
+    .eq('slug', slug)
+    .maybeSingle();
+  if (error) throw error;
+  if (!linha) return null;
+
+  const produto = mapearProduto(linha);
+  const [faixaRes, categoriaRes] = await Promise.all([
+    supabase.from('faixas_preco').select('*').eq('id', produto.faixaPrecoId).single(),
+    supabase.from('categorias').select('*').eq('id', produto.categoriaId).single(),
+  ]);
+  if (faixaRes.error) throw faixaRes.error;
+  if (categoriaRes.error) throw categoriaRes.error;
+
+  return {
+    produto,
+    faixa: mapearFaixa(faixaRes.data),
+    categoria: mapearCategoria(categoriaRes.data),
+    precoEfetivoCentavos: precoEfetivoCentavos(produto, mapearFaixa(faixaRes.data)),
+    fotoUrl: fotoDoProduto(produto.slug),
+  };
+}

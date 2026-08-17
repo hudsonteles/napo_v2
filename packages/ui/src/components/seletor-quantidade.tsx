@@ -6,7 +6,9 @@ import { cn } from '../lib/cn';
 
 export interface SeletorQuantidadeProps {
   valor: number;
-  onChange: (valor: number) => void;
+  /** Opcional: no R1 o seletor nasce desabilitado, então um Server Component pode
+   *  renderizá-lo sem passar handler (função não cruza a fronteira server→client). */
+  onChange?: (valor: number) => void;
   /** Teto de estoque da fornada — o controle nunca oferece além do disponível. */
   max: number;
   min?: number;
@@ -29,8 +31,8 @@ export function SeletorQuantidade({
   disabled = false,
   className,
 }: SeletorQuantidadeProps) {
-  const decrementar = () => onChange(Math.max(min, valor - 1));
-  const incrementar = () => onChange(Math.min(max, valor + 1));
+  const decrementar = () => onChange?.(Math.max(min, valor - 1));
+  const incrementar = () => onChange?.(Math.min(max, valor + 1));
 
   return (
     <div
