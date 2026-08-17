@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Info } from 'lucide-react';
 
 import {
@@ -6,6 +7,13 @@ import {
   SeletorFornada,
   VitrineFiltravel,
 } from '@/features/catalogo';
+
+export const metadata: Metadata = {
+  title: 'Cardápio de pizza congelada',
+  description:
+    'Doze sabores de pizza napolitana assada na pedra e congelada, com entrega em Brasília. Preços sem frete.',
+  alternates: { canonical: '/sabores' },
+};
 
 // SSG com revalidação longa (design §4.5): o catálogo muda por deploy, a
 // revalidação é rede de segurança. `force-static` garante que a página sai do

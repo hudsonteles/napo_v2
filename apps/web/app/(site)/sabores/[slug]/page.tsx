@@ -1,7 +1,8 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronRight, Clock } from 'lucide-react';
-import { centavosParaReais } from '@napo/core';
+import { centavosParaReais, jsonLdProduto } from '@napo/core';
 
 import {
   BlocoRotulagem,
@@ -11,6 +12,8 @@ import {
   SeletorFornada,
 } from '@/features/catalogo';
 import { lerProdutoPorSlug, lerSlugsAtivos } from '@/features/catalogo/services/catalogo';
+import { temEstoqueNoHorizonte } from '@/features/disponibilidade';
+import { publicEnv } from '@/lib/env';
 
 // As 12 páginas nascem no build; slug desconhecido é 404 sem tocar o banco
 // (RN1/RN8/T9). `force-static` mantém tudo no CDN (T19).
@@ -21,6 +24,30 @@ export const revalidate = 3600;
 export async function generateStaticParams() {
   const slugs = await lerSlugsAtivos();
   return slugs.map((slug) => ({ slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const item = await lerProdutoPorSlug(slug);
+  if (!item) return {};
+
+  const { produto, fotoUrl } = item;
+  const descricao = produto.descricao ?? produto.denominacaoVenda ?? undefined;
+  return {
+    title: produto.nome,
+    description: descricao,
+    alternates: { canonical: `/sabores/${produto.slug}` },
+    openGraph: {
+      title: `${produto.nome} · Napo`,
+      description: descricao,
+      type: 'website',
+      images: fotoUrl ? [fotoUrl] : undefined,
+    },
+  };
 }
 
 const PASSOS = [
@@ -36,8 +63,23 @@ export default async function ProdutoPage({ params }: { params: Promise<{ slug: 
 
   const { produto, categoria, faixa, precoEfetivoCentavos, fotoUrl } = item;
 
+  const base = publicEnv.NEXT_PUBLIC_SITE_URL;
+  // Preço e disponibilidade do JSON-LD saem das mesmas fontes que a tela usa
+  // (RN9/T25): preço da função pura, disponibilidade do mesmo motor (T23).
+  const jsonLd = jsonLdProduto({
+    produto,
+    faixa,
+    url: `${base}/sabores/${produto.slug}`,
+    imagemUrl: fotoUrl ? `${base}${fotoUrl}` : undefined,
+    disponibilidade: (await temEstoqueNoHorizonte(produto.id)) ? 'InStock' : 'OutOfStock',
+  });
+
   return (
     <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav className="flex flex-wrap items-center gap-2 text-sm text-texto-suave">
         <Link href="/" className="hover:text-branco">
           Início

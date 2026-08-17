@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@napo/ui/components/toaster';
 
+import { publicEnv } from '@/lib/env';
+
 import './globals.css';
 
 // `next/font` fixa a fonte no build e emite a variável que `tokens.css` consome —
@@ -14,7 +16,12 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Napo',
+  // Base para canônicas e Open Graph relativos das páginas (SEO, NAPO-003).
+  metadataBase: new URL(publicEnv.NEXT_PUBLIC_SITE_URL),
+  title: {
+    default: 'Napo — pizza napolitana congelada em Brasília',
+    template: '%s · Napo',
+  },
   description: 'Pizza napolitana congelada premium em Brasília.',
   manifest: '/site.webmanifest',
   icons: {

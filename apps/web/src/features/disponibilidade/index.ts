@@ -5,3 +5,4 @@
  */
 export { carregarSnapshot, createSupabaseAdminClient } from './services/snapshot';
 export { produtosAtivosDoCatalogo, produtosDaQuery } from './services/produtos';
+export { temEstoqueNoHorizonte } from './services/estoque';
