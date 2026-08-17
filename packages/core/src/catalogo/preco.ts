@@ -13,7 +13,12 @@ export function precoEfetivoCentavos(
   return produto.precoOverrideCentavos ?? faixa.precoCentavos;
 }
 
+/** Centavos → "39,90" (sem símbolo). O card exibe o número em fonte técnica. */
+export function centavosParaReais(centavos: Centavos): string {
+  return (centavos / 100).toFixed(2).replace('.', ',');
+}
+
 /** Centavos → "R$ 39,90". O site sempre deixa claro que o preço não inclui frete (RN5). */
 export function formatarReais(centavos: Centavos): string {
-  return `R$ ${(centavos / 100).toFixed(2).replace('.', ',')}`;
+  return `R$ ${centavosParaReais(centavos)}`;
 }

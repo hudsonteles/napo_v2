@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatarReais, precoEfetivoCentavos } from './preco';
+import { centavosParaReais, formatarReais, precoEfetivoCentavos } from './preco';
 import type { FaixaPreco } from './tipos';
 
 const tradicional: FaixaPreco = { id: 'f1', nome: 'Tradicional', precoCentavos: 3990 };
@@ -19,10 +19,14 @@ describe('precoEfetivoCentavos (RN5)', () => {
   });
 });
 
-describe('formatarReais', () => {
-  it('formata centavos como real brasileiro', () => {
+describe('formatação de preço', () => {
+  it('centavosParaReais dá o número sem símbolo (fonte técnica do card)', () => {
+    expect(centavosParaReais(3990)).toBe('39,90');
+    expect(centavosParaReais(1500)).toBe('15,00');
+  });
+
+  it('formatarReais prefixa com R$', () => {
     expect(formatarReais(3990)).toBe('R$ 39,90');
     expect(formatarReais(4200)).toBe('R$ 42,00');
-    expect(formatarReais(1500)).toBe('R$ 15,00');
   });
 });

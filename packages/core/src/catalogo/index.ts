@@ -4,7 +4,7 @@
  * e decide. É o que mantém "quanto o cliente paga" e "o que o Google lê" numa
  * fonte só (RN5/RN9), testável sem banco.
  */
-export { formatarReais, precoEfetivoCentavos } from './preco';
+export { centavosParaReais, formatarReais, precoEfetivoCentavos } from './preco';
 export { camposDeRotulagemFaltantes, rotulagemCompleta } from './rotulagem';
 export { alegacoesDeSaudeEncontradas, contémAlegacaoDeSaude } from './conteudo';
 export { jsonLdProduto } from './jsonld';
