@@ -5,9 +5,17 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
 
 const botaoVariantes = cva(
-  'inline-flex w-full items-center justify-center gap-3 whitespace-nowrap rounded-campo font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amarelo/40 focus-visible:ring-offset-2 focus-visible:ring-offset-superficie disabled:cursor-not-allowed',
+  'inline-flex items-center justify-center gap-3 whitespace-nowrap rounded-campo font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amarelo/40 focus-visible:ring-offset-2 focus-visible:ring-offset-superficie disabled:cursor-not-allowed',
   {
     variants: {
+      // O NAPO-002 nasceu só com formulário de auth, onde botão é sempre `w-full`.
+      // O site precisa de CTA de largura natural (hero, seções). Variante, não um
+      // segundo botão (design §4.1). Declarada antes de `size` para que o `w-auto`
+      // de `size: link` continue vencendo o `w-full` de `cheia` no twMerge.
+      largura: {
+        cheia: 'w-full',
+        natural: 'w-auto',
+      },
       variant: {
         default:
           'bg-amarelo font-semibold text-preto hover:bg-amarelo-escuro disabled:bg-superficie-alta disabled:text-neutral-500 disabled:hover:bg-superficie-alta',
@@ -24,7 +32,7 @@ const botaoVariantes = cva(
         link: 'min-h-11 w-auto px-0 text-sm',
       },
     },
-    defaultVariants: { variant: 'default', size: 'default' },
+    defaultVariants: { largura: 'cheia', variant: 'default', size: 'default' },
   },
 );
 
