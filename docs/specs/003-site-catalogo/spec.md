@@ -1,7 +1,7 @@
 # 📋 Spec: Site público, catálogo e SEO
 
 **ID:** NAPO-003
-**Status:** Aprovado
+**Status:** Em Execução
 **Responsável:** Hudson
 **Data:** 2026-08-12
 **Item no Roadmap:** NAPO-003

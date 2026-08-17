@@ -1,43 +1,80 @@
-# 🧱 Plano de Blocos: NAPO-003
+# 🧱 Plano de Execução — NAPO-003 Site público, catálogo e SEO
 
-**Spec:** [`spec.md`](./spec.md) · **Design:** [`design.md`](./design.md)
+**Spec:** [`spec.md`](./spec.md) · **Design:** [`design.md`](./design.md) · **Tests:** [`tests.md`](./tests.md)
+**Tamanho detectado:** GRANDE
+**Critério:** N_arquivos≈24 (>15), N_testes=25, sensitivo=S (RLS pública, primeira superfície anônima do banco)
+**Plano criado em:** 2026-08-12 (blocos) · **convertido para execução em:** 2026-08-17
+**Modo de execução:** com checkpoints — PM aprovou em 2026-08-17. Paradas após Bloco A e após Bloco F. Bloco C aguarda rotulagem do PM (fixture de teste cobre A..I).
 
-> Existe porque a spec tem 9 blocos e o `design.md` §7 só comporta 5.
-> Ordem de execução do `/implementar`, em TDD-leve: cada bloco fecha com teste verde.
+---
+
+## Stack (derivada de ARCHITECTURE.md)
+
+`TypeScript strict · Next.js 15 App Router (SSG) · Server Components + ilhas cliente · Supabase/Postgres (sem ORM, SQL + tipos gerados) · Vitest + pgTAP · shadcn/ui em packages/ui + Tailwind v4 @theme · lucide-react`
+
+## Agentes elegíveis (após fitness)
+
+`.agents/agent/` não existe → sem catálogo de especialistas. Todo bloco delegável usa `general-purpose` com prompt rico (ARCHITECTURE.md + design.md + Mapa restrito).
+
+- Execução **majoritariamente inline** no main agent: o site é um sistema visual coeso (tokens, componentes e disco compartilhados) — coerência entre blocos vale mais que paralelismo aqui.
+- Paralelização candidata (Mapa disjunto): A, B e D não dependem entre si.
 
 ---
 
 ## Blocos
 
-| # | Bloco | Entrega | Depende de |
-|---|---|---|---|
-| **A** | Schema do catálogo | `0010_catalogo.sql` — 3 tabelas, enum de alérgeno, `CHECK` da RN2, RLS de leitura pública, FKs pendentes do NAPO-004, pgTAP da RN12, tipos regenerados | — |
-| **B** | Núcleo puro do catálogo | `packages/core/src/catalogo/` — preço efetivo, completude de rotulagem, montagem do JSON-LD. Testes determinísticos | — |
-| **C** | Seed dos 12 produtos | `0011_catalogo_seed.sql` — categorias, faixas, 12 produtos com rotulagem real | A + **levantamento de rotulagem do PM** |
-| **C2** | Fotos do catálogo | Recorte quadrado + compressão (≤150 KB) das 9 fotos de `docs/images/ensaio/` para `apps/web/public/produtos/`; placeholder para Lombo Canadense e as duas massas | — |
-| **D** | Shell do site | `(site)/layout.tsx`, `cabecalho-site`, `rodape-site`, `not-found.tsx`, `Badge`, `Button` estendido. Remoção da home descartável do NAPO-001 | — |
-| **E** | Vitrine | `/sabores` — grid, filtro por categoria, `<CardProduto>`, selo de alérgeno | A + B + D |
-| **F** | Página de produto | `/sabores/[slug]` — `generateStaticParams`, `<BlocoRotulagem>`, CTA inativo, 404 de slug desconhecido | A + B + D |
-| **G** | Fornada e disponibilidade ao vivo | `<SeletorFornada>`, `<BarraFornada>`, `<EstadoDisponibilidade>` (ilhas cliente), estado na querystring, rota para a próxima fornada com estoque (RN13/RN14) + ajuste de `produtos.ts` e da rota de disponibilidade | E + F |
-| **H** | SEO | `generateMetadata`, `sitemap.ts`, `robots.ts`, JSON-LD `Product`+`Offer`+`Restaurant`, atualização de `ARCHITECTURE.md` §7.3 | E + F |
-| **I** | Conteúdo | `/como-aquecer` (preparo + FAQ), placeholders legais | D |
+| # | Bloco | Entrega | Depende de | Testes | Status |
+|---|-------|---------|-----------|--------|--------|
+| **A** | Schema do catálogo | `0010_catalogo.sql` — 3 tabelas, enum de alérgeno, `CHECK` da RN2, RLS de leitura pública, FKs pendentes do NAPO-004, `db:types`; pgTAP em `0010_catalogo_rls.sql` | — | T8, T16, T17, T18 | `[x]` concluído |
+| **B** | Núcleo puro do catálogo | `packages/core/src/catalogo/` — preço efetivo, completude de rotulagem, montagem do JSON-LD. Testes determinísticos | — | T10, T13, T25 | `[ ]` pendente |
+| **C2** | Fotos do catálogo | 9 fotos de `fotos/` → `apps/web/public/produtos/` (já quadradas/≤150 KB); placeholder para Lombo Canadense e as 2 massas | — | T24 | `[ ]` pendente |
+| **D** | Shell do site | `(site)/layout.tsx`, `cabecalho-site`, `rodape-site`, `not-found.tsx`, `Badge`, `SeletorQuantidade`, `Button` estendido. Remove a home descartável do NAPO-001 | — | — (base de T9) | `[ ]` pendente |
+| **E** | Vitrine | `/sabores` — grid, filtro por categoria, `<CardProduto>`, selo de alérgeno/ranking/esgotado | A + B + D | T1, T5, T12, T20, T24 | `[ ]` pendente |
+| **F** | Página de produto | `/sabores/[slug]` — `generateStaticParams`, `dynamicParams=false`, `<BlocoRotulagem>`, CTA inativo, 404 de slug | A + B + D | T2, T9 | `[ ]` pendente |
+| **G** | Fornada e disponibilidade ao vivo | `<SeletorFornada>`, `<BarraFornada>`, `<EstadoDisponibilidade>` (ilhas cliente), estado na querystring, rota p/ próxima fornada (RN13/RN14); ajusta `produtos.ts` + rota de disponibilidade | E + F | T3, T4, T21, T22, T23, T15 | `[ ]` pendente |
+| **H** | SEO | `generateMetadata`, `sitemap.ts`, `robots.ts`, JSON-LD `Product`+`Offer`+`Restaurant`, `ARCHITECTURE.md` §7.3 | E + F | T7, T25 | `[ ]` pendente |
+| **I** | Conteúdo | `/como-aquecer`, `/eventos` (RN16), `/legal/*` provisório | D | T6, T14 | `[ ]` pendente |
+| **C** | Seed dos 12 produtos | `0011_catalogo_seed.sql` — categorias, faixas, 12 produtos com **rotulagem real** | A + **rotulagem do PM** | integra T1, T2, T5 | `[ ]` **bloqueado (dado externo)** |
 
-## Grafo
+## Grafo de dependências
 
 ```
-A ─┬─ C (espera rotulagem do PM)
-   ├─ E ─┬─ G
+A ─┬─ E ─┬─ G
 B ─┤     │
-   └─ F ─┴─ H
-D ─┬─ E, F, I
+D ─┴─ F ─┴─ H
+D ─── I
+A + (rotulagem do PM) ─── C   (seed de produção; fixture de teste cobre A..I antes)
+C2 ─── (fotos; independente)
 ```
 
-**Paralelizável:** A, B e D não dependem entre si. I pode sair a qualquer momento após D.
 **Caminho crítico:** A → E/F → G/H.
-**C é o único bloco com dependência externa** — se a rotulagem atrasar, os outros 8 fecham e o catálogo sobe com os produtos que tiverem dado completo (a RN2 garante que nenhum incompleto vaza).
+**Ordem de execução:** `A` → `B` → `D` → `C2` → `E` → `F` → `G` → `H` → `I` → `C`.
 
-## Ordem sugerida
+## Dado externo pendente (bloco C)
 
-`A` → `B` → `D` → `E` → `F` → `G` → `H` → `I` → `C`
+O seed de produção precisa da **rotulagem dos 12 produtos** (denominação de venda, peso líquido, validade em dias, conservação, preparo, lista "contém" e lista "pode conter"). É levantamento do PM (`spec.md` §6) e **não pode ser inventado** — é rotulagem regulada (RN2/RN4). Enquanto não chega:
 
-O seed vai por último de propósito: quando ele rodar, todas as telas que consomem o dado já existem, e um campo de rotulagem mal levantado aparece na hora, não três blocos depois.
+- Blocos A..I são construídos e testados contra uma **fixture de teste não-produção** (`supabase/seed.sql`, que só roda em `db reset` local — nunca alcança staging/prod, por decisão do `design.md` §2.4).
+- A migration de produção `0011` (bloco C) só é escrita quando a rotulagem real existir. RN2 (`CHECK` no banco) garante que nenhum produto incompleto seja publicado no intervalo.
+
+## Checkpoints intermediários sugeridos (GRANDE)
+
+- **Após Bloco A:** schema + RLS pública é a fundação sensível (primeira exposição a anônimo). PM confere modelagem e políticas antes de qualquer UI subir em cima.
+- **Após Bloco F:** vitrine + página de produto prontas → **Gate Visual B** nas superfícies-núcleo contra os previews aprovados.
+- **Bloco C:** aguarda a rotulagem do PM independentemente do modo escolhido.
+
+Estas sugestões só bloqueiam se o PM escolher `Modo de execução: com checkpoints`. Em `autônomo`, cada bloco verde é commitado e o próximo inicia sem confirmação (exceto C, que depende do dado externo).
+
+## Notas de execução
+
+- Commits incrementais por bloco: `feat(NAPO-003): bloco [letra] — [resumo] (Tx, Ty verdes)`.
+- Blocos com UI aplicam scaffolding mockup-driven (Etapa 4.0): catálogo `design.md` §4.4 é a fonte de verdade dos componentes; evidência library-first na mensagem de commit.
+- `plan.md` é a fonte de verdade do progresso — Status atualizado a cada bloco.
+- Nenhum token novo em `tokens.css` sem justificativa; nenhum componente novo além de `design.md` §4.4.3.
+
+## Decisões de execução
+
+_(preenchida durante a implementação — 1 bullet por decisão, máx. 2 linhas: fato + motivo)_
+
+- **Pré-flight (2026-08-17):** `.env.local` local completado com `NEXT_PUBLIC_SITE_URL`/`OTP_PEPPER` (vars do NAPO-002 que faltavam) e kit `oria-orquestrador-ia/` adicionado ao `ignores` do eslint (gitignored, fora da CI). Ambos destravam o gate; o eslint foi commit próprio (`chore(devx)`).
+- **Bloco A (2026-08-17):** fixture de catálogo no `seed.sql` + FK do NAPO-004 reusando o id do teste de reserva → 0004 segue verde sem mudança. Colunas `diametro_cm`/`porcoes` do preview e comportamento real de RLS anon (vazio, não erro). Detalhes em `drift.md` (D1–D4).

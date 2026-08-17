@@ -78,6 +78,36 @@ export type Database = {
           },
         ]
       }
+      categorias: {
+        Row: {
+          created_at: string
+          eh_massa: boolean
+          id: string
+          nome: string
+          ordem: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          eh_massa?: boolean
+          id?: string
+          nome: string
+          ordem?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          eh_massa?: boolean
+          id?: string
+          nome?: string
+          ordem?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       config_operacao: {
         Row: {
           buffer_cutoff_min: number
@@ -242,6 +272,33 @@ export type Database = {
         }
         Relationships: []
       }
+      faixas_preco: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          ordem: number
+          preco_centavos: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          ordem?: number
+          preco_centavos: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          preco_centavos?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lotes: {
         Row: {
           ativo: boolean
@@ -276,7 +333,15 @@ export type Database = {
           updated_at?: string
           validade?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "lotes_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       producao_planejada: {
         Row: {
@@ -303,7 +368,102 @@ export type Database = {
           quantidade?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "producao_planejada_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      produtos: {
+        Row: {
+          alergenos_contem: Database["public"]["Enums"]["alergeno"][]
+          alergenos_pode_conter: Database["public"]["Enums"]["alergeno"][]
+          ativo: boolean
+          categoria_id: string
+          conservacao: string | null
+          created_at: string
+          denominacao_venda: string | null
+          descricao: string | null
+          diametro_cm: number | null
+          faixa_preco_id: string
+          id: string
+          nome: string
+          ordem: number
+          peso_liquido_g: number | null
+          porcoes: number | null
+          preco_override_centavos: number | null
+          preparo: string | null
+          ranking_mais_pedidas: number | null
+          slug: string
+          updated_at: string
+          validade_dias: number | null
+        }
+        Insert: {
+          alergenos_contem?: Database["public"]["Enums"]["alergeno"][]
+          alergenos_pode_conter?: Database["public"]["Enums"]["alergeno"][]
+          ativo?: boolean
+          categoria_id: string
+          conservacao?: string | null
+          created_at?: string
+          denominacao_venda?: string | null
+          descricao?: string | null
+          diametro_cm?: number | null
+          faixa_preco_id: string
+          id?: string
+          nome: string
+          ordem?: number
+          peso_liquido_g?: number | null
+          porcoes?: number | null
+          preco_override_centavos?: number | null
+          preparo?: string | null
+          ranking_mais_pedidas?: number | null
+          slug: string
+          updated_at?: string
+          validade_dias?: number | null
+        }
+        Update: {
+          alergenos_contem?: Database["public"]["Enums"]["alergeno"][]
+          alergenos_pode_conter?: Database["public"]["Enums"]["alergeno"][]
+          ativo?: boolean
+          categoria_id?: string
+          conservacao?: string | null
+          created_at?: string
+          denominacao_venda?: string | null
+          descricao?: string | null
+          diametro_cm?: number | null
+          faixa_preco_id?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          peso_liquido_g?: number | null
+          porcoes?: number | null
+          preco_override_centavos?: number | null
+          preparo?: string | null
+          ranking_mais_pedidas?: number | null
+          slug?: string
+          updated_at?: string
+          validade_dias?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produtos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "produtos_faixa_preco_id_fkey"
+            columns: ["faixa_preco_id"]
+            isOneToOne: false
+            referencedRelation: "faixas_preco"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -376,6 +536,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reservas_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reservas_profile_id_fkey"
             columns: ["profile_id"]
@@ -533,6 +700,16 @@ export type Database = {
       }
     }
     Enums: {
+      alergeno:
+        | "gluten"
+        | "leite"
+        | "ovos"
+        | "soja"
+        | "amendoim"
+        | "castanhas"
+        | "avela"
+        | "peixe"
+        | "crustaceos"
       status_reserva: "ativa" | "consumida" | "expirada" | "cancelada"
       tipo_consentimento: "termos" | "privacidade" | "marketing"
       tipo_excecao_calendario: "sem_producao" | "sem_entrega" | "entrega_extra"

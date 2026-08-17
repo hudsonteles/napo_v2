@@ -34,23 +34,20 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_(Sem itens em andamento. O próximo sai de 🟡 Próximos.)_
+- [ ] **NAPO-003** Site público, catálogo e SEO
+  - **Iniciado em:** 2026-08-17
+  - **Spec:** [`docs/specs/003-site-catalogo/`](docs/specs/003-site-catalogo/) — **aprovada em 2026-08-13** · plano de execução em [`plan.md`](docs/specs/003-site-catalogo/plan.md)
+  - **Dependências:** NAPO-001, NAPO-002, NAPO-004 (todas concluídas)
+  - **Bloqueia:** NAPO-006
+  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
+  - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Assada na pedra. Em casa, só aquecer."_ (eixo alterado pelo PM em 2026-08-13) — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
+  - **Dependência de dado pendente:** o bloco C (seed dos 12 produtos) aguarda o **levantamento de rotulagem do PM**; os outros 8 blocos não dependem dele (RN2 impede publicar produto incompleto).
 
 ---
 
 ## 🟡 Próximos (Ordem importa — pegar de cima pra baixo)
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
-
-- [ ] **NAPO-003** Site público, catálogo e SEO
-  - **Spec:** [`docs/specs/003-site-catalogo/`](docs/specs/003-site-catalogo/) — **aprovada em 2026-08-13**
-  - **Dependências:** NAPO-001
-  - **Bloqueia:** NAPO-006
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Assada na pedra. Em casa, só aquecer."_ (eixo alterado pelo PM em 2026-08-13) — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
-  - **Base de UI herdada do NAPO-002 (2026-08-11):** Tailwind v4, os tokens completos e 7 primitivos do shadcn (`Button`, `Input`, `Label`, `Checkbox`, `InputOTP`, `Card`, `Toaster`) mais os patterns `<AuthCard>` e `<Marca>` já nascem no NAPO-002, porque as telas de login vieram antes do site. Esta spec **herda a base pronta** e deve começar revisando a calibragem dela em vez de recriá-la.
-  - **SEO permanece no R1 (decidido 2026-08-10):** avaliado adiar por receio de custo na Vercel e **descartado** — metadata, `sitemap.xml`, `robots.txt`, JSON-LD e URLs semânticas são texto no HTML que o build já gera; em página SSG servida do CDN o custo marginal é **zero**. Adiar não posterga custo, posterga receita: indexação de domínio novo leva semanas a meses, e trocar estrutura de URL depois exige mapa de 301 e descarta autoridade acumulada.
-  - **Restrições de custo a respeitar na spec:** (a) `app/(site)/` fica **SSG com `revalidate` longo** — catálogo de pizza muda pouco, nada de SSR sem motivo; (b) **decidido na spec:** fotos **pré-otimizadas versionadas no repositório**, servidas por `<img>` sem `next/image` — a cota de transformação de imagem da Vercel é o custo real do catálogo, e otimizar uma vez custa zero por visita.
 
 - [ ] **NAPO-005** Endereços e frete por faixa de distância
   - **Spec:** `docs/specs/005-enderecos-frete/` _(a criar)_
