@@ -27,7 +27,7 @@
 |---|-------|---------|-----------|--------|--------|
 | **A** | Schema do catálogo | `0010_catalogo.sql` — 3 tabelas, enum de alérgeno, `CHECK` da RN2, RLS de leitura pública, FKs pendentes do NAPO-004, `db:types`; pgTAP em `0010_catalogo_rls.sql` | — | T8, T16, T17, T18 | `[x]` concluído |
 | **B** | Núcleo puro do catálogo | `packages/core/src/catalogo/` — preço efetivo, completude de rotulagem, montagem do JSON-LD. Testes determinísticos | — | T10, T13, T25 | `[x]` concluído |
-| **C2** | Fotos do catálogo | 9 fotos de `fotos/` → `apps/web/public/produtos/` (já quadradas/≤150 KB); placeholder para Lombo Canadense e as 2 massas | — | T24 | `[ ]` pendente |
+| **C2** | Fotos do catálogo | 9 fotos de `fotos/` → `apps/web/public/produtos/{slug}.jpeg` + `capa`/`forno` (≤150 KB nos produtos); placeholder dos 3 sem foto é disco CSS no `CardProduto` (E) | — | T24 | `[x]` concluído |
 | **D** | Shell do site | `(site)/layout.tsx`, `cabecalho-site`, `rodape-site`, `not-found.tsx`, `Badge`, `SeletorQuantidade`, `Button` estendido (variante `largura`) | — | — (base de T9) | `[x]` concluído |
 | **D2** | Home + remoção da `app/page.tsx` do NAPO-001 | `(site)/page.tsx` (hero, régua, eventos, entrega) + seções que consomem `CardProduto` (E) e `BarraFornada` (G). **Depende de E + G** | E + G | T5, T14 | `[ ]` pendente (movido de D) |
 | **E** | Vitrine | `/sabores` — grid, filtro por categoria, `<CardProduto>`, selo de alérgeno/ranking/esgotado | A + B + D | T1, T5, T12, T20, T24 | `[ ]` pendente |
