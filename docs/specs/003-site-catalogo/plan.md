@@ -26,7 +26,7 @@
 | # | Bloco | Entrega | Depende de | Testes | Status |
 |---|-------|---------|-----------|--------|--------|
 | **A** | Schema do catálogo | `0010_catalogo.sql` — 3 tabelas, enum de alérgeno, `CHECK` da RN2, RLS de leitura pública, FKs pendentes do NAPO-004, `db:types`; pgTAP em `0010_catalogo_rls.sql` | — | T8, T16, T17, T18 | `[x]` concluído |
-| **B** | Núcleo puro do catálogo | `packages/core/src/catalogo/` — preço efetivo, completude de rotulagem, montagem do JSON-LD. Testes determinísticos | — | T10, T13, T25 | `[ ]` pendente |
+| **B** | Núcleo puro do catálogo | `packages/core/src/catalogo/` — preço efetivo, completude de rotulagem, montagem do JSON-LD. Testes determinísticos | — | T10, T13, T25 | `[x]` concluído |
 | **C2** | Fotos do catálogo | 9 fotos de `fotos/` → `apps/web/public/produtos/` (já quadradas/≤150 KB); placeholder para Lombo Canadense e as 2 massas | — | T24 | `[ ]` pendente |
 | **D** | Shell do site | `(site)/layout.tsx`, `cabecalho-site`, `rodape-site`, `not-found.tsx`, `Badge`, `SeletorQuantidade`, `Button` estendido. Remove a home descartável do NAPO-001 | — | — (base de T9) | `[ ]` pendente |
 | **E** | Vitrine | `/sabores` — grid, filtro por categoria, `<CardProduto>`, selo de alérgeno/ranking/esgotado | A + B + D | T1, T5, T12, T20, T24 | `[ ]` pendente |
@@ -78,3 +78,4 @@ _(preenchida durante a implementação — 1 bullet por decisão, máx. 2 linhas
 
 - **Pré-flight (2026-08-17):** `.env.local` local completado com `NEXT_PUBLIC_SITE_URL`/`OTP_PEPPER` (vars do NAPO-002 que faltavam) e kit `oria-orquestrador-ia/` adicionado ao `ignores` do eslint (gitignored, fora da CI). Ambos destravam o gate; o eslint foi commit próprio (`chore(devx)`).
 - **Bloco A (2026-08-17):** fixture de catálogo no `seed.sql` + FK do NAPO-004 reusando o id do teste de reserva → 0004 segue verde sem mudança. Colunas `diametro_cm`/`porcoes` do preview e comportamento real de RLS anon (vazio, não erro). Detalhes em `drift.md` (D1–D4).
+- **Bloco B (2026-08-17):** `ProdutoCatalogo` (nome distinto do `Produto` de disponibilidade, evita colisão no barrel). T13 parte pura entregue aqui (`conteudo.ts` — scanner de alegação de saúde com lista curada que preserva o sensorial "leve"); a varredura sobre o conteúdo/meta reais roda no bloco H/E/F.
