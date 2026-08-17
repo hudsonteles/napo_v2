@@ -143,7 +143,7 @@ export default async function HomePage() {
                 className="grid items-center gap-2 border-t border-borda py-6 last:border-b sm:grid-cols-[1fr_auto_1fr]"
               >
                 <p className="text-lg text-texto-suave">{linha.mercado}</p>
-                <p className="font-mono text-xs tracking-widest text-borda-forte uppercase sm:px-8">
+                <p className="font-mono text-xs tracking-widest text-texto-suave uppercase sm:px-8">
                   {linha.eixo}
                 </p>
                 <p className="text-lg font-medium sm:text-right">{linha.napo}</p>
