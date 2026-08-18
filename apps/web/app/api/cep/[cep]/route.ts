@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-import { carregarPerfilDaSessao } from '@/features/auth';
 import { buscarCep } from '@/features/enderecos/services/cep';
+import { exigirClienteValidado } from '@/lib/guarda-api';
 
 /**
  * Consulta de CEP para o cadastro de endereço (RN2).
@@ -16,18 +16,8 @@ import { buscarCep } from '@/features/enderecos/services/cep';
 export const dynamic = 'force-dynamic';
 
 export async function GET(_request: Request, { params }: { params: Promise<{ cep: string }> }) {
-  const perfil = await carregarPerfilDaSessao();
-
-  if (!perfil) {
-    return NextResponse.json({ success: false, error: 'Não autenticado.' }, { status: 401 });
-  }
-
-  if (!perfil.telefoneValidado) {
-    return NextResponse.json(
-      { success: false, error: 'Telefone ainda não validado.' },
-      { status: 403 },
-    );
-  }
+  const guarda = await exigirClienteValidado();
+  if ('resposta' in guarda) return guarda.resposta;
 
   const { cep } = await params;
 

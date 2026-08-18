@@ -37,6 +37,9 @@ Itens declarados no `design.md` §4.4.3 / §6.1 mas ausentes da tabela §1 — c
 | testes `*.test.ts` dos route handlers | `tests.md` cabeçalho: Route Handlers → Vitest com fetch mockado |
 | `apps/web/src/features/enderecos/services/cep-repo.ts` | separação repositório/serviço, para o fallback entre provedores ser testável sem banco |
 | `apps/web/vitest.config.ts` | variável pública nova precisa existir no runner, que valida env no import |
+| `apps/web/src/features/enderecos/services/enderecos-repo.ts` | mesma separação repositório/serviço do CEP |
+| `apps/web/src/features/enderecos/schema.ts` | Next 15 proíbe export extra em arquivo de rota; o schema é compartilhado com o formulário do bloco H |
+| `apps/web/src/lib/guarda-api.ts` | guarda usada por 5 rotas de 2 features; feature não importa de feature (ARCHITECTURE §3.2) |
 
 ---
 
@@ -58,7 +61,7 @@ Arquivos: `.env.example`, `apps/web/src/lib/env.ts`, `features/enderecos/service
 Arquivos: `features/enderecos/services/geocoding.ts` + teste · Testes: T23, T18 (parte) · Depende: D · Est: 50min · Agente: backend-specialist · `[x]`
 
 ### Bloco F — API de endereços e contrato de frete
-Arquivos: `features/enderecos/services/enderecos.ts`, `features/enderecos/index.ts`, `app/api/enderecos/route.ts`, `app/api/enderecos/[id]/route.ts`, `app/api/enderecos/[id]/padrao/route.ts`, `app/api/frete/route.ts` + testes · Testes: T2, T3, T4, T12, T13, T14, T15, T17, T20 · Depende: A, B, C, E · Est: 90min · Agente: backend-specialist + security-auditor · `[ ]`
+Arquivos: `features/enderecos/services/enderecos.ts`, `features/enderecos/index.ts`, `app/api/enderecos/route.ts`, `app/api/enderecos/[id]/route.ts`, `app/api/enderecos/[id]/padrao/route.ts`, `app/api/frete/route.ts` + testes · Testes: T2, T3, T4, T12, T13, T14, T15, T17, T20 · Depende: A, B, C, E · Est: 90min · Agente: backend-specialist + security-auditor · `[x]`
 
 ### Bloco G — UI: Dialog, régua, card e lista
 Arquivos: `packages/ui/src/components/dialog.tsx`, `features/enderecos/components/{regua-distancia,card-endereco}.tsx`, `app/(conta)/conta/enderecos/page.tsx` · Testes: T5, T27 (tela) + critérios visuais 1, 2, 3, 6 · Depende: F · Est: 80min · Agente: frontend-specialist · `[ ]`
@@ -104,6 +107,10 @@ Só bloqueiam se o modo aprovado for `com checkpoints`.
 - **Fora de área devolve `freteCentavos: null`, nunca 0** — inclusive quando não há faixa cobrindo a distância; frete zero silencioso é prejuízo que não aparece no painel.
 - **Entre exceções de CEP vence o prefixo mais longo** — com `716` bloqueando e `71680` liberando, deixar a ordem decidir faria a regra geral engolir a exceção dela.
 - **`export * from './frete'` entrou no barrel já no bloco B** (o mapa previa a modificação de `core/index.ts` no bloco C) — bloco tem de fechar consumível de fora, senão o gate valida código inalcançável.
+- **CRUD de endereço usa o client de SESSÃO; config e exceções, o `service_role`** — a RN1 fica a cargo da RLS, não de um `where profile_id` que um `if` esquecido derruba; `config_operacao` e `excecoes_area` fecham para cliente por política.
+- **Troca de padrão em dois comandos ordenados, não em transação** — divergência do design §3.1: o índice único parcial é checado linha a linha e um `update set padrao = (id = $1)` poderia marcar o novo antes de limpar o antigo. Desmarcar primeiro nunca viola; no pior caso o cliente fica sem padrão, o que a tela mostra sem mentir.
+- **Limite de 10 é 409, não 400** — o envio está correto, o estado é que não comporta, e a orientação é desativar um endereço, não corrigir o corpo.
+- **Repositório tipado com `Database['public']['Tables']`, não `Record<string, unknown>`** — coluna renomeada em migration vira erro de tipo, não linha `undefined` numa tela três camadas adiante.
 - **`getGoogleEnv()` em escopo próprio, fora do schema monolítico de servidor** — `getServerEnv()` valida tudo de uma vez e é chamado no SSG do catálogo: com a chave no schema comum, uma credencial de geocodificação ausente derrubou a prerenderização da Margherita no gate do bloco E. Cada subsistema falha alto só no que é dele.
 - **A chave de rota vai em cabeçalho, nunca em query string** — query string entra em log de proxy e de CDN; a de geocoding vai na URL porque a API não aceita cabeçalho.
 - **`medirDistancia` nunca devolve nulo nem zero** — pior caso é estimativa marcada (RN11); distância ausente viraria frete zero ou cadastro travado.
