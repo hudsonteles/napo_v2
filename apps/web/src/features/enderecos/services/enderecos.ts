@@ -9,7 +9,7 @@ import {
   type ResultadoFrete,
 } from '@napo/core';
 
-import type { EntradaEndereco } from '../schema';
+import type { Endereco, EntradaEndereco } from '../schema';
 import { geocodificar, medirDistancia } from './geocoding';
 import {
   atualizar,
@@ -33,27 +33,6 @@ import {
  */
 
 export const MAX_ENDERECOS_ATIVOS = 10;
-
-export interface Endereco {
-  id: string;
-  apelido: string;
-  cep: string;
-  logradouro: string;
-  numero: string;
-  complemento: string | null;
-  bairro: string | null;
-  cidade: string;
-  uf: string;
-  referencia: string | null;
-  lat: number;
-  lng: number;
-  distanciaKm: number | null;
-  distanciaEstimada: boolean;
-  precisaConferencia: boolean;
-  atendido: boolean;
-  motivoNaoAtendido: string | null;
-  padrao: boolean;
-}
 
 export type FalhaEndereco = 'limite-atingido' | 'nao-encontrado' | 'falha-ao-gravar';
 

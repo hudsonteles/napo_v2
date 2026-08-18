@@ -27,3 +27,29 @@ export const esquemaEndereco = z.object({
 });
 
 export type EntradaEndereco = z.infer<typeof esquemaEndereco>;
+
+/**
+ * O endereço como as telas leem. Vive aqui, e não em `services/`, porque o
+ * serviço é `server-only` e o card é ilha de cliente — tipo importado de módulo
+ * de servidor obriga todo consumidor a saber disso.
+ */
+export interface Endereco {
+  id: string;
+  apelido: string;
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento: string | null;
+  bairro: string | null;
+  cidade: string;
+  uf: string;
+  referencia: string | null;
+  lat: number;
+  lng: number;
+  distanciaKm: number | null;
+  distanciaEstimada: boolean;
+  precisaConferencia: boolean;
+  atendido: boolean;
+  motivoNaoAtendido: string | null;
+  padrao: boolean;
+}

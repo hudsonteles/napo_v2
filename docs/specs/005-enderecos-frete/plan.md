@@ -40,6 +40,8 @@ Itens declarados no `design.md` §4.4.3 / §6.1 mas ausentes da tabela §1 — c
 | `apps/web/src/features/enderecos/services/enderecos-repo.ts` | mesma separação repositório/serviço do CEP |
 | `apps/web/src/features/enderecos/schema.ts` | Next 15 proíbe export extra em arquivo de rota; o schema é compartilhado com o formulário do bloco H |
 | `apps/web/src/lib/guarda-api.ts` | guarda usada por 5 rotas de 2 features; feature não importa de feature (ARCHITECTURE §3.2) |
+| `apps/web/app/(conta)/conta/layout.tsx` | `design.md` §4.1 manda REUSAR "o layout de (conta)", que não tinha cabeçalho; duas telas desta spec precisam dele |
+| `packages/ui/package.json` | `@radix-ui/react-dialog`, dependência do `<Dialog>` de §4.4.3 |
 
 ---
 
@@ -64,7 +66,7 @@ Arquivos: `features/enderecos/services/geocoding.ts` + teste · Testes: T23, T18
 Arquivos: `features/enderecos/services/enderecos.ts`, `features/enderecos/index.ts`, `app/api/enderecos/route.ts`, `app/api/enderecos/[id]/route.ts`, `app/api/enderecos/[id]/padrao/route.ts`, `app/api/frete/route.ts` + testes · Testes: T2, T3, T4, T12, T13, T14, T15, T17, T20 · Depende: A, B, C, E · Est: 90min · Agente: backend-specialist + security-auditor · `[x]`
 
 ### Bloco G — UI: Dialog, régua, card e lista
-Arquivos: `packages/ui/src/components/dialog.tsx`, `features/enderecos/components/{regua-distancia,card-endereco}.tsx`, `app/(conta)/conta/enderecos/page.tsx` · Testes: T5, T27 (tela) + critérios visuais 1, 2, 3, 6 · Depende: F · Est: 80min · Agente: frontend-specialist · `[ ]`
+Arquivos: `packages/ui/src/components/dialog.tsx`, `features/enderecos/components/{regua-distancia,card-endereco}.tsx`, `app/(conta)/conta/enderecos/page.tsx` · Testes: T5, T27 (tela) + critérios visuais 1, 2, 3, 6 · Depende: F · Est: 80min · Agente: frontend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
 
 ### Bloco H — UI: mapa e formulário
 Arquivos: `features/enderecos/components/{mapa-pin,formulario-endereco}.tsx`, `app/(conta)/conta/enderecos/novo/page.tsx`, `app/(conta)/conta/enderecos/[id]/page.tsx`, `apps/web/package.json` · Testes: T8, T10, T11 + critérios visuais 4, 5, 6 · Depende: F, G · Est: 90min · Agente: frontend-specialist · `[ ]`
@@ -107,6 +109,10 @@ Só bloqueiam se o modo aprovado for `com checkpoints`.
 - **Fora de área devolve `freteCentavos: null`, nunca 0** — inclusive quando não há faixa cobrindo a distância; frete zero silencioso é prejuízo que não aparece no painel.
 - **Entre exceções de CEP vence o prefixo mais longo** — com `716` bloqueando e `71680` liberando, deixar a ordem decidir faria a regra geral engolir a exceção dela.
 - **`export * from './frete'` entrou no barrel já no bloco B** (o mapa previa a modificação de `core/index.ts` no bloco C) — bloco tem de fechar consumível de fora, senão o gate valida código inalcançável.
+- **Cabeçalho da conta nasce no layout, com só o link que existe** — o preview mostrava "Pedidos" ao lado de "Endereços", mas essa tela é NAPO-007: link morto seria pior que link nenhum. Muda também a aparência de `/conta`, aprovada no NAPO-002 — a conferir no Gate Visual B.
+- **Régua no card usa "R$ 6", não "R$ 6,00"** — são quatro rótulos de 11px lado a lado; o centavo que nunca varia só rouba espaço. O valor cheio fica no card, onde é preço.
+- **Card do endereço calcula frete com subtotal zero** — mostra quanto a entrega custa, não quanto sairia num pedido hipotético; o desconto acima de R$ 150 é do carrinho, não do endereço.
+- **Pílula de navegação do cabeçalho é markup cru declarado** — não é ação, é destino; virar `<Button>` daria a ela peso visual de CTA dentro do próprio cabeçalho.
 - **CRUD de endereço usa o client de SESSÃO; config e exceções, o `service_role`** — a RN1 fica a cargo da RLS, não de um `where profile_id` que um `if` esquecido derruba; `config_operacao` e `excecoes_area` fecham para cliente por política.
 - **Troca de padrão em dois comandos ordenados, não em transação** — divergência do design §3.1: o índice único parcial é checado linha a linha e um `update set padrao = (id = $1)` poderia marcar o novo antes de limpar o antigo. Desmarcar primeiro nunca viola; no pior caso o cliente fica sem padrão, o que a tela mostra sem mentir.
 - **Limite de 10 é 409, não 400** — o envio está correto, o estado é que não comporta, e a orientação é desativar um endereço, não corrigir o corpo.

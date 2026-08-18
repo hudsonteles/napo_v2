@@ -17,8 +17,8 @@ export {
   listarEnderecos,
   MAX_ENDERECOS_ATIVOS,
 } from './services/enderecos';
-export type { Endereco, FalhaEndereco } from './services/enderecos';
+export type { FalhaEndereco } from './services/enderecos';
 export { esquemaEndereco } from './schema';
-export type { EntradaEndereco } from './schema';
+export type { Endereco, EntradaEndereco } from './schema';
 export { carregarConfigDeArea } from './services/enderecos-repo';
 export type { ConfigDeArea } from './services/enderecos-repo';
