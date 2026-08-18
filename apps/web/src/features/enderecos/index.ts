@@ -6,3 +6,5 @@
  */
 export { buscarCep, normalizarCep } from './services/cep';
 export type { EnderecoDeCep, FonteCep } from './services/cep';
+export { geocodificar, medirDistancia, montarEnderecoParaBusca } from './services/geocoding';
+export type { DistanciaMedida, EnderecoParaBusca } from './services/geocoding';

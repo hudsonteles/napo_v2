@@ -104,6 +104,36 @@ export function getServerEnv(): ServerEnv {
   return serverCache;
 }
 
+// ── Google Maps: escopo próprio, não o schema monolítico ─────────────────────
+// `getServerEnv()` valida tudo de uma vez, e é chamado no SSG do catálogo: pôr a
+// chave lá faria uma credencial de geocodificação ausente impedir a Margherita
+// de ser prerenderizada. Cada subsistema falha alto no que é dele, e só nisso.
+const googleSchema = z.object({
+  // Geocoding + Routes (NAPO-005 RN5). Sem prefixo NEXT_PUBLIC_ de propósito: o
+  // Next substitui a referência por `undefined` no bundle do cliente, e é essa
+  // substituição que impede a chave de servidor de vazar (T18).
+  GOOGLE_MAPS_SERVER_KEY: z.string().min(1),
+});
+
+type GoogleEnv = z.infer<typeof googleSchema>;
+let googleCache: GoogleEnv | null = null;
+
+/** Credenciais do Google usadas apenas por geocodificação e rota. Código de servidor apenas. */
+export function getGoogleEnv(): GoogleEnv {
+  if (googleCache) return googleCache;
+
+  const parsed = googleSchema.safeParse({
+    GOOGLE_MAPS_SERVER_KEY: process.env.GOOGLE_MAPS_SERVER_KEY,
+  });
+
+  if (!parsed.success) {
+    throw new Error(mensagemDeErro('do Google Maps', parsed.error));
+  }
+
+  googleCache = parsed.data;
+  return googleCache;
+}
+
 function mensagemDeErro(escopo: string, erro: z.ZodError): string {
   const faltando = erro.issues.map((i) => i.path.join('.')).join(', ');
   return (

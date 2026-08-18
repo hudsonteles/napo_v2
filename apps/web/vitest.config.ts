@@ -32,6 +32,7 @@ export default defineConfig({
       NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: 'mapa-de-teste',
       SUPABASE_SERVICE_ROLE_KEY: 'servico-de-teste',
       OTP_PEPPER: 'pimenta-de-teste',
+      GOOGLE_MAPS_SERVER_KEY: 'chave-de-servidor-de-teste',
     },
     include: ['{app,src}/**/*.test.ts'],
   },

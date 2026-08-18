@@ -55,7 +55,7 @@ Arquivos: `packages/core/src/entrega/{descricao,index}.ts` + teste, `packages/co
 Arquivos: `.env.example`, `apps/web/src/lib/env.ts`, `features/enderecos/services/cep.ts`, `app/api/cep/[cep]/route.ts` + testes · Testes: T1, T8 (servidor), T9, T21, T22 · Depende: A · Est: 60min · Agente: backend-specialist · `[x]`
 
 ### Bloco E — Geocoding e rota rodoviária
-Arquivos: `features/enderecos/services/geocoding.ts` + teste · Testes: T23, T18 (parte) · Depende: D · Est: 50min · Agente: backend-specialist · `[ ]`
+Arquivos: `features/enderecos/services/geocoding.ts` + teste · Testes: T23, T18 (parte) · Depende: D · Est: 50min · Agente: backend-specialist · `[x]`
 
 ### Bloco F — API de endereços e contrato de frete
 Arquivos: `features/enderecos/services/enderecos.ts`, `features/enderecos/index.ts`, `app/api/enderecos/route.ts`, `app/api/enderecos/[id]/route.ts`, `app/api/enderecos/[id]/padrao/route.ts`, `app/api/frete/route.ts` + testes · Testes: T2, T3, T4, T12, T13, T14, T15, T17, T20 · Depende: A, B, C, E · Est: 90min · Agente: backend-specialist + security-auditor · `[ ]`
@@ -104,7 +104,10 @@ Só bloqueiam se o modo aprovado for `com checkpoints`.
 - **Fora de área devolve `freteCentavos: null`, nunca 0** — inclusive quando não há faixa cobrindo a distância; frete zero silencioso é prejuízo que não aparece no painel.
 - **Entre exceções de CEP vence o prefixo mais longo** — com `716` bloqueando e `71680` liberando, deixar a ordem decidir faria a regra geral engolir a exceção dela.
 - **`export * from './frete'` entrou no barrel já no bloco B** (o mapa previa a modificação de `core/index.ts` no bloco C) — bloco tem de fechar consumível de fora, senão o gate valida código inalcançável.
-- **`GOOGLE_MAPS_SERVER_KEY` fica fora do schema até o bloco E** — `getServerEnv()` valida tudo de uma vez; declarar a chave antes de existir derrubaria OTP e callback de auth junto, por uma variável que nada ainda usa.
+- **`getGoogleEnv()` em escopo próprio, fora do schema monolítico de servidor** — `getServerEnv()` valida tudo de uma vez e é chamado no SSG do catálogo: com a chave no schema comum, uma credencial de geocodificação ausente derrubou a prerenderização da Margherita no gate do bloco E. Cada subsistema falha alto só no que é dele.
+- **A chave de rota vai em cabeçalho, nunca em query string** — query string entra em log de proxy e de CDN; a de geocoding vai na URL porque a API não aceita cabeçalho.
+- **`medirDistancia` nunca devolve nulo nem zero** — pior caso é estimativa marcada (RN11); distância ausente viraria frete zero ou cadastro travado.
+- **~~`GOOGLE_MAPS_SERVER_KEY` fica fora do schema até o bloco E~~** (superada pela decisão acima) — `getServerEnv()` valida tudo de uma vez; declarar a chave antes de existir derrubaria OTP e callback de auth junto, por uma variável que nada ainda usa.
 - **A rota de CEP exige sessão com telefone validado** — sem isso é proxy gratuito de CEP escrevendo na nossa tabela de cache.
 - **Falha de terceiro é 404 com `podeDigitarManual`, nunca 500** — 500 fica reservado a defeito nosso; confundir os dois faria o formulário tratar CEP inexistente como pane (RN2).
 - **Privilégios revogados explicitamente em `enderecos`, `ceps`, `excecoes_area` e `faixas_frete`** — o Supabase concede ALL por default privilege a toda tabela nova de `public`; sem revogar, RN15 dependeria só da ausência de política, e um `for all` acrescentado amanhã reabriria o DELETE.
