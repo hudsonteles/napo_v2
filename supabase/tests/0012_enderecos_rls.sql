@@ -117,7 +117,14 @@ select set_config('request.jwt.claims',
   json_build_object('sub', '50000000-0000-0000-0000-00000000000a', 'role', 'authenticated')::text, true);
 set local role authenticated;
 
-select is((select count(*)::int from public.enderecos), 2,
+-- Conta só os endereços das fixtures, não a tabela inteira: o banco local
+-- carrega dado de desenvolvimento, e um teste que depende do total afirma sobre
+-- o ambiente em vez de afirmar sobre a política.
+select is(
+  (select count(*)::int from public.enderecos
+   where profile_id in ('50000000-0000-0000-0000-000000000001',
+                        '50000000-0000-0000-0000-000000000002')),
+  2,
   'atendente lê o endereço dos dois clientes, para suporte e separação (T19)');
 
 do $$

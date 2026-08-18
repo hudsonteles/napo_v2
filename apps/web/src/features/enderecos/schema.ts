@@ -10,6 +10,36 @@ import { z } from 'zod';
  * `distanciaKm` **não existe aqui** (RN5, T17): distância que chega pronta do
  * navegador é distância que o cliente escolhe — e com ela, a faixa que vai pagar.
  */
+/**
+ * Logradouros de Brasília em que o complemento é obrigatório (RN3).
+ *
+ * `SQN 210 Bloco C` sem `Apto 302` é uma quadra com seis blocos iguais — a
+ * entrega não chega. A lista é o contrato e é editável: ampliar é decisão de
+ * operação, não refatoração. Compara por prefixo de palavra para não pegar
+ * "Rua da Quadra" por acidente.
+ */
+const PADROES_COM_COMPLEMENTO = [
+  'sqn', 'sqs', 'sqsw', 'sqnw', 'shin', 'shis', 'shcs', 'shces',
+  'cln', 'cls', 'clnw', 'clsw', 'crs', 'crn',
+  'qi', 'ql', 'ql', 'qe', 'qn', 'qna', 'qnb', 'qnc', 'qnd', 'qne',
+  'scs', 'sen', 'ses', 'sds', 'sbn', 'sbs', 'scn', 'sqsw',
+  'condomínio', 'condominio', 'residencial', 'edifício', 'edificio', 'bloco', 'quadra',
+] as const;
+
+/** O logradouro é de quadra ou condomínio? (RN3) */
+export function exigeComplemento(logradouro: string): boolean {
+  const palavras = logradouro
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .split(/[^a-z]+/)
+    .filter(Boolean);
+
+  return PADROES_COM_COMPLEMENTO.some((padrao) =>
+    palavras.includes(padrao.normalize('NFD').replace(/[̀-ͯ]/g, '')),
+  );
+}
+
 export const esquemaEndereco = z.object({
   apelido: z.string().trim().min(1).max(40),
   cep: z.string().regex(/^[0-9]{8}$/),
@@ -24,7 +54,16 @@ export const esquemaEndereco = z.object({
   lat: z.number().min(-90).max(90).nullish(),
   lng: z.number().min(-180).max(180).nullish(),
   padrao: z.boolean().optional(),
-});
+})
+  .superRefine((endereco, ctx) => {
+    if (exigeComplemento(endereco.logradouro) && !endereco.complemento?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['complemento'],
+        message: 'Informe bloco e apartamento — sem eles a entrega não chega.',
+      });
+    }
+  });
 
 export type EntradaEndereco = z.infer<typeof esquemaEndereco>;
 

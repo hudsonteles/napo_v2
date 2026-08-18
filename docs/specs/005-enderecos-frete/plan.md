@@ -42,6 +42,7 @@ Itens declarados no `design.md` §4.4.3 / §6.1 mas ausentes da tabela §1 — c
 | `apps/web/src/lib/guarda-api.ts` | guarda usada por 5 rotas de 2 features; feature não importa de feature (ARCHITECTURE §3.2) |
 | `apps/web/app/(conta)/conta/layout.tsx` | `design.md` §4.1 manda REUSAR "o layout de (conta)", que não tinha cabeçalho; duas telas desta spec precisam dele |
 | `packages/ui/package.json` | `@radix-ui/react-dialog`, dependência do `<Dialog>` de §4.4.3 |
+| `apps/web/src/features/enderecos/schema.test.ts` | RN3/T11 vira predicado testável; sem teste, a lista de padrões de quadra é palpite |
 
 ---
 
@@ -69,7 +70,7 @@ Arquivos: `features/enderecos/services/enderecos.ts`, `features/enderecos/index.
 Arquivos: `packages/ui/src/components/dialog.tsx`, `features/enderecos/components/{regua-distancia,card-endereco}.tsx`, `app/(conta)/conta/enderecos/page.tsx` · Testes: T5, T27 (tela) + critérios visuais 1, 2, 3, 6 · Depende: F · Est: 80min · Agente: frontend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
 
 ### Bloco H — UI: mapa e formulário
-Arquivos: `features/enderecos/components/{mapa-pin,formulario-endereco}.tsx`, `app/(conta)/conta/enderecos/novo/page.tsx`, `app/(conta)/conta/enderecos/[id]/page.tsx`, `apps/web/package.json` · Testes: T8, T10, T11 + critérios visuais 4, 5, 6 · Depende: F, G · Est: 90min · Agente: frontend-specialist · `[ ]`
+Arquivos: `features/enderecos/components/{mapa-pin,formulario-endereco}.tsx`, `app/(conta)/conta/enderecos/novo/page.tsx`, `app/(conta)/conta/enderecos/[id]/page.tsx`, `apps/web/package.json` · Testes: T8, T10, T11 + critérios visuais 4, 5, 6 · Depende: F, G · Est: 90min · Agente: frontend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
 
 ---
 
@@ -109,6 +110,10 @@ Só bloqueiam se o modo aprovado for `com checkpoints`.
 - **Fora de área devolve `freteCentavos: null`, nunca 0** — inclusive quando não há faixa cobrindo a distância; frete zero silencioso é prejuízo que não aparece no painel.
 - **Entre exceções de CEP vence o prefixo mais longo** — com `716` bloqueando e `71680` liberando, deixar a ordem decidir faria a regra geral engolir a exceção dela.
 - **`export * from './frete'` entrou no barrel já no bloco B** (o mapa previa a modificação de `core/index.ts` no bloco C) — bloco tem de fechar consumível de fora, senão o gate valida código inalcançável.
+- **RN3/T11 vive no schema Zod compartilhado, não em `packages/core`** — é regra do contrato de entrada, e o `superRefine` a aplica no formulário e na rota de uma vez; duas validações do mesmo endereço divergem no primeiro campo novo.
+- **O frete aparece DEPOIS de salvar, não antes** — a medição é do servidor (RN5) e só existe após o POST; o preview mostrava a barra preenchida porque mockup não tem servidor. O endereço fora de área é salvo e o aviso é informativo, como manda a RN9 — não é um gate de confirmação.
+- **`@googlemaps/js-api-loader` v2 usa `setOptions`/`importLibrary`; a classe `Loader` está deprecada** — o design §6.1 nomeou a biblioteca, não a API.
+- **pgTAP do T19 passou a contar só as fixtures** — contava a tabela inteira e quebrou quando o banco local ganhou dado de desenvolvimento; teste que depende do total afirma sobre o ambiente, não sobre a política.
 - **Cabeçalho da conta nasce no layout, com só o link que existe** — o preview mostrava "Pedidos" ao lado de "Endereços", mas essa tela é NAPO-007: link morto seria pior que link nenhum. Muda também a aparência de `/conta`, aprovada no NAPO-002 — a conferir no Gate Visual B.
 - **Régua no card usa "R$ 6", não "R$ 6,00"** — são quatro rótulos de 11px lado a lado; o centavo que nunca varia só rouba espaço. O valor cheio fica no card, onde é preço.
 - **Card do endereço calcula frete com subtotal zero** — mostra quanto a entrega custa, não quanto sairia num pedido hipotético; o desconto acima de R$ 150 é do carrinho, não do endereço.
