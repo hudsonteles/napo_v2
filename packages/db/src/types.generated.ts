@@ -108,14 +108,51 @@ export type Database = {
         }
         Relationships: []
       }
+      ceps: {
+        Row: {
+          bairro: string | null
+          cep: string
+          cidade: string | null
+          created_at: string
+          fonte: Database["public"]["Enums"]["fonte_cep"]
+          logradouro: string | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          bairro?: string | null
+          cep: string
+          cidade?: string | null
+          created_at?: string
+          fonte: Database["public"]["Enums"]["fonte_cep"]
+          logradouro?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bairro?: string | null
+          cep?: string
+          cidade?: string | null
+          created_at?: string
+          fonte?: Database["public"]["Enums"]["fonte_cep"]
+          logradouro?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       config_operacao: {
         Row: {
           buffer_cutoff_min: number
           capacidade_freezer: number
           created_at: string
+          fator_distancia_estimada: number
+          frete_gratis_centavos: number
           horizonte_semanas: number
           id: string
+          limite_ajuste_pin_m: number
           limite_ocupacao_massa_pct: number
+          raio_km: number
           reserva_minutos: number
           sub_teto_massa_dia: number
           tempo_preparo_horas: number
@@ -126,9 +163,13 @@ export type Database = {
           buffer_cutoff_min?: number
           capacidade_freezer?: number
           created_at?: string
+          fator_distancia_estimada?: number
+          frete_gratis_centavos?: number
           horizonte_semanas?: number
           id?: string
+          limite_ajuste_pin_m?: number
           limite_ocupacao_massa_pct?: number
+          raio_km?: number
           reserva_minutos?: number
           sub_teto_massa_dia?: number
           tempo_preparo_horas?: number
@@ -139,9 +180,13 @@ export type Database = {
           buffer_cutoff_min?: number
           capacidade_freezer?: number
           created_at?: string
+          fator_distancia_estimada?: number
+          frete_gratis_centavos?: number
           horizonte_semanas?: number
           id?: string
+          limite_ajuste_pin_m?: number
           limite_ocupacao_massa_pct?: number
+          raio_km?: number
           reserva_minutos?: number
           sub_teto_massa_dia?: number
           tempo_preparo_horas?: number
@@ -245,6 +290,122 @@ export type Database = {
         }
         Relationships: []
       }
+      enderecos: {
+        Row: {
+          atendido: boolean
+          ativo: boolean
+          bairro: string | null
+          cep: string | null
+          cidade: string
+          complemento: string | null
+          created_at: string
+          distancia_estimada: boolean
+          distancia_km: number | null
+          id: string
+          lat: number
+          lat_geocode: number | null
+          lng: number
+          lng_geocode: number | null
+          logradouro: string
+          motivo_area: string | null
+          numero: string
+          padrao: boolean
+          precisa_conferencia: boolean
+          profile_id: string
+          referencia: string | null
+          rotulo: string | null
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          atendido?: boolean
+          ativo?: boolean
+          bairro?: string | null
+          cep?: string | null
+          cidade: string
+          complemento?: string | null
+          created_at?: string
+          distancia_estimada?: boolean
+          distancia_km?: number | null
+          id?: string
+          lat: number
+          lat_geocode?: number | null
+          lng: number
+          lng_geocode?: number | null
+          logradouro: string
+          motivo_area?: string | null
+          numero: string
+          padrao?: boolean
+          precisa_conferencia?: boolean
+          profile_id: string
+          referencia?: string | null
+          rotulo?: string | null
+          uf: string
+          updated_at?: string
+        }
+        Update: {
+          atendido?: boolean
+          ativo?: boolean
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string
+          complemento?: string | null
+          created_at?: string
+          distancia_estimada?: boolean
+          distancia_km?: number | null
+          id?: string
+          lat?: number
+          lat_geocode?: number | null
+          lng?: number
+          lng_geocode?: number | null
+          logradouro?: string
+          motivo_area?: string | null
+          numero?: string
+          padrao?: boolean
+          precisa_conferencia?: boolean
+          profile_id?: string
+          referencia?: string | null
+          rotulo?: string | null
+          uf?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enderecos_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      excecoes_area: {
+        Row: {
+          cep_prefixo: string
+          created_at: string
+          id: string
+          motivo: string
+          tipo: Database["public"]["Enums"]["tipo_excecao_area"]
+          updated_at: string
+        }
+        Insert: {
+          cep_prefixo: string
+          created_at?: string
+          id?: string
+          motivo: string
+          tipo: Database["public"]["Enums"]["tipo_excecao_area"]
+          updated_at?: string
+        }
+        Update: {
+          cep_prefixo?: string
+          created_at?: string
+          id?: string
+          motivo?: string
+          tipo?: Database["public"]["Enums"]["tipo_excecao_area"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       excecoes_calendario: {
         Row: {
           created_at: string
@@ -269,6 +430,36 @@ export type Database = {
           motivo?: string | null
           tipo?: Database["public"]["Enums"]["tipo_excecao_calendario"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      faixas_frete: {
+        Row: {
+          created_at: string
+          id: string
+          km_ate: number
+          km_de: number
+          ordem: number
+          updated_at: string
+          valor_centavos: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          km_ate: number
+          km_de: number
+          ordem?: number
+          updated_at?: string
+          valor_centavos: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          km_ate?: number
+          km_de?: number
+          ordem?: number
+          updated_at?: string
+          valor_centavos?: number
         }
         Relationships: []
       }
@@ -654,6 +845,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_equipe: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
       promover_usuario: {
         Args: {
           alvo: string
@@ -710,8 +905,10 @@ export type Database = {
         | "avela"
         | "peixe"
         | "crustaceos"
+      fonte_cep: "viacep" | "brasilapi" | "manual"
       status_reserva: "ativa" | "consumida" | "expirada" | "cancelada"
       tipo_consentimento: "termos" | "privacidade" | "marketing"
+      tipo_excecao_area: "bloqueio" | "liberacao"
       tipo_excecao_calendario: "sem_producao" | "sem_entrega" | "entrega_extra"
       user_role: "cliente" | "atendente" | "cozinha" | "gerente" | "admin"
     }

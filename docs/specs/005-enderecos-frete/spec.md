@@ -1,7 +1,7 @@
 # 📋 Spec: Endereços e frete por faixa de distância
 
 **ID:** NAPO-005
-**Status:** Aprovado
+**Status:** Em Execução
 **Responsável:** Hudson
 **Data:** 2026-08-17
 **Item no Roadmap:** NAPO-005

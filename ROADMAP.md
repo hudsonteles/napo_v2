@@ -34,20 +34,19 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_Nenhum item em andamento._
+- [ ] **NAPO-005** Endereços e frete por faixa de distância
+  - **Spec:** `docs/specs/005-enderecos-frete/`
+  - **Iniciado em:** 2026-08-18
+  - **Dependências:** NAPO-001
+  - **Bloqueia:** NAPO-006
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **Notas:** CEP → ViaCEP → geocoding → ajuste de pin. Faixas fixas (0–4 km R$6 · 4–8 km R$10 · 8–12 km R$14), frete grátis acima de R$ 150, raio de 12 km configurável + exceções de CEP. Distância **rodoviária** (Brasília tem o lago), calculada uma vez por endereço e gravada. Custo real de referência: R$ 9,60/entrega em rota de 10. Spec §6.
 
 ---
 
 ## 🟡 Próximos (Ordem importa — pegar de cima pra baixo)
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
-
-- [ ] **NAPO-005** Endereços e frete por faixa de distância
-  - **Spec:** `docs/specs/005-enderecos-frete/` _(a criar)_
-  - **Dependências:** NAPO-001
-  - **Bloqueia:** NAPO-006
-  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
-  - **Notas:** CEP → ViaCEP → geocoding → ajuste de pin. Faixas fixas (0–4 km R$6 · 4–8 km R$10 · 8–12 km R$14), frete grátis acima de R$ 150, raio de 12 km configurável + exceções de CEP. Distância **rodoviária** (Brasília tem o lago), calculada uma vez por endereço e gravada. Custo real de referência: R$ 9,60/entrega em rota de 10. Spec §6.
 
 - [ ] **NAPO-006** Carrinho e checkout com Mercado Pago
   - **Spec:** `docs/specs/006-checkout/` _(a criar)_
