@@ -35,7 +35,7 @@
 | **G** | Fornada e disponibilidade ao vivo | `<SeletorFornada>`, `<BarraFornada>`, `<EstadoDisponibilidade>` (ilhas cliente), estado na querystring, rota p/ próxima fornada (RN13/RN14); ajusta `produtos.ts` + rota de disponibilidade | E + F | T3, T4, T21, T22, T23 | `[x]` concluído |
 | **H** | SEO | `generateMetadata`, `sitemap.ts`, `robots.ts`, JSON-LD `Product`+`Offer`+`Restaurant` | E + F | T7, T25 | `[x]` concluído |
 | **I** | Conteúdo | `/como-aquecer` (preparo+FAQ), `/eventos` (RN16), `/legal/termos`+`/legal/privacidade` provisórios | D | T6 | `[x]` concluído |
-| **C** | Seed dos 12 produtos | `0011_catalogo_seed.sql` — categorias, faixas, 12 produtos com **rotulagem real** | A + **rotulagem do PM** | integra T1, T2, T5 | `[ ]` **bloqueado (dado externo)** |
+| **C** | Seed dos 12 produtos | `0011_catalogo_seed.sql` — categorias, faixas, 12 produtos com **rotulagem real** | A + **rotulagem do PM** | integra T1, T2, T5 | `[x]` concluído |
 
 ## Grafo de dependências
 
@@ -51,12 +51,9 @@ C2 ─── (fotos; independente)
 **Caminho crítico:** A → E/F → G/H.
 **Ordem de execução:** `A` → `B` → `D` → `C2` → `E` → `F` → `G` → `H` → `I` → `C`.
 
-## Dado externo pendente (bloco C)
+## Dado externo do bloco C — resolvido (2026-08-17)
 
-O seed de produção precisa da **rotulagem dos 12 produtos** (denominação de venda, peso líquido, validade em dias, conservação, preparo, lista "contém" e lista "pode conter"). É levantamento do PM (`spec.md` §6) e **não pode ser inventado** — é rotulagem regulada (RN2/RN4). Enquanto não chega:
-
-- Blocos A..I são construídos e testados contra uma **fixture de teste não-produção** (`supabase/seed.sql`, que só roda em `db reset` local — nunca alcança staging/prod, por decisão do `design.md` §2.4).
-- A migration de produção `0011` (bloco C) só é escrita quando a rotulagem real existir. RN2 (`CHECK` no banco) garante que nenhum produto incompleto seja publicado no intervalo.
+A rotulagem dos 12 produtos foi levantada com o PM em 2026-08-17 e gravada em `0011_catalogo_seed.sql`. A fixture de teste de catálogo saiu do `supabase/seed.sql` (colidiria no slug único); o `seed.sql` volta a ser só identidade + operação.
 
 ## Checkpoints intermediários sugeridos (GRANDE)
 
@@ -75,9 +72,9 @@ Estas sugestões só bloqueiam se o PM escolher `Modo de execução: com checkpo
 
 ## Status de fechamento (2026-08-17)
 
-**9 de 10 blocos concluídos** (A, B, C2, D, D2, E, F, G, H, I). Gate técnico verde: lint · typecheck · Vitest 152 · build · pgTAP 55. **Gate Visual B do site inteiro aprovado pelo PM** em 2026-08-17. Retrospectiva: nada a registrar.
+**10 de 10 blocos concluídos** (A, B, C, C2, D, D2, E, F, G, H, I). Gate técnico verde: lint · typecheck · Vitest 152 · build · pgTAP 55 · `db:types` sem drift. **Gate Visual B do site aprovado pelo PM** em 2026-08-17; o catálogo real entrou depois e foi reconferido na aplicação.
 
-**Bloco C (seed de produção `0011`) permanece bloqueado** no levantamento de rotulagem do PM — é o único item entre aqui e um site pronto para produção. Enquanto isso o site roda sobre a fixture de teste; a spec fica `Em Execução`. Duas ideias saíram do Gate Visual B (copy do site derivada de config; indicador de precificação de frete) e foram registradas em 💡 Ideias do ROADMAP.
+Publicação continua sendo NAPO-021 — a spec entrega o site pronto, não no ar. Três ideias saíram desta spec (copy do site derivada de config; indicador de precificação de frete; ranking das mais pedidas derivado de venda real) e estão em 💡 Ideias do ROADMAP.
 
 ## Decisões de execução
 
@@ -91,3 +88,7 @@ _(preenchida durante a implementação — 1 bullet por decisão, máx. 2 linhas
 - **Bloco F (2026-08-17):** `generateStaticParams` + `dynamicParams=false` → 12 páginas SSG, slug desconhecido/inativo em 404 sem tocar o banco (T9). `SeletorQuantidade.onChange` virou opcional para o Server Component da página renderizá-lo sem passar função (fronteira server→client). `SeletorFornada` + disponibilidade ao vivo são do G. Verificado no HTML: rotulagem completa (T2).
 - **Bloco E (2026-08-17):** leitura SSG usa **client anônimo sem cookies** (`lib/supabase/anon.ts`, novo) — `server.ts` (com `cookies()`) tornaria a página dinâmica e quebraria o SSG (T19 confirmado: `/sabores` saiu `○ Static`). Disponibilidade ao vivo (qty/esgotado) + `SeletorFornada` são ilha cliente do **G**; a vitrine do E é estática com rodapé neutro ("pedido online em breve"). `centavosParaReais` somado ao core. `<img>` com `eslint-disable no-img-element` (design §5, sem `next/image`). Testes de UI: sem RTL no projeto → mappers/helpers testados em `.ts`, render por Gate Visual B.
 - **Bloco D (2026-08-17):** `cabecalho-site`/`rodape-site` usam `<a>` (packages/ui não importa `next`, ARCHITECTURE §3.2 — full-nav aceitável em SSG); em `apps/web`, links internos usam `next/link` (regra `no-html-link-for-pages`). `Button` ganhou variante `largura` (declarada antes de `size` p/ preservar o `w-auto` do `size: link`). **Home saiu do bloco D** para o novo **D2** (depende de `CardProduto`/`BarraFornada`, E+G); a `app/page.tsx` do NAPO-001 continua no `/` até lá.
+- **Bloco C (2026-08-17):** rotulagem confirmada pelo PM — 550 g nas pizzas (300 g nas massas), validade 90/120 dias, sem soja nem ovos nos salgados, faixas mantidas e Banana sem override. IDs cravados na migration: o mesmo produto tem de ser a mesma linha nos três ambientes, e o teste de reserva do 0004 já referencia a Margherita por id.
+- **Ranking manual (2026-08-17):** PM pediu ranking derivado do que mais vende, mas não há pedidos até o NAPO-006 — as 3 (Calabresa, Peito de Peru com Gorgonzola, Frango c/ Catupiry) foram cravadas na `0011` e a derivação automática virou ideia no ROADMAP.
+- **Precaucional (2026-08-17):** "pode conter" restrito aos doces por decisão do PM (bancada da avelã). Estendido a Banana e Chocolate, que estavam sem — o precaucional é da bancada, não da receita; a Nutella não repete avelã porque já a declara em "contém". **Premissa a confirmar antes do NAPO-021:** separação real de bancada entre doce e salgado.
+
