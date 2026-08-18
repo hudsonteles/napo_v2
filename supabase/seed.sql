@@ -19,15 +19,25 @@ insert into auth.users (
   created_at,
   updated_at,
   raw_app_meta_data,
-  raw_user_meta_data
+  raw_user_meta_data,
+  -- Colunas de token vazias, NUNCA nulas. O GoTrue lê `auth.users` com um driver
+  -- Go que não converte NULL em string: uma linha com estas colunas nulas faz
+  -- QUALQUER login falhar com "Database error finding user" — inclusive o de
+  -- quem nunca usou recuperação de senha. O default do schema é '', mas ele só
+  -- se aplica quando a coluna é omitida em versões que o declaram; explicitar
+  -- aqui é o que torna o seed independente da versão do GoTrue.
+  confirmation_token,
+  recovery_token,
+  email_change,
+  email_change_token_new
 )
 values
-  ('00000000-0000-0000-0000-000000000000', '11111111-1111-1111-1111-111111111111', 'authenticated', 'authenticated', 'cliente1@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}'),
-  ('00000000-0000-0000-0000-000000000000', '22222222-2222-2222-2222-222222222222', 'authenticated', 'authenticated', 'cliente2@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}'),
-  ('00000000-0000-0000-0000-000000000000', '33333333-3333-3333-3333-333333333333', 'authenticated', 'authenticated', 'atendente@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}'),
-  ('00000000-0000-0000-0000-000000000000', '44444444-4444-4444-4444-444444444444', 'authenticated', 'authenticated', 'cozinha@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}'),
-  ('00000000-0000-0000-0000-000000000000', '55555555-5555-5555-5555-555555555555', 'authenticated', 'authenticated', 'gerente@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}'),
-  ('00000000-0000-0000-0000-000000000000', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'authenticated', 'authenticated', 'admin@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}');
+  ('00000000-0000-0000-0000-000000000000', '11111111-1111-1111-1111-111111111111', 'authenticated', 'authenticated', 'cliente1@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '22222222-2222-2222-2222-222222222222', 'authenticated', 'authenticated', 'cliente2@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '33333333-3333-3333-3333-333333333333', 'authenticated', 'authenticated', 'atendente@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '44444444-4444-4444-4444-444444444444', 'authenticated', 'authenticated', 'cozinha@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', '55555555-5555-5555-5555-555555555555', 'authenticated', 'authenticated', 'gerente@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', '', '', '', ''),
+  ('00000000-0000-0000-0000-000000000000', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'authenticated', 'authenticated', 'admin@napo.test', crypt('napo-seed', gen_salt('bf')), now(), now(), now(), '{"provider":"email","providers":["email"]}', '{}', '', '', '', '');
 
 -- Perfis correspondentes, um por role.
 --
