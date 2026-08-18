@@ -92,3 +92,6 @@ _(preenchida durante a implementação — 1 bullet por decisão, máx. 2 linhas
 - **Ranking manual (2026-08-17):** PM pediu ranking derivado do que mais vende, mas não há pedidos até o NAPO-006 — as 3 (Calabresa, Peito de Peru com Gorgonzola, Frango c/ Catupiry) foram cravadas na `0011` e a derivação automática virou ideia no ROADMAP.
 - **Precaucional (2026-08-17):** "pode conter" restrito aos doces por decisão do PM (bancada da avelã). Estendido a Banana e Chocolate, que estavam sem — o precaucional é da bancada, não da receita; a Nutella não repete avelã porque já a declara em "contém". **Premissa a confirmar antes do NAPO-021:** separação real de bancada entre doce e salgado.
 
+---
+
+**Concluído em:** 2026-08-17 — Gate Visual B do catálogo real aprovado pelo PM.

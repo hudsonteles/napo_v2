@@ -34,15 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-- [ ] **NAPO-003** Site público, catálogo e SEO
-  - **Iniciado em:** 2026-08-17
-  - **Spec:** [`docs/specs/003-site-catalogo/`](docs/specs/003-site-catalogo/) — **aprovada em 2026-08-13** · plano de execução em [`plan.md`](docs/specs/003-site-catalogo/plan.md)
-  - **Dependências:** NAPO-001, NAPO-002, NAPO-004 (todas concluídas)
-  - **Bloqueia:** NAPO-006
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** storytelling estilo Apple sobre o eixo _"Longa fermentação. Assada na pedra. Em casa, só aquecer."_ (eixo alterado pelo PM em 2026-08-13) — o concorrente é a congelada de supermercado. Schema `Restaurant`, alérgenos e validade no catálogo (rotulagem ANVISA). Padrão visual preto/branco/amarelo. Spec §10 e §11.
-  - **Progresso (2026-08-17):** 9 de 10 blocos concluídos e commitados (A, B, C2, D, D2, E, F, G, H, I) — catálogo, vitrine, página de produto, disponibilidade ao vivo, SEO, conteúdo e home. **Gate Visual B aprovado pelo PM em 2026-08-17.** Gate técnico verde: lint, typecheck, Vitest 152, build, pgTAP 55.
-  - **Único bloco pendente — C (seed de produção `0011`):** bloqueado no **levantamento de rotulagem do PM** (denominação de venda, peso, validade, conservação, preparo, "contém" e "pode conter" dos 12 produtos). Até lá o site roda sobre a fixture de teste (`supabase/seed.sql`); a RN2 (`CHECK`) impede publicar produto incompleto. O site **não vai ao ar** ao fim desta spec de qualquer forma — publicação é NAPO-021.
+_Nenhum item em andamento._
 
 ---
 
@@ -90,6 +82,7 @@ _Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informa
 - [ ] **NAPO-021** Provisionar homologação e produção + primeiro deploy
   - **Dependências:** NAPO-001
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **⚠️ Conferir antes de publicar (do NAPO-003, 2026-08-17):** (a) a separação real de bancada entre doce e salgado, que sustenta o precaucional de avelã estar só nos doces; (b) a Banana declara leite em "contém" e a Massa Doce, que é a base dela, declara só glúten — uma das duas está errada.
   - **Notas:** desmembrado do NAPO-001 em 2026-08-10 por decisão de focar em desenvolvimento primeiro. Cria os dois projetos Supabase online (staging e prod — **2 ativos cabem no free tier**), conecta a Vercel, aponta o DNS de `napobsb.com.br` no Registro.br e roda o primeiro `db:push` de verdade. Dois pontos de atenção conhecidos: projeto free **pausa após ~7 dias sem atividade** (o CI tocando o banco a cada PR resolve), e produção no free não tem PITR — vira Pro (~US$ 25/mês) antes de faturar. **Quanto mais specs acumularem antes deste item, maior a superfície de surpresa de ambiente** (`docs/specs/001-fundacao/design.md` §8).
 
 ### R2 — Eventos
@@ -198,6 +191,14 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 ## ✅ Concluídos
 
 _Histórico — adicionar mais recentes NO TOPO._
+
+- [x] **NAPO-003** Site público, catálogo e SEO · concluído 2026-08-17 · [`docs/specs/003-site-catalogo/`](docs/specs/003-site-catalogo/)
+  - Vitrine `/sabores`, 12 páginas de produto em SSG (`dynamicParams=false` — slug desconhecido ou inativo cai em 404 sem tocar o banco), home com storytelling sobre o eixo "Longa fermentação. Assada na pedra. Em casa, só aquecer.", `/como-aquecer`, `/eventos` e as páginas legais provisórias.
+  - **Catálogo é schema, não conteúdo solto:** preço mora na faixa (reajustar é um UPDATE, não doze), alérgeno é enum (grafia divergente é alérgeno invisível), e a RN2 virou `CHECK` no banco — publicar produto sem rotulagem completa é impossível, não improvável, e a regra já vale para o admin do NAPO-008 e para a NFC-e do NAPO-011.
+  - Primeira superfície do banco exposta a **anônimo**: leitura pública só de categorias, faixas e produtos ativos; produto inativo é invisível (URL indexada de descontinuada não vende o que não existe). Leitura de SSG usa client anônimo sem cookies — `cookies()` tornaria a página dinâmica e mataria o SSG.
+  - Disponibilidade ao vivo do NAPO-004 entra como **ilha cliente** sobre página estática, com uma única busca compartilhada por contexto e estado da fornada na querystring via `history.replaceState`. JSON-LD `Product`+`Offer` usa snapshot de build (o buscador lê o marcado, não o vivo) e `Restaurant` no layout.
+  - Seed de produção com a rotulagem real dos 12 produtos (550 g, 90 dias, alérgenos e precaucional por bancada), ids cravados para o produto ser a mesma linha nos três ambientes. 152 testes Vitest + 55 pgTAP.
+  - **Não vai ao ar aqui** — publicação é NAPO-021. Pendências conhecidas: fotos de 3 produtos (NAPO-020) e duas conferências de rotulagem anotadas nas notas do NAPO-021.
 
 - [x] **NAPO-002** Autenticação, papéis e gate de telefone por WhatsApp · concluído 2026-08-11 · [`docs/specs/002-auth-gate-telefone/`](docs/specs/002-auth-gate-telefone/)
   - Magic Link e Google pelo Supabase Auth, perfil criado no callback (nasce sempre `cliente`), destino decidido no servidor por papel, e guarda de rota em duas camadas: middleware confere sessão, layout de servidor confere papel e telefone **contra o banco** — claim em JWT ficaria velha e barraria quem acabou de validar.
