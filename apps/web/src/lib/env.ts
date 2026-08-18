@@ -20,12 +20,16 @@ const publicSchema = z.object({
   // produção o app roda atrás de proxy, e `window.location` do navegador que
   // pediu o link não é fonte confiável do domínio para onde ele deve voltar.
   NEXT_PUBLIC_SITE_URL: z.string().url(),
+  // Maps JS para o ajuste do pin (NAPO-005 RN6). Pública de propósito — quem a
+  // protege é a restrição por referrer, não o segredo.
+  NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: z.string().min(1),
 });
 
 const publicParsed = publicSchema.safeParse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY,
 });
 
 if (!publicParsed.success) {
