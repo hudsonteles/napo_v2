@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Meus endereços /conta/enderecos (NAPO-005)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+
+    <style>
+      /* Andaime do mockup — não faz parte do produto. Existe só para exibir as
+         duas direções visuais lado a lado nesta página de revisão. */
+      .rotulo-opcao {
+        letter-spacing: 0.18em;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — Lista /conta/enderecos ══
+      CATÁLOGO USADO:      <Marca>, <Card>, <Button> (default|outline|ghost), <Badge>
+      NOVOS A CRIAR:       <CardEndereco> (features/enderecos), <Dialog> (packages/ui)
+      MARKUP CRU ACEITO:   container raiz, cabeçalho da página, grid da lista
+      DIREÇÃO:             régua de distância 0–12 km com as três faixas (aprovada pelo PM em 2026-08-17)
+      ESTADOS:             padrão · secundário · fora de área · distância estimada · lista vazia · limite de 10
+      DADO DERIVADO:       dias de entrega e raio vêm da configuração (RN17), nunca do código
+    -->
+
+    <!-- → layout de (conta), herdado do NAPO-002 -->
+    <header class="border-b border-borda bg-preto">
+      <div class="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-8">
+        <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-7 w-auto" />
+        <nav class="flex items-center gap-1 text-sm">
+          <a class="rounded-campo px-3 py-2 text-texto-suave hover:bg-superficie-alta hover:text-branco" href="#">Pedidos</a>
+          <a class="rounded-campo bg-superficie-alta px-3 py-2 font-medium text-branco" href="#">Endereços</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-4xl px-5 py-10 sm:px-8">
+      <!-- → cabeçalho da página (markup cru aceito) -->
+      <div class="mb-8 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Meus endereços</h1>
+          <!-- → derivado da configuração (RN17): dias de dias_semana_entrega, raio de config_operacao.
+               Nada aqui é texto fixo — ligar o sábado ou mudar o raio é UPDATE, não deploy. -->
+          <p class="mt-2 text-sm text-texto-suave">
+            Entregamos <span class="text-branco">às sextas</span> em Brasília, num raio de
+            <span class="text-branco">12 km</span> da cozinha.
+          </p>
+        </div>
+        <!-- → <Button> -->
+        <a
+          href="./preview-formulario.html"
+          class="flex items-center gap-2 rounded-campo bg-amarelo px-4 py-2.5 text-sm font-semibold text-preto transition hover:bg-amarelo-escuro"
+        >
+          <i data-lucide="plus" class="h-4 w-4"></i> Novo endereço
+        </a>
+      </div>
+
+      <div class="space-y-4">
+        <!-- → <CardEndereco> · padrão -->
+        <article class="rounded-card border border-borda-forte bg-superficie p-5 sm:p-6">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-semibold">Casa</h2>
+                <!-- → <Badge> -->
+                <span class="rounded-full bg-amarelo px-2 py-0.5 text-[11px] font-bold text-preto">PADRÃO</span>
+              </div>
+              <p class="mt-1 text-sm text-texto-suave">SQN 210 Bloco C · Apto 302 — Asa Norte</p>
+              <p class="text-sm text-texto-suave">CEP 70862-030 · Brasília/DF</p>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold tabular-nums">R$ 6,00</p>
+              <p class="text-xs text-texto-suave">frete · 3,4 km</p>
+            </div>
+          </div>
+
+          <!-- régua: 0 ─ 4 ─ 8 ─ 12 km -->
+          <div class="mt-6">
+            <div class="relative h-1.5 w-full rounded-full bg-superficie-alta">
+              <div class="absolute inset-y-0 left-0 w-1/3 rounded-l-full bg-borda-forte"></div>
+              <div class="absolute inset-y-0 left-1/3 w-1/3 bg-borda"></div>
+              <div class="absolute inset-y-0 left-2/3 right-0 rounded-r-full bg-borda"></div>
+              <!-- pin do endereço: 3,4 km de 12 -->
+              <div class="absolute -top-1.5 h-4.5 w-1 rounded-full bg-amarelo" style="left: 28.3%"></div>
+            </div>
+            <div class="mt-2 flex justify-between font-mono text-[11px] text-texto-suave">
+              <span>0</span><span>4 km · R$ 6</span><span>8 km · R$ 10</span><span>12 km · R$ 14</span>
+            </div>
+          </div>
+
+          <div class="mt-5 flex gap-2">
+            <!-- → <Button variant="outline"> -->
+            <button class="rounded-campo border border-borda-forte px-3 py-2 text-sm hover:bg-superficie-alta">Editar</button>
+            <!-- → <Button variant="ghost"> + <Dialog> de confirmação -->
+            <button class="rounded-campo px-3 py-2 text-sm text-texto-suave hover:bg-superficie-alta hover:text-branco">Desativar</button>
+          </div>
+        </article>
+
+        <!-- → <CardEndereco> · secundário, faixa alta, distância estimada -->
+        <article class="rounded-card border border-borda bg-superficie p-5 sm:p-6">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-semibold">Trabalho</h2>
+                <!-- → <Badge variant="outline"> -->
+                <span class="rounded-full border border-borda-forte px-2 py-0.5 text-[11px] text-texto-suave">
+                  DISTÂNCIA APROXIMADA
+                </span>
+              </div>
+              <p class="mt-1 text-sm text-texto-suave">SCS Quadra 2 Bloco C · Sala 401 — Asa Sul</p>
+              <p class="text-sm text-texto-suave">CEP 70302-000 · Brasília/DF</p>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold tabular-nums">R$ 14,00</p>
+              <p class="text-xs text-texto-suave">frete · ~9,1 km</p>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="relative h-1.5 w-full rounded-full bg-superficie-alta">
+              <div class="absolute inset-y-0 left-0 w-1/3 rounded-l-full bg-borda-forte"></div>
+              <div class="absolute inset-y-0 left-1/3 w-1/3 bg-borda"></div>
+              <div class="absolute inset-y-0 left-2/3 right-0 rounded-r-full bg-borda"></div>
+              <div class="absolute -top-1.5 h-4.5 w-1 rounded-full bg-amarelo" style="left: 75.8%"></div>
+            </div>
+            <div class="mt-2 flex justify-between font-mono text-[11px] text-texto-suave">
+              <span>0</span><span>4 km · R$ 6</span><span>8 km · R$ 10</span><span>12 km · R$ 14</span>
+            </div>
+          </div>
+
+          <div class="mt-5 flex flex-wrap gap-2">
+            <button class="rounded-campo border border-borda-forte px-3 py-2 text-sm hover:bg-superficie-alta">Editar</button>
+            <button class="rounded-campo px-3 py-2 text-sm text-texto-suave hover:bg-superficie-alta hover:text-branco">Tornar padrão</button>
+            <button class="rounded-campo px-3 py-2 text-sm text-texto-suave hover:bg-superficie-alta hover:text-branco">Desativar</button>
+          </div>
+        </article>
+
+        <!-- → <CardEndereco> · fora de área (sem vermelho: o cliente não errou) -->
+        <article class="rounded-card border border-dashed border-borda-forte bg-superficie/40 p-5 sm:p-6">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg font-semibold text-texto-suave">Sítio</h2>
+                <span class="rounded-full border border-borda-forte px-2 py-0.5 text-[11px] text-texto-suave">
+                  AINDA NÃO ENTREGAMOS AÍ
+                </span>
+              </div>
+              <p class="mt-1 text-sm text-texto-suave">Rodovia DF-250, Km 18 · Chácara 7 — Sobradinho</p>
+              <p class="text-sm text-texto-suave">CEP 73255-900 · Brasília/DF</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-semibold text-texto-suave">fora da área</p>
+              <p class="text-xs text-texto-suave">28,6 km</p>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="relative h-1.5 w-full rounded-full bg-superficie-alta">
+              <div class="absolute inset-y-0 left-0 right-6 rounded-full bg-borda"></div>
+              <div class="absolute -top-1 right-0 flex items-center gap-1">
+                <span class="h-3.5 w-3.5 rounded-full border border-borda-forte bg-preto"></span>
+              </div>
+            </div>
+            <div class="mt-2 flex justify-between font-mono text-[11px] text-texto-suave">
+              <span>0</span><span>limite: 12 km</span><span class="text-borda-forte">28,6 km ↗</span>
+            </div>
+          </div>
+
+          <p class="mt-4 text-sm text-texto-suave">
+            Guardamos seu endereço: é assim que decidimos para onde a entrega cresce.
+          </p>
+        </article>
+      </div>
+
+      <!-- ════════════════ ESTADOS AUXILIARES ════════════════ -->
+      <p class="rotulo-opcao mb-3 mt-16 text-[11px] font-bold uppercase text-amarelo">Estados auxiliares</p>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <!-- lista vazia -->
+        <div class="rounded-card border border-dashed border-borda-forte p-8 text-center">
+          <i data-lucide="map-pin" class="mx-auto h-8 w-8 text-borda-forte"></i>
+          <p class="mt-3 font-semibold">Nenhum endereço ainda</p>
+          <p class="mt-1 text-sm text-texto-suave">
+            Cadastre onde a pizza deve chegar e a gente já mostra o frete.
+          </p>
+          <button class="mt-4 rounded-campo bg-amarelo px-4 py-2 text-sm font-semibold text-preto">
+            Cadastrar endereço
+          </button>
+        </div>
+        <!-- limite de 10 -->
+        <div class="rounded-card border border-borda bg-superficie p-8">
+          <p class="font-semibold">Limite de 10 endereços</p>
+          <p class="mt-1 text-sm text-texto-suave">
+            Você chegou ao limite. Desative um endereço que não usa mais para cadastrar outro.
+          </p>
+          <button
+            disabled
+            class="mt-4 cursor-not-allowed rounded-campo bg-superficie-alta px-4 py-2 text-sm font-semibold text-neutral-500"
+          >
+            Novo endereço
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

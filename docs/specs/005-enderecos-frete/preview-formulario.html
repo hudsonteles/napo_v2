@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Cadastro de endereço /conta/enderecos/novo (NAPO-005)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+
+    <style>
+      /* Andaime do mockup — não faz parte do produto.
+         O "mapa" é uma malha CSS representando o Google Maps JS; no produto é o mapa real. */
+      .mapa-falso {
+        background-color: #0f0f0f;
+        background-image:
+          linear-gradient(#1c1c1c 1px, transparent 1px),
+          linear-gradient(90deg, #1c1c1c 1px, transparent 1px),
+          linear-gradient(115deg, #191919 2px, transparent 2px);
+        background-size: 38px 38px, 38px 38px, 100% 100%;
+      }
+      .rotulo-estado {
+        letter-spacing: 0.18em;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — Cadastro /conta/enderecos/novo ══
+      CATÁLOGO USADO:      <Marca>, <Card>, <Input>, <Label>, <Button>, <Badge>, <Checkbox>, <Toaster>
+      NOVOS A CRIAR:       <FormularioEndereco>, <MapaPin> (features/enderecos)
+      MARKUP CRU ACEITO:   container raiz, grid de campos, barra de resumo do frete
+      DIREÇÃO:             uma coluna; o mapa entra DEPOIS do número (a coordenada só existe aí)
+      ESTADOS:             preenchido · buscando CEP · CEP não encontrado (manual) · fora de área com pin deslocado
+    -->
+
+    <header class="border-b border-borda bg-preto">
+      <div class="mx-auto flex max-w-4xl items-center justify-between px-5 py-4 sm:px-8">
+        <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-7 w-auto" />
+        <a href="./preview-lista.html" class="flex items-center gap-1.5 text-sm text-texto-suave hover:text-branco">
+          <i data-lucide="arrow-left" class="h-4 w-4"></i> Meus endereços
+        </a>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-4xl space-y-16 px-5 py-10 sm:px-8">
+      <!-- ═══════════ ESTADO 1 — PREENCHIDO, DENTRO DA ÁREA ═══════════ -->
+      <section>
+        <p class="rotulo-estado mb-4 text-[11px] font-bold uppercase text-amarelo">Estado 1 — preenchido, dentro da área</p>
+
+        <h1 class="text-3xl font-bold tracking-tight">Novo endereço</h1>
+        <p class="mt-2 text-sm text-texto-suave">
+          Comece pelo CEP. Ajuste o que for preciso — em Brasília o endereço quase nunca é "rua e número".
+        </p>
+
+        <!-- → <Card> -->
+        <div class="mt-6 rounded-card border border-borda bg-superficie p-5 sm:p-6">
+          <div class="grid gap-4 sm:grid-cols-6">
+            <div class="sm:col-span-2">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">CEP</label>
+              <input
+                value="70862-030"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 font-mono text-sm outline-none focus:border-amarelo"
+              />
+            </div>
+            <div class="sm:col-span-4">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">
+                Logradouro <span class="text-texto-suave/70">· editável</span>
+              </label>
+              <input
+                value="SQN 210 Bloco C"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 text-sm outline-none focus:border-amarelo"
+              />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Número</label>
+              <input
+                value="s/n"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 text-sm outline-none focus:border-amarelo"
+              />
+            </div>
+            <div class="sm:col-span-4">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">
+                Complemento <span class="text-amarelo">· obrigatório em quadra</span>
+              </label>
+              <input
+                value="Apto 302"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 text-sm outline-none focus:border-amarelo"
+              />
+            </div>
+            <div class="sm:col-span-3">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Bairro</label>
+              <input
+                value="Asa Norte"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 text-sm outline-none focus:border-amarelo"
+              />
+            </div>
+            <div class="sm:col-span-3">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Cidade / UF</label>
+              <input
+                value="Brasília / DF"
+                class="w-full rounded-campo border border-borda bg-superficie-alta/60 px-3 py-2.5 text-sm text-texto-suave outline-none"
+              />
+            </div>
+            <div class="sm:col-span-6">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">
+                Ponto de referência <span class="text-texto-suave/70">· opcional, ajuda o entregador</span>
+              </label>
+              <input
+                placeholder="Portaria do bloco C, ao lado da quadra de tênis"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 text-sm outline-none placeholder:text-texto-suave/50 focus:border-amarelo"
+              />
+            </div>
+          </div>
+
+          <!-- → <MapaPin> -->
+          <div class="mt-6">
+            <div class="mb-2 flex items-center justify-between">
+              <p class="text-sm font-medium">Confirme no mapa onde a entrega chega</p>
+              <span class="font-mono text-[11px] text-texto-suave">arraste o pin se precisar</span>
+            </div>
+            <div class="mapa-falso relative h-56 overflow-hidden rounded-campo border border-borda-forte sm:h-64">
+              <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
+                <div class="flex flex-col items-center">
+                  <span class="rounded-full bg-amarelo px-2 py-0.5 text-[11px] font-bold text-preto">aqui</span>
+                  <i data-lucide="map-pin" class="h-7 w-7 text-amarelo drop-shadow"></i>
+                </div>
+              </div>
+              <div class="absolute bottom-3 left-3 rounded-campo bg-preto/80 px-2.5 py-1 font-mono text-[11px] text-texto-suave">
+                -15.7565, -47.8850
+              </div>
+            </div>
+          </div>
+
+          <!-- barra de resumo do frete (markup cru aceito) -->
+          <div class="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-campo border border-borda-forte bg-superficie-alta px-5 py-4">
+            <div>
+              <p class="font-mono text-[11px] tracking-widest text-texto-suave">DA COZINHA ATÉ AQUI</p>
+              <p class="mt-0.5 text-lg font-semibold tabular-nums">3,4 km · faixa 0–4 km</p>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold tabular-nums">R$ 6,00</p>
+              <p class="text-xs text-texto-suave">grátis acima de R$ 150</p>
+            </div>
+          </div>
+
+          <label class="mt-5 flex items-center gap-2.5 text-sm">
+            <span class="flex h-4.5 w-4.5 items-center justify-center rounded border border-borda-forte bg-amarelo">
+              <i data-lucide="check" class="h-3 w-3 text-preto"></i>
+            </span>
+            Usar como endereço padrão
+          </label>
+
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button class="rounded-campo bg-amarelo px-5 py-2.5 text-sm font-semibold text-preto hover:bg-amarelo-escuro">
+              Salvar endereço
+            </button>
+            <button class="rounded-campo px-4 py-2.5 text-sm text-texto-suave hover:bg-superficie-alta hover:text-branco">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ ESTADO 2 — BUSCANDO CEP ═══════════ -->
+      <section>
+        <p class="rotulo-estado mb-4 text-[11px] font-bold uppercase text-amarelo">Estado 2 — buscando o CEP</p>
+        <div class="rounded-card border border-borda bg-superficie p-5 sm:p-6">
+          <div class="grid gap-4 sm:grid-cols-6">
+            <div class="sm:col-span-2">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">CEP</label>
+              <div class="relative">
+                <input
+                  value="70862-030"
+                  class="w-full rounded-campo border border-amarelo bg-superficie-alta px-3 py-2.5 font-mono text-sm outline-none"
+                />
+                <i data-lucide="loader-circle" class="absolute right-3 top-3 h-4 w-4 animate-spin text-amarelo"></i>
+              </div>
+            </div>
+            <div class="sm:col-span-4">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Logradouro</label>
+              <div class="h-11 w-full animate-pulse rounded-campo border border-borda bg-superficie-alta/60"></div>
+            </div>
+            <div class="sm:col-span-2">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Número</label>
+              <div class="h-11 w-full animate-pulse rounded-campo border border-borda bg-superficie-alta/60"></div>
+            </div>
+            <div class="sm:col-span-4">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Complemento</label>
+              <div class="h-11 w-full animate-pulse rounded-campo border border-borda bg-superficie-alta/60"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ ESTADO 3 — CEP NÃO ENCONTRADO ═══════════ -->
+      <section>
+        <p class="rotulo-estado mb-4 text-[11px] font-bold uppercase text-amarelo">
+          Estado 3 — CEP não encontrado (nem ViaCEP nem BrasilAPI)
+        </p>
+        <div class="rounded-card border border-borda bg-superficie p-5 sm:p-6">
+          <!-- aviso: informativo, não erro — o cliente não fez nada errado -->
+          <div class="mb-5 flex gap-3 rounded-campo border border-borda-forte bg-superficie-alta px-4 py-3">
+            <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-amarelo"></i>
+            <p class="text-sm text-texto-suave">
+              Não encontramos esse CEP nas bases públicas — CEP novo demora a ser indexado.
+              <span class="text-branco">Pode preencher o endereço à mão</span> que a gente continua daqui.
+            </p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-6">
+            <div class="sm:col-span-2">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">CEP</label>
+              <input
+                value="73255-901"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 font-mono text-sm outline-none focus:border-amarelo"
+              />
+            </div>
+            <div class="sm:col-span-4">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Logradouro</label>
+              <input
+                placeholder="Digite a quadra, rua ou rodovia"
+                class="w-full rounded-campo border border-amarelo bg-superficie-alta px-3 py-2.5 text-sm outline-none placeholder:text-texto-suave/50"
+              />
+            </div>
+            <div class="sm:col-span-3">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Bairro</label>
+              <input
+                placeholder="Ex.: Sobradinho"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 text-sm outline-none placeholder:text-texto-suave/50 focus:border-amarelo"
+              />
+            </div>
+            <div class="sm:col-span-3">
+              <label class="mb-1.5 block text-xs font-medium text-texto-suave">Cidade / UF</label>
+              <input
+                placeholder="Brasília / DF"
+                class="w-full rounded-campo border border-borda-forte bg-superficie-alta px-3 py-2.5 text-sm outline-none placeholder:text-texto-suave/50 focus:border-amarelo"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════ ESTADO 4 — FORA DA ÁREA + PIN DESLOCADO ═══════════ -->
+      <section>
+        <p class="rotulo-estado mb-4 text-[11px] font-bold uppercase text-amarelo">
+          Estado 4 — pin deslocado e endereço fora da área
+        </p>
+        <div class="rounded-card border border-borda bg-superficie p-5 sm:p-6">
+          <div class="mb-5">
+            <div class="mapa-falso relative h-56 overflow-hidden rounded-campo border border-borda-forte">
+              <!-- ponto original do geocoding -->
+              <div class="absolute left-[38%] top-[45%]">
+                <span class="block h-2.5 w-2.5 rounded-full border border-borda-forte bg-texto-suave"></span>
+              </div>
+              <!-- linha de deslocamento -->
+              <svg class="absolute inset-0 h-full w-full" aria-hidden="true">
+                <line x1="38%" y1="45%" x2="63%" y2="62%" stroke="#3d3d3d" stroke-width="2" stroke-dasharray="5 4" />
+              </svg>
+              <!-- pin final arrastado -->
+              <div class="absolute left-[63%] top-[62%] -translate-x-1/2 -translate-y-full">
+                <i data-lucide="map-pin" class="h-7 w-7 text-amarelo drop-shadow"></i>
+              </div>
+              <div class="absolute bottom-3 left-3 rounded-campo bg-preto/80 px-2.5 py-1 font-mono text-[11px] text-texto-suave">
+                pin movido 1,2 km do endereço
+              </div>
+            </div>
+            <p class="mt-2 text-xs text-texto-suave">
+              Você moveu bastante o pin — vamos conferir esse endereço antes da primeira entrega.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-4 rounded-campo border border-dashed border-borda-forte bg-superficie-alta/50 px-5 py-4">
+            <div>
+              <p class="font-mono text-[11px] tracking-widest text-texto-suave">DA COZINHA ATÉ AQUI</p>
+              <p class="mt-0.5 text-lg font-semibold tabular-nums text-texto-suave">28,6 km · limite de 12 km</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-semibold">ainda não entregamos aí</p>
+              <p class="text-xs text-texto-suave">seu endereço fica salvo</p>
+            </div>
+          </div>
+
+          <p class="mt-4 text-sm text-texto-suave">
+            Guardamos o endereço para saber onde tem gente esperando — é assim que a área de entrega cresce.
+            Quando chegarmos em Sobradinho, você é avisado.
+          </p>
+
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button class="rounded-campo border border-borda-forte px-5 py-2.5 text-sm font-semibold hover:bg-superficie-alta">
+              Salvar mesmo assim
+            </button>
+            <button class="rounded-campo px-4 py-2.5 text-sm text-texto-suave hover:bg-superficie-alta hover:text-branco">
+              Corrigir endereço
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
