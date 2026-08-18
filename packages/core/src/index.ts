@@ -15,6 +15,7 @@ export {
 } from './tempo';
 export * from './catalogo';
 export * from './disponibilidade';
+export * from './entrega';
 export * from './frete';
 export * from './otp';
 export * from './telefone';

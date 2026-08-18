@@ -47,7 +47,7 @@ Arquivos: `supabase/migrations/0012_enderecos_frete.sql`, `supabase/tests/0012_e
 Arquivos: `packages/core/src/frete/{frete,distancia,area,index}.ts` + `*.test.ts` · Testes: T6, T7, T23 (parte pura), T24 (parte pura), T25, T26 · Depende: — (disjunto de A) · Est: 60min · Agente: inline (Domain Engineer) · `[x]`
 
 ### Bloco C — Core: descrição de cobertura (RN17)
-Arquivos: `packages/core/src/entrega/{descricao,index}.ts` + teste, `packages/core/src/index.ts` · Testes: T27 (parte pura) · Depende: B (compartilha o barrel) · Est: 30min · Agente: inline · `[ ]`
+Arquivos: `packages/core/src/entrega/{descricao,index}.ts` + teste, `packages/core/src/index.ts` · Testes: T27 (parte pura) · Depende: B (compartilha o barrel) · Est: 30min · Agente: inline · `[x]`
 
 ### Bloco D — Env + CEP com cache e fallback
 Arquivos: `.env.example`, `apps/web/src/lib/env.ts`, `features/enderecos/services/cep.ts`, `app/api/cep/[cep]/route.ts` + testes · Testes: T1, T8 (servidor), T9, T21, T22 · Depende: A · Est: 60min · Agente: backend-specialist · `[ ]`
@@ -102,4 +102,6 @@ Só bloqueiam se o modo aprovado for `com checkpoints`.
 - **Fora de área devolve `freteCentavos: null`, nunca 0** — inclusive quando não há faixa cobrindo a distância; frete zero silencioso é prejuízo que não aparece no painel.
 - **Entre exceções de CEP vence o prefixo mais longo** — com `716` bloqueando e `71680` liberando, deixar a ordem decidir faria a regra geral engolir a exceção dela.
 - **`export * from './frete'` entrou no barrel já no bloco B** (o mapa previa a modificação de `core/index.ts` no bloco C) — bloco tem de fechar consumível de fora, senão o gate valida código inalcançável.
+- **A preposição do dia reaparece só quando o gênero vira** ("às sextas e aos sábados") — repetir sempre soa robótico e omitir sempre erra o português no dia que o sábado abrir.
+- **Sem dia de entrega ativo, a frase de cobertura é `null`** — a tela omite em vez de anunciar entrega que a operação não faz (RN17).
 - **Bloco B executado antes do A** — o seed da 0012 depende da coordenada da cozinha, fato do negócio pendente do PM; blocos disjuntos, grafo intacto.
