@@ -41,7 +41,7 @@ Itens declarados no `design.md` §4.4.3 / §6.1 mas ausentes da tabela §1 — c
 ## Blocos
 
 ### Bloco A — Schema, RLS e tipos
-Arquivos: `supabase/migrations/0012_enderecos_frete.sql`, `supabase/tests/0012_enderecos_rls.sql`, `packages/db/src/types.generated.ts` · Testes: T16, T19 (pgTAP) + invariantes RN13/RN14/RN25 no banco · Depende: — · Est: 75min · Agente: database-architect + security-auditor · `[ ]`
+Arquivos: `supabase/migrations/0012_enderecos_frete.sql`, `supabase/tests/0012_enderecos_rls.sql`, `packages/db/src/types.generated.ts` · Testes: T16, T19 (pgTAP) + invariantes RN13/RN15 no banco · Depende: — · Est: 75min · Agente: database-architect + security-auditor · `[x]`
 
 ### Bloco B — Core: frete, distância e área
 Arquivos: `packages/core/src/frete/{frete,distancia,area,index}.ts` + `*.test.ts` · Testes: T6, T7, T23 (parte pura), T24 (parte pura), T25, T26 · Depende: — (disjunto de A) · Est: 60min · Agente: inline (Domain Engineer) · `[x]`
@@ -102,6 +102,7 @@ Só bloqueiam se o modo aprovado for `com checkpoints`.
 - **Fora de área devolve `freteCentavos: null`, nunca 0** — inclusive quando não há faixa cobrindo a distância; frete zero silencioso é prejuízo que não aparece no painel.
 - **Entre exceções de CEP vence o prefixo mais longo** — com `716` bloqueando e `71680` liberando, deixar a ordem decidir faria a regra geral engolir a exceção dela.
 - **`export * from './frete'` entrou no barrel já no bloco B** (o mapa previa a modificação de `core/index.ts` no bloco C) — bloco tem de fechar consumível de fora, senão o gate valida código inalcançável.
+- **Privilégios revogados explicitamente em `enderecos`, `ceps`, `excecoes_area` e `faixas_frete`** — o Supabase concede ALL por default privilege a toda tabela nova de `public`; sem revogar, RN15 dependeria só da ausência de política, e um `for all` acrescentado amanhã reabriria o DELETE.
 - **A preposição do dia reaparece só quando o gênero vira** ("às sextas e aos sábados") — repetir sempre soa robótico e omitir sempre erra o português no dia que o sábado abrir.
 - **Sem dia de entrega ativo, a frase de cobertura é `null`** — a tela omite em vez de anunciar entrega que a operação não faz (RN17).
 - **Bloco B executado antes do A** — o seed da 0012 depende da coordenada da cozinha, fato do negócio pendente do PM; blocos disjuntos, grafo intacto.
