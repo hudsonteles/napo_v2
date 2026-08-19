@@ -44,6 +44,22 @@ function Esqueleto() {
   );
 }
 
+/**
+ * A ordem visual dos campos — é ela que decide qual erro recebe o foco.
+ * `Object.keys` do Zod não serve: a ordem lá é a do schema, não a da tela.
+ */
+const ORDEM_DOS_CAMPOS = [
+  'cep',
+  'logradouro',
+  'numero',
+  'complemento',
+  'bairro',
+  'cidade',
+  'uf',
+  'apelido',
+  'referencia',
+] as const;
+
 type Campos = {
   apelido: string;
   cep: string;
@@ -176,11 +192,24 @@ export function FormularioEndereco({
     });
 
     if (!conferido.success) {
-      setErros(
-        Object.fromEntries(
-          conferido.error.issues.map((i) => [String(i.path[0] ?? 'geral'), i.message]),
-        ),
+      const porCampo = Object.fromEntries(
+        conferido.error.issues.map((i) => [String(i.path[0] ?? 'geral'), i.message]),
       );
+      setErros(porCampo);
+
+      // Mensagem inline sozinha não avisa: o erro pode estar acima da dobra, e a
+      // pessoa fica olhando um botão que "não faz nada". O foco leva ela até lá;
+      // o toast diz que houve erro mesmo se o campo já estiver visível.
+      const primeiro = ORDEM_DOS_CAMPOS.find((campo) => porCampo[campo]);
+      if (primeiro) {
+        const alvo = document.getElementById(primeiro);
+        alvo?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        alvo?.focus({ preventScroll: true });
+        toast.error(porCampo[primeiro] as string);
+      } else {
+        toast.error('Confira os campos destacados.');
+      }
+
       return null;
     }
 

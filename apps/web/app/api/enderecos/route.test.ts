@@ -290,10 +290,24 @@ describe('POST /api/enderecos/posicao — etapa 2 (drift.md)', () => {
     expect(corpo.data.precisaConferencia).toBe(true);
   });
 
-  it('endereço que não dá para localizar de jeito nenhum é 422, não 500', async () => {
-    feature.avaliarPosicao.mockResolvedValue(null);
+  it('geocodificação sem resultado NÃO trava a etapa: abre no centro da cidade', async () => {
+    feature.avaliarPosicao.mockResolvedValue({
+      ...POSICAO_OK,
+      geocodificada: null,
+      final: { lat: -15.7939, lng: -47.8828 },
+      distanciaKm: 0,
+      precisaConferencia: true,
+      atendido: false,
+      frete: { freteCentavos: null, gratis: false, faixa: null, foraDeArea: true, motivo: null },
+    });
 
-    expect((await pedirPosicao(CORPO)).status).toBe(422);
+    const resposta = await pedirPosicao(CORPO);
+    const corpo = await resposta.json();
+
+    // 200, não 4xx: endereço que o Google não acha não é erro de quem digitou.
+    expect(resposta.status).toBe(200);
+    expect(corpo.data.geocodificada).toBeNull();
+    expect(corpo.data.final).toEqual({ lat: -15.7939, lng: -47.8828 });
   });
 
   it('T17 — o corpo continua sem aceitar distância', async () => {

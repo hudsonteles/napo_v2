@@ -134,7 +134,7 @@ export function EtapaPosicao({
 
         <div className={mostrarMedida ? '' : 'opacity-40'}>
           <ReguaDistancia
-            distanciaKm={posicao.distanciaKm}
+            distanciaKm={semSugestao ? null : posicao.distanciaKm}
             raioKm={config.raioKm}
             faixas={config.faixas}
             atendido={posicao.atendido}

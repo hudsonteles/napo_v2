@@ -34,6 +34,15 @@ import {
 
 export const MAX_ENDERECOS_ATIVOS = 10;
 
+/**
+ * Enquadramento inicial quando a geocodificação não encontra nada (design §4.3).
+ *
+ * Não é a cozinha de propósito: centralizar o mapa na Napo sugeriria que a
+ * entrega parte dali para o lugar errado. O centro da cidade é neutro — a pessoa
+ * arrasta de lá para a própria porta.
+ */
+const CENTRO_DA_CIDADE: Coordenada = { lat: -15.7939, lng: -47.8828 };
+
 export type FalhaEndereco = 'limite-atingido' | 'nao-encontrado' | 'falha-ao-gravar';
 
 export function paraEndereco(linha: LinhaEndereco): Endereco {
@@ -123,10 +132,33 @@ async function posicionar(
  * deslocamento (RN6) — a conta é de duas geocodificações por endereço, contra uma
  * franquia de 10.000 por mês.
  */
-export async function avaliarPosicao(entrada: EntradaEndereco): Promise<PosicaoAvaliada | null> {
+export async function avaliarPosicao(entrada: EntradaEndereco): Promise<PosicaoAvaliada> {
   const config = await carregarConfigDeArea();
   const posicao = await posicionar(entrada, config);
-  if (!posicao) return null;
+
+  // Geocodificação sem resultado NÃO trava a etapa (design §4.3, estado 3 do
+  // preview): o mapa abre no centro da cidade para a pessoa centralizar onde a
+  // entrega chega. Sem rota aqui — medir até um ponto arbitrário gastaria uma
+  // chamada para produzir um número que não significa nada. A medição de verdade
+  // acontece ao confirmar, a partir da coordenada que ela escolheu.
+  if (!posicao) {
+    return {
+      geocodificada: null,
+      final: CENTRO_DA_CIDADE,
+      distanciaKm: 0,
+      distanciaEstimada: true,
+      precisaConferencia: true,
+      atendido: false,
+      motivoNaoAtendido: null,
+      frete: {
+        freteCentavos: null,
+        gratis: false,
+        faixa: null,
+        foraDeArea: true,
+        motivo: null,
+      },
+    };
+  }
 
   const area = avaliarArea({
     distanciaKm: posicao.distanciaKm,

@@ -22,16 +22,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const posicao = await avaliarPosicao(corpo.data);
-
-    if (!posicao) {
-      return NextResponse.json(
-        { success: false, error: 'Não foi possível localizar esse endereço.' },
-        { status: 422 },
-      );
-    }
-
-    return NextResponse.json({ success: true, data: posicao });
+    // Sempre 200: endereço que a geocodificação não acha não é erro do cliente —
+    // a etapa 2 abre no centro da cidade para ele centralizar (design §4.3).
+    return NextResponse.json({ success: true, data: await avaliarPosicao(corpo.data) });
   } catch (erro) {
     console.error('[enderecos/posicao] falha ao avaliar', erro);
     return NextResponse.json(
