@@ -23,6 +23,20 @@ const MapaPin = dynamic(() => import('./mapa-pin').then((m) => m.MapaPin), {
   loading: () => <div className="h-56 animate-pulse rounded-campo bg-superficie-alta sm:h-64" />,
 });
 
+/**
+ * Enquanto o CEP é consultado, os campos que a resposta preenche viram esqueleto
+ * (design §4.3, estado 2 do preview aprovado).
+ *
+ * Não é enfeite de carregamento: o campo continuar editável significa que o que
+ * a pessoa digitou nos três segundos de espera é sobrescrito pela resposta sem
+ * aviso — e ela reescreve o mesmo dado achando que errou.
+ */
+function Esqueleto() {
+  return (
+    <div className="h-12 w-full animate-pulse rounded-campo border border-borda bg-superficie-alta/60 motion-reduce:animate-none" />
+  );
+}
+
 /** Centro de Brasília — só o enquadramento inicial quando não há coordenada ainda. */
 const CENTRO_BRASILIA: Coordenada = { lat: -15.7939, lng: -47.8828 };
 
@@ -163,14 +177,11 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
     setErros({});
 
     iniciarSalvamento(async () => {
-      const resposta = await fetch(
-        endereco ? `/api/enderecos/${endereco.id}` : '/api/enderecos',
-        {
-          method: endereco ? 'PATCH' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(conferido.data),
-        },
-      );
+      const resposta = await fetch(endereco ? `/api/enderecos/${endereco.id}` : '/api/enderecos', {
+        method: endereco ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(conferido.data),
+      });
 
       const corpo = await resposta.json();
 
@@ -190,7 +201,7 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
 
   return (
     <Card className="mt-6 p-5 sm:p-6 sm:shadow-none">
-      <div className="grid gap-4 sm:grid-cols-6">
+      <div className="grid gap-4 sm:grid-cols-6" aria-busy={buscandoCep}>
         <Campo className="sm:col-span-2" id="cep" rotulo="CEP" erro={erros.cep}>
           <div className="relative">
             <Input
@@ -218,23 +229,31 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
           dica="editável"
           erro={erros.logradouro}
         >
-          <Input
-            id="logradouro"
-            value={campos.logradouro}
-            placeholder="Digite a quadra, rua ou rodovia"
-            onChange={(e) => atualizar('logradouro', e.target.value)}
-            aria-invalid={Boolean(erros.logradouro)}
-          />
+          {buscandoCep ? (
+            <Esqueleto />
+          ) : (
+            <Input
+              id="logradouro"
+              value={campos.logradouro}
+              placeholder="Digite a quadra, rua ou rodovia"
+              onChange={(e) => atualizar('logradouro', e.target.value)}
+              aria-invalid={Boolean(erros.logradouro)}
+            />
+          )}
         </Campo>
 
         <Campo className="sm:col-span-2" id="numero" rotulo="Número" erro={erros.numero}>
-          <Input
-            id="numero"
-            value={campos.numero}
-            placeholder="s/n"
-            onChange={(e) => atualizar('numero', e.target.value)}
-            aria-invalid={Boolean(erros.numero)}
-          />
+          {buscandoCep ? (
+            <Esqueleto />
+          ) : (
+            <Input
+              id="numero"
+              value={campos.numero}
+              placeholder="s/n"
+              onChange={(e) => atualizar('numero', e.target.value)}
+              aria-invalid={Boolean(erros.numero)}
+            />
+          )}
         </Campo>
 
         <Campo
@@ -245,44 +264,65 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
           destacarDica={complementoObrigatorio}
           erro={erros.complemento}
         >
-          <Input
-            id="complemento"
-            value={campos.complemento}
-            placeholder="Bloco C, Apto 302"
-            onChange={(e) => atualizar('complemento', e.target.value)}
-            aria-invalid={Boolean(erros.complemento)}
-          />
+          {buscandoCep ? (
+            <Esqueleto />
+          ) : (
+            <Input
+              id="complemento"
+              value={campos.complemento}
+              placeholder="Bloco C, Apto 302"
+              onChange={(e) => atualizar('complemento', e.target.value)}
+              aria-invalid={Boolean(erros.complemento)}
+            />
+          )}
         </Campo>
 
         <Campo className="sm:col-span-3" id="bairro" rotulo="Bairro" erro={erros.bairro}>
-          <Input
-            id="bairro"
-            value={campos.bairro}
-            onChange={(e) => atualizar('bairro', e.target.value)}
-          />
+          {buscandoCep ? (
+            <Esqueleto />
+          ) : (
+            <Input
+              id="bairro"
+              value={campos.bairro}
+              onChange={(e) => atualizar('bairro', e.target.value)}
+            />
+          )}
         </Campo>
 
         <Campo className="sm:col-span-2" id="cidade" rotulo="Cidade" erro={erros.cidade}>
-          <Input
-            id="cidade"
-            value={campos.cidade}
-            onChange={(e) => atualizar('cidade', e.target.value)}
-            aria-invalid={Boolean(erros.cidade)}
-          />
+          {buscandoCep ? (
+            <Esqueleto />
+          ) : (
+            <Input
+              id="cidade"
+              value={campos.cidade}
+              onChange={(e) => atualizar('cidade', e.target.value)}
+              aria-invalid={Boolean(erros.cidade)}
+            />
+          )}
         </Campo>
 
         <Campo className="sm:col-span-1" id="uf" rotulo="UF" erro={erros.uf}>
-          <Input
-            id="uf"
-            maxLength={2}
-            className="uppercase"
-            value={campos.uf}
-            onChange={(e) => atualizar('uf', e.target.value)}
-            aria-invalid={Boolean(erros.uf)}
-          />
+          {buscandoCep ? (
+            <Esqueleto />
+          ) : (
+            <Input
+              id="uf"
+              maxLength={2}
+              className="uppercase"
+              value={campos.uf}
+              onChange={(e) => atualizar('uf', e.target.value)}
+              aria-invalid={Boolean(erros.uf)}
+            />
+          )}
         </Campo>
 
-        <Campo className="sm:col-span-6" id="apelido" rotulo="Nome deste endereço" erro={erros.apelido}>
+        <Campo
+          className="sm:col-span-6"
+          id="apelido"
+          rotulo="Nome deste endereço"
+          erro={erros.apelido}
+        >
           <Input
             id="apelido"
             value={campos.apelido}
@@ -344,7 +384,7 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
       </label>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button size="sm" largura="natural" disabled={salvando} onClick={salvar}>
+        <Button size="sm" largura="natural" disabled={salvando || buscandoCep} onClick={salvar}>
           {salvando ? 'Salvando…' : 'Salvar endereço'}
         </Button>
         <Button asChild variant="ghost" size="sm" largura="natural">

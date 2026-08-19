@@ -47,19 +47,22 @@ export function MapaPin({
 
     importLibrary('maps')
       .then(async ({ Map }) => {
-        const { AdvancedMarkerElement } = await importLibrary('marker');
+        const { Marker } = await importLibrary('marker');
         if (cancelado) return;
 
+        // Sem `mapId`: um Map ID não registrado no console faz o Google recusar o
+        // estilo e a div fica em branco. Por isso também o `Marker` clássico e não
+        // o `AdvancedMarkerElement` — este exige Map ID registrado, que é passo de
+        // console e vira dependência externa. Trocar depois é uma linha.
         const mapa = new Map(alvo, {
           center: centro,
           zoom: 17,
-          mapId: 'napo-enderecos',
           disableDefaultUI: true,
           zoomControl: true,
           gestureHandling: 'cooperative',
         });
 
-        const marcador = new AdvancedMarkerElement({ map: mapa, position: centro, gmpDraggable: true });
+        const marcador = new Marker({ map: mapa, position: centro, draggable: true });
 
         // Traço até o ponto original: é o que mostra ao cliente o tamanho do
         // desvio que ele acabou de criar, antes de ele salvar.
@@ -77,10 +80,10 @@ export function MapaPin({
         });
 
         marcador.addListener('dragend', () => {
-          const p = marcador.position as google.maps.LatLngLiteral | null;
+          const p = marcador.getPosition();
           if (!p) return;
 
-          const nova = { lat: p.lat, lng: p.lng };
+          const nova = { lat: p.lat(), lng: p.lng() };
           setPosicao(nova);
           onMover(nova);
           if (original) traco.setPath([original, nova]);
