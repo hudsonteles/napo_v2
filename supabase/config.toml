@@ -92,6 +92,11 @@ enabled = true
 # allowed_mime_types = ["image/png", "image/jpeg"]
 # objects_path = "./images"
 
+# ⚠️ LEMBRETE (NAPO-006, 2026-08-19): o container NÃO recarrega este bloco sozinho.
+# Depois de mudar qualquer coisa em [auth] (site_url, additional_redirect_urls, etc.),
+# rode `pnpm db:stop && pnpm db:start` para aplicar — senão o GoTrue segue com a
+# config antiga e o Magic Link cai na raiz em vez de /api/auth/callback (sessão
+# nunca é criada). Custou uma sessão de debug; não repita.
 [auth]
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
