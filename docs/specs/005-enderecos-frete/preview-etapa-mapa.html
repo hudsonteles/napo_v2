@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Etapa 2: confirmar localização (NAPO-005, drift)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+
+    <style>
+      /* Andaime do mockup — o "mapa" é malha CSS; no produto é a Maps JS API real. */
+      .mapa-falso {
+        background-color: #0f0f0f;
+        background-image:
+          linear-gradient(#1c1c1c 1px, transparent 1px),
+          linear-gradient(90deg, #1c1c1c 1px, transparent 1px),
+          linear-gradient(115deg, #191919 2px, transparent 2px);
+        background-size: 38px 38px, 38px 38px, 100% 100%;
+      }
+      .mapa-deslocado {
+        background-position:
+          -46px 22px,
+          -46px 22px,
+          0 0;
+      }
+      .rotulo-estado {
+        letter-spacing: 0.18em;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — Etapa 2: confirmar localização ══
+      ORIGEM:              drift.md — o mapa deixa de ser elemento da página única e vira etapa
+      CATÁLOGO USADO:      <Marca>, <Card>, <Button> (default|outline|ghost), <Badge>
+      NOVOS A CRIAR:       <MapaConfirmacao> (substitui <MapaPin>), reusa <ReguaDistancia> do bloco G
+      MARKUP CRU ACEITO:   container raiz, cabeçalho com passos, superfície do mapa
+      DIREÇÃO:             pin FIXO no centro, mapa se move embaixo (padrão iFood/Uber);
+                           a régua de distância fica colada à confirmação — mover o pin
+                           move o dinheiro, e é isso que dá motivo para olhar
+      ESTADOS:             encontrado · pin movido além do limite · geocodificação sem resultado · sem mouse
+    -->
+
+    <header class="border-b border-borda bg-preto">
+      <div class="mx-auto flex max-w-2xl items-center justify-between px-5 py-4">
+        <img src="./logo-dark.png" alt="Napo" width="846" height="252" class="h-7 w-auto" />
+        <a href="./preview-formulario.html" class="flex items-center gap-1.5 text-sm text-texto-suave hover:text-branco">
+          <i data-lucide="arrow-left" class="h-4 w-4"></i> Voltar ao endereço
+        </a>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-2xl space-y-16 px-5 py-10">
+      <!-- ═══════════ ESTADO 1 — POSIÇÃO ENCONTRADA ═══════════ -->
+      <section>
+        <p class="rotulo-estado mb-4 text-[11px] font-bold uppercase text-amarelo">
+          Estado 1 — posição encontrada
+        </p>
+
+        <!-- passos: o cliente sabe onde está e que falta pouco -->
+        <div class="mb-6 flex items-center gap-3 text-xs">
+          <span class="flex items-center gap-2 text-texto-suave">
+            <span class="grid h-5 w-5 place-items-center rounded-full bg-superficie-alta font-mono text-[10px]">
+              <i data-lucide="check" class="h-3 w-3 text-amarelo"></i>
+            </span>
+            Endereço
+          </span>
+          <span class="h-px w-6 bg-borda-forte"></span>
+          <span class="flex items-center gap-2 font-medium text-branco">
+            <span class="grid h-5 w-5 place-items-center rounded-full bg-amarelo font-mono text-[10px] text-preto">2</span>
+            Localização
+          </span>
+        </div>
+
+        <h1 class="text-2xl font-bold tracking-tight sm:text-3xl">A entrega chega aqui?</h1>
+        <p class="mt-2 text-sm text-texto-suave">
+          Em quadra, seis blocos têm o mesmo endereço. Confira o ponto — e mova se estiver na
+          porta errada.
+        </p>
+
+        <!-- resumo do que foi digitado: confirma-se uma posição, não um endereço abstrato -->
+        <div class="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-campo border border-borda bg-superficie px-4 py-3">
+          <p class="text-sm">
+            SQN 210 Bloco C · Apto 302
+            <span class="text-texto-suave">— Asa Norte, 70862-030</span>
+          </p>
+          <a href="#" class="text-xs text-texto-suave underline underline-offset-2 hover:text-branco">editar</a>
+        </div>
+
+        <!-- → <MapaConfirmacao> · pin FIXO no centro; o mapa é que se move -->
+        <div class="relative mt-4 overflow-hidden rounded-card border border-borda-forte">
+          <div class="mapa-falso h-72 sm:h-80"></div>
+
+          <!-- o pin não é arrastável: ele mora no centro da tela -->
+          <div class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
+            <div class="flex flex-col items-center">
+              <i data-lucide="map-pin" class="h-9 w-9 text-amarelo drop-shadow-lg"></i>
+            </div>
+          </div>
+          <div class="pointer-events-none absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amarelo/60"></div>
+
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-3">
+            <span class="rounded-full bg-preto/85 px-3 py-1 text-[11px] text-texto-suave">
+              arraste o mapa para centralizar na sua porta
+            </span>
+          </div>
+        </div>
+
+        <!-- A RÉGUA COLADA NA CONFIRMAÇÃO: mover o pin move o dinheiro. -->
+        <div class="mt-4 rounded-card border border-borda-forte bg-superficie p-5">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="font-mono text-[11px] tracking-widest text-texto-suave">DA COZINHA ATÉ AQUI</p>
+              <p class="mt-0.5 text-lg font-semibold tabular-nums">3,4 km · faixa 0–4 km</p>
+            </div>
+            <div class="text-right">
+              <p class="text-2xl font-bold tabular-nums">R$ 6,00</p>
+              <p class="text-xs text-texto-suave">grátis acima de R$ 150</p>
+            </div>
+          </div>
+
+          <div class="mt-5">
+            <div class="relative h-1.5 w-full rounded-full bg-superficie-alta">
+              <div class="absolute inset-y-0 left-0 w-1/3 rounded-l-full bg-borda-forte"></div>
+              <div class="absolute inset-y-0 left-1/3 w-1/3 bg-borda"></div>
+              <div class="absolute inset-y-0 left-2/3 right-0 rounded-r-full bg-borda"></div>
+              <div class="absolute -top-1.5 h-4.5 w-1 rounded-full bg-amarelo" style="left: 28.3%"></div>
+            </div>
+            <div class="mt-2 flex justify-between font-mono text-[11px] text-texto-suave">
+              <span>0</span><span>4 km · R$ 6</span><span>8 km · R$ 10</span><span>12 km · R$ 14</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button class="rounded-campo bg-amarelo px-5 py-2.5 text-sm font-semibold text-preto hover:bg-amarelo-escuro">
+            Confirmar localização
+          </button>
+          <button class="rounded-campo px-4 py-2.5 text-sm text-texto-suave hover:bg-superficie-alta hover:text-branco">
+            Voltar e corrigir o endereço
+          </button>
+        </div>
+      </section>
+
+      <!-- ═══════════ ESTADO 2 — PIN MOVIDO ALÉM DO LIMITE ═══════════ -->
+      <section>
+        <p class="rotulo-estado mb-4 text-[11px] font-bold uppercase text-amarelo">
+          Estado 2 — mapa movido além de 300 m
+        </p>
+
+        <div class="relative overflow-hidden rounded-card border border-borda-forte">
+          <div class="mapa-falso mapa-deslocado h-72 sm:h-80"></div>
+
+          <!-- onde o geocoding tinha colocado, e o traço até o centro atual -->
+          <div class="pointer-events-none absolute left-[31%] top-[38%]">
+            <span class="block h-2.5 w-2.5 rounded-full border border-borda-forte bg-texto-suave"></span>
+          </div>
+          <svg class="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true">
+            <line x1="31%" y1="38%" x2="50%" y2="50%" stroke="#3d3d3d" stroke-width="2" stroke-dasharray="5 4" />
+          </svg>
+          <div class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
+            <i data-lucide="map-pin" class="h-9 w-9 text-amarelo drop-shadow-lg"></i>
+          </div>
+
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-3">
+            <span class="rounded-full bg-preto/85 px-3 py-1 font-mono text-[11px] text-texto-suave">
+              1,2 km do endereço digitado
+            </span>
+          </div>
+        </div>
+
+        <!-- A régua ESMAECE: o número que estava ali não vale mais para esta posição.
+             É o oposto de mostrar um valor que muda calado depois de salvar. -->
+        <div class="mt-4 rounded-card border border-dashed border-borda-forte bg-superficie/50 p-5">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="font-mono text-[11px] tracking-widest text-texto-suave">DA COZINHA ATÉ AQUI</p>
+              <p class="mt-0.5 text-lg font-semibold tabular-nums text-borda-forte line-through">3,4 km</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-semibold text-texto-suave">recalculamos ao confirmar</p>
+            </div>
+          </div>
+
+          <div class="mt-5 opacity-40">
+            <div class="relative h-1.5 w-full rounded-full bg-superficie-alta">
+              <div class="absolute inset-y-0 left-0 w-1/3 rounded-l-full bg-borda-forte"></div>
+              <div class="absolute inset-y-0 left-1/3 w-1/3 bg-borda"></div>
+              <div class="absolute inset-y-0 left-2/3 right-0 rounded-r-full bg-borda"></div>
+            </div>
+          </div>
+
+          <p class="mt-4 flex gap-2 text-sm text-texto-suave">
+            <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-amarelo"></i>
+            Você moveu bastante — vamos conferir esse endereço antes da primeira entrega.
+          </p>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button class="rounded-campo bg-amarelo px-5 py-2.5 text-sm font-semibold text-preto hover:bg-amarelo-escuro">
+            Confirmar esta posição
+          </button>
+          <button class="rounded-campo border border-borda-forte px-4 py-2.5 text-sm hover:bg-superficie-alta">
+            Voltar ao ponto sugerido
+          </button>
+        </div>
+      </section>
+
+      <!-- ═══════════ ESTADO 3 — GEOCODIFICAÇÃO SEM RESULTADO ═══════════ -->
+      <section>
+        <p class="rotulo-estado mb-4 text-[11px] font-bold uppercase text-amarelo">
+          Estado 3 — não encontramos o ponto
+        </p>
+
+        <div class="mb-4 flex gap-3 rounded-campo border border-borda-forte bg-superficie-alta px-4 py-3">
+          <i data-lucide="info" class="mt-0.5 h-4 w-4 shrink-0 text-amarelo"></i>
+          <p class="text-sm text-texto-suave">
+            Não achamos esse endereço no mapa — acontece com quadra nova e chácara.
+            <span class="text-branco">Centralize onde a entrega deve chegar</span> e a gente
+            confere antes da primeira viagem.
+          </p>
+        </div>
+
+        <div class="relative overflow-hidden rounded-card border border-borda-forte">
+          <div class="mapa-falso h-72 sm:h-80"></div>
+          <div class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-full">
+            <i data-lucide="map-pin" class="h-9 w-9 text-texto-suave drop-shadow-lg"></i>
+          </div>
+        </div>
+
+        <!-- Sem régua: não há distância medida, e inventar um número aqui seria mentir. -->
+        <div class="mt-4 rounded-card border border-dashed border-borda-forte bg-superficie/50 p-5">
+          <p class="font-mono text-[11px] tracking-widest text-texto-suave">DA COZINHA ATÉ AQUI</p>
+          <p class="mt-0.5 text-lg font-semibold text-texto-suave">calculamos ao confirmar</p>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button class="rounded-campo bg-amarelo px-5 py-2.5 text-sm font-semibold text-preto hover:bg-amarelo-escuro">
+            Confirmar esta posição
+          </button>
+        </div>
+      </section>
+
+      <!-- ═══════════ ESTADO 4 — SEM MOUSE (design §4.7) ═══════════ -->
+      <section>
+        <p class="rotulo-estado mb-4 text-[11px] font-bold uppercase text-amarelo">
+          Estado 4 — a saída de quem não usa mapa
+        </p>
+
+        <div class="rounded-card border border-borda bg-superficie p-5">
+          <p class="text-sm text-texto-suave">
+            Mover mapa não é operável por teclado. A confirmação nunca depende do gesto: o botão
+            primário confirma o ponto que já está lá, e existe uma saída explícita para quem não
+            consegue ajustar — o endereço é salvo do mesmo jeito, marcado para conferência, que é
+            o mesmo tratamento de quando a geocodificação não encontra nada.
+          </p>
+
+          <div class="mt-5 flex flex-wrap gap-3">
+            <button class="rounded-campo bg-amarelo px-5 py-2.5 text-sm font-semibold text-preto">
+              Confirmar localização
+            </button>
+            <button class="rounded-campo px-4 py-2.5 text-sm text-texto-suave underline underline-offset-2 hover:text-branco">
+              Não consigo ajustar no mapa
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
