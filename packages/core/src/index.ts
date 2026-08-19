@@ -13,6 +13,7 @@ export {
   instanteEmBrasilia,
   somarDias,
 } from './tempo';
+export * from './carrinho';
 export * from './catalogo';
 export * from './disponibilidade';
 export * from './entrega';

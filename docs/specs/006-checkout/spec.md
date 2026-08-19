@@ -1,7 +1,7 @@
 # 📋 Spec: Carrinho e checkout com Mercado Pago
 
 **ID:** NAPO-006
-**Status:** Aprovado
+**Status:** Em Execução
 **Responsável:** Hudson
 **Data:** 2026-08-19
 **Item no Roadmap:** NAPO-006

@@ -34,7 +34,13 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_Nenhum item em andamento._
+- [ ] **NAPO-006** Carrinho e checkout com Mercado Pago
+  - **Spec:** [`docs/specs/006-checkout/`](docs/specs/006-checkout/) — aprovada em 2026-08-19
+  - **Iniciado em:** 2026-08-19
+  - **Dependências:** NAPO-002, NAPO-003, NAPO-004, NAPO-005 — todas concluídas
+  - **Bloqueia:** NAPO-007
+  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
+  - **Notas:** Pix, crédito e débito. **Pagamento online obrigatório no site** — um no-show não custa a viagem, custa uma vaga de 30. Snapshot de preço, custo e endereço no pedido (editar cadastro não pode reescrever histórico). Cancelamento devolve estoque; estorno é manual no painel MP. Spec §7.
 
 ---
 
@@ -42,12 +48,7 @@ _Nenhum item em andamento._
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
 
-- [ ] **NAPO-006** Carrinho e checkout com Mercado Pago
-  - **Spec:** `docs/specs/006-checkout/` _(a criar)_
-  - **Dependências:** NAPO-002, NAPO-003, NAPO-004, NAPO-005
-  - **Bloqueia:** NAPO-007
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** Pix, crédito e débito. **Pagamento online obrigatório no site** — um no-show não custa a viagem, custa uma vaga de 30. Snapshot de preço, custo e endereço no pedido (editar cadastro não pode reescrever histórico). Cancelamento devolve estoque; estorno é manual no painel MP. Spec §7.
+_Fila vazia — repriorizar do Backlog ao concluir NAPO-006. Candidatos naturais: NAPO-009 (LGPD, Must independente) e NAPO-021 (provisionar ambientes)._
 
 ---
 
