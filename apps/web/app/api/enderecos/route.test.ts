@@ -10,6 +10,7 @@ const feature = {
   definirPadrao: vi.fn(),
   calcularFreteDoEndereco: vi.fn(),
   avaliarPosicao: vi.fn(),
+  medirPosicao: vi.fn(),
   MAX_ENDERECOS_ATIVOS: 10,
 };
 
@@ -28,6 +29,7 @@ const { PATCH, DELETE } = await import('./[id]/route');
 const { POST: TORNAR_PADRAO } = await import('./[id]/padrao/route');
 const { POST: FRETE } = await import('../frete/route');
 const { POST: POSICAO } = await import('./posicao/route');
+const { POST: MEDIDA } = await import('./medida/route');
 
 const PERFIL = {
   id: '50000000-0000-0000-0000-000000000001',
@@ -324,5 +326,56 @@ describe('POST /api/enderecos/posicao — etapa 2 (drift.md)', () => {
 
     expect((await pedirPosicao(CORPO)).status).toBe(401);
     expect(feature.avaliarPosicao).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('POST /api/enderecos/medida — recálculo ao ajustar o mapa', () => {
+  const MEDIDA_OK = {
+    distanciaKm: 9.1,
+    distanciaEstimada: false,
+    atendido: true,
+    motivoNaoAtendido: null,
+    frete: {
+      freteCentavos: 1400,
+      gratis: false,
+      faixa: { kmDe: 8, kmAte: 12, valorCentavos: 1400 },
+      foraDeArea: false,
+      motivo: null,
+    },
+  };
+
+  const pedirMedida = (corpo: unknown) =>
+    MEDIDA(requisicao(corpo, 'http://localhost/api/enderecos/medida'));
+
+  it('devolve distância e frete da coordenada ajustada', async () => {
+    feature.medirPosicao.mockResolvedValue(MEDIDA_OK);
+
+    const corpo = await (await pedirMedida({ ...CORPO, lat: -15.798, lng: -47.892 })).json();
+
+    expect(corpo.data.distanciaKm).toBe(9.1);
+    expect(corpo.data.frete.faixa.valorCentavos).toBe(1400);
+  });
+
+  it('não devolve marcação de conferência — quem decide isso é o servidor ao salvar (RN6)', async () => {
+    feature.medirPosicao.mockResolvedValue(MEDIDA_OK);
+
+    const corpo = await (await pedirMedida(CORPO)).json();
+
+    expect(corpo.data).not.toHaveProperty('precisaConferencia');
+    expect(corpo.data).not.toHaveProperty('geocodificada');
+  });
+
+  it('sem coordenada não há o que medir', async () => {
+    feature.medirPosicao.mockResolvedValue(null);
+
+    expect((await pedirMedida(CORPO)).status).toBe(400);
+  });
+
+  it('exige sessão com telefone validado', async () => {
+    carregarPerfilDaSessao.mockResolvedValue(null);
+
+    expect((await pedirMedida(CORPO)).status).toBe(401);
+    expect(feature.medirPosicao).not.toHaveBeenCalled();
   });
 });

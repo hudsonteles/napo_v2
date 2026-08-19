@@ -9,7 +9,7 @@ import {
   type ResultadoFrete,
 } from '@napo/core';
 
-import type { Endereco, EntradaEndereco, PosicaoAvaliada } from '../schema';
+import type { Endereco, EntradaEndereco, MedidaDaPosicao, PosicaoAvaliada } from '../schema';
 import { geocodificar, medirDistancia } from './geocoding';
 import {
   atualizar,
@@ -179,6 +179,50 @@ export async function avaliarPosicao(entrada: EntradaEndereco): Promise<PosicaoA
     // quanto sairia num pedido que ainda não existe.
     frete: calcularFrete({
       distanciaKm: posicao.distanciaKm,
+      subtotalCentavos: 0,
+      atendido: area.atendido,
+      motivoNaoAtendido: area.motivo,
+      faixas: config.faixas,
+      freteGratisCentavos: config.freteGratisCentavos,
+    }),
+  };
+}
+
+/**
+ * Mede uma coordenada que o cliente já escolheu, **sem geocodificar**.
+ *
+ * Chamada a cada ajuste do mapa na etapa 2. Pular a geocodificação é o que torna
+ * o recálculo ao vivo barato: o endereço textual não mudou, então o ponto
+ * sugerido também não — só a posição escolhida mudou, e para medi-la basta a
+ * rota. Uma chamada por ajuste, não duas.
+ *
+ * A marcação de conferência **não** sai daqui (RN6): ela é decidida ao salvar,
+ * onde o servidor geocodifica e compara por conta própria.
+ */
+export async function medirPosicao(entrada: EntradaEndereco): Promise<MedidaDaPosicao | null> {
+  if (typeof entrada.lat !== 'number' || typeof entrada.lng !== 'number') return null;
+
+  const config = await carregarConfigDeArea();
+  const medida = await medirDistancia(
+    config.origem,
+    { lat: entrada.lat, lng: entrada.lng },
+    config.fatorDistanciaEstimada,
+  );
+
+  const area = avaliarArea({
+    distanciaKm: medida.distanciaKm,
+    cep: entrada.cep,
+    raioKm: config.raioKm,
+    excecoes: config.excecoes,
+  });
+
+  return {
+    distanciaKm: medida.distanciaKm,
+    distanciaEstimada: medida.estimada,
+    atendido: area.atendido,
+    motivoNaoAtendido: area.motivo,
+    frete: calcularFrete({
+      distanciaKm: medida.distanciaKm,
       subtotalCentavos: 0,
       atendido: area.atendido,
       motivoNaoAtendido: area.motivo,

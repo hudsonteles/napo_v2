@@ -18,6 +18,7 @@ import {
   esquemaEndereco,
   exigeComplemento,
   type Endereco,
+  type EntradaEndereco,
   type PosicaoAvaliada,
 } from '../schema';
 import type { ConfigDeExibicao } from './etapa-posicao';
@@ -129,6 +130,8 @@ export function FormularioEndereco({
   const [erros, setErros] = useState<Record<string, string>>({});
   // `null` = etapa 1 (texto). Preenchido = etapa 2 (confirmar no mapa).
   const [posicao, setPosicao] = useState<PosicaoAvaliada | null>(null);
+  // O contrato que gerou a etapa 2, guardado para remedir a cada ajuste do mapa.
+  const [entradaConfirmada, setEntradaConfirmada] = useState<EntradaEndereco | null>(null);
   const [avancando, iniciarAvanco] = useTransition();
 
   const atualizar = (campo: keyof Campos, valor: string | boolean) =>
@@ -241,6 +244,7 @@ export function FormularioEndereco({
         return;
       }
 
+      setEntradaConfirmada(entrada);
       setPosicao(corpo.data as PosicaoAvaliada);
     });
   }
@@ -287,10 +291,11 @@ export function FormularioEndereco({
     .filter(Boolean)
     .join(' · ');
 
-  if (posicao) {
+  if (posicao && entradaConfirmada) {
     return (
       <EtapaPosicao
         endereco={enderecoEmUmaLinha}
+        entrada={entradaConfirmada}
         posicao={posicao}
         config={config}
         salvando={salvando}

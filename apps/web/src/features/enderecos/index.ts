@@ -11,6 +11,7 @@ export type { DistanciaMedida, EnderecoParaBusca } from './services/geocoding';
 export {
   atualizarEndereco,
   avaliarPosicao,
+  medirPosicao,
   calcularFreteDoEndereco,
   criarEndereco,
   definirPadrao,
@@ -20,6 +21,6 @@ export {
 } from './services/enderecos';
 export type { FalhaEndereco } from './services/enderecos';
 export { esquemaEndereco } from './schema';
-export type { Endereco, EntradaEndereco, PosicaoAvaliada } from './schema';
+export type { Endereco, EntradaEndereco, MedidaDaPosicao, PosicaoAvaliada } from './schema';
 export { carregarConfigDeArea } from './services/enderecos-repo';
 export type { ConfigDeArea } from './services/enderecos-repo';

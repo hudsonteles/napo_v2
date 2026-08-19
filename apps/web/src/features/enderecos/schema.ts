@@ -111,3 +111,19 @@ export interface PosicaoAvaliada {
   motivoNaoAtendido: string | null;
   frete: ResultadoFrete;
 }
+
+/**
+ * Medição de uma posição já escolhida, sem geocodificar de novo.
+ *
+ * É o que a etapa 2 pede a cada ajuste do mapa: a distância e o frete daquele
+ * ponto. **Não** carrega `precisaConferencia` de propósito — o deslocamento em
+ * relação ao ponto sugerido é decidido no servidor ao salvar, onde há
+ * geocodificação de verdade; deixar o cliente influenciar isso quebraria a RN6.
+ */
+export interface MedidaDaPosicao {
+  distanciaKm: number;
+  distanciaEstimada: boolean;
+  atendido: boolean;
+  motivoNaoAtendido: string | null;
+  frete: ResultadoFrete;
+}
