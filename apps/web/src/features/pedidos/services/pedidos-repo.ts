@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 /**
  * Acesso ao banco dos pedidos, isolado das rotas.
@@ -170,4 +171,176 @@ export async function lerPagamentoMinutos(): Promise<number> {
   }
 
   return data.pagamento_minutos;
+}
+
+// ── Ciclo de vida: confirmação, estorno, cancelamento, expiração (bloco H) ──────
+
+export type ResultadoEvento =
+  | 'confirmado'
+  | 'duplicado'
+  | 'assinatura_invalida'
+  | 'valor_divergente'
+  | 'pagamento_nao_aprovado'
+  | 'pedido_desconhecido'
+  | 'erro';
+
+/** Item de pedido reduzido ao que a confirmação precisa (veredito da RN11). */
+export interface ItemDoPedido {
+  produtoId: string;
+  quantidade: number;
+}
+
+/** Pedido lido por `service_role` para o webhook — o webhook não tem sessão. */
+export interface PedidoParaConfirmacao {
+  id: string;
+  numero: number;
+  status: string;
+  totalCentavos: number;
+  diaEntrega: string;
+  mpPaymentId: string | null;
+  itens: ItemDoPedido[];
+}
+
+/**
+ * Lê um pedido pelo número, com `service_role`, para o fluxo do webhook. Sem
+ * sessão: quem chega aqui é notificação do Mercado Pago, não pessoa. O
+ * isolamento por dono (RN17) é irrelevante nesta porta — ela nunca serve dado
+ * ao navegador, só decide a confirmação.
+ */
+export async function lerPedidoParaConfirmacao(numero: number): Promise<PedidoParaConfirmacao | null> {
+  const { data } = await createSupabaseAdminClient()
+    .from('pedidos')
+    .select('id, numero, status, total_centavos, dia_entrega, mp_payment_id, pedido_itens(produto_id, quantidade)')
+    .eq('numero', numero)
+    .maybeSingle();
+
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    numero: data.numero,
+    status: data.status,
+    totalCentavos: data.total_centavos,
+    diaEntrega: data.dia_entrega,
+    mpPaymentId: data.mp_payment_id,
+    itens: (data.pedido_itens ?? []).map((i) => ({ produtoId: i.produto_id, quantidade: i.quantidade })),
+  };
+}
+
+/** Registra uma notificação no rastro de pagamento (RN10, RN19). */
+export async function registrarEventoPagamento(evento: {
+  pedidoId: string | null;
+  mpPaymentId: string | null;
+  resultado: ResultadoEvento;
+  detalhe?: string;
+  corpo?: unknown;
+}): Promise<void> {
+  await createSupabaseAdminClient()
+    .from('pagamento_eventos')
+    .insert({
+      pedido_id: evento.pedidoId,
+      mp_payment_id: evento.mpPaymentId,
+      resultado: evento.resultado,
+      detalhe: evento.detalhe ?? null,
+      corpo: (evento.corpo ?? null) as never,
+    });
+}
+
+/**
+ * Confirma o pagamento pela RPC atômica (RN9). `false` = já estava pago
+ * (idempotência); erro propaga para o webhook virar 5xx e o Mercado Pago
+ * reenviar (RN8, T30).
+ */
+export async function confirmarPagamentoRpc(
+  pedidoId: string,
+  paymentId: string,
+  forma: string,
+  veredito: 'viavel' | 'cutoff_vencido' | 'sem_vaga',
+): Promise<boolean> {
+  const { data, error } = await createSupabaseAdminClient().rpc('confirmar_pagamento', {
+    p_pedido: pedidoId,
+    p_payment_id: paymentId,
+    p_forma: forma,
+    p_veredito: veredito,
+  });
+
+  if (error) throw error;
+  return data === true;
+}
+
+/** Reflete estorno/chargeback notificado (RN14, T39). `false` = já estava terminal. */
+export async function estornarPedidoRpc(pedidoId: string, devolucao: 'capacidade' | 'lote'): Promise<boolean> {
+  const { data, error } = await createSupabaseAdminClient().rpc('estornar_pedido', {
+    p_pedido: pedidoId,
+    p_devolucao: devolucao,
+  });
+
+  if (error) throw error;
+  return data === true;
+}
+
+/** Cancela pelo cliente antes do cutoff (RN14/RN15). `false` = já estava terminal. */
+export async function cancelarPedidoRpc(pedidoId: string, devolucao: 'capacidade' | 'lote'): Promise<boolean> {
+  const { data, error } = await createSupabaseAdminClient().rpc('cancelar_pedido', {
+    p_pedido: pedidoId,
+    p_devolucao: devolucao,
+  });
+
+  if (error) throw error;
+  return data === true;
+}
+
+/** Varre e expira pedidos vencidos, liberando as reservas (RN13). Devolve o total expirado. */
+export async function expirarPedidosRpc(): Promise<number> {
+  const { data, error } = await createSupabaseAdminClient().rpc('expirar_pedidos');
+  if (error) throw error;
+  return data ?? 0;
+}
+
+/** Um pedido do próprio cliente (RN17), lido sob a RLS do dono — id alheio não existe. */
+export interface PedidoDoDono {
+  /** UUID interno — usado por rota de servidor (cancelamento); nunca exposto ao cliente. */
+  id: string;
+  numero: number;
+  status: string;
+  diaEntrega: string;
+  subtotalCentavos: number;
+  freteCentavos: number;
+  totalCentavos: number;
+  veredito: string | null;
+  criadoEm: string;
+  enderecoSnapshot: unknown;
+  itens: Array<{ produtoId: string; nome: string; quantidade: number; precoUnitarioCentavos: number }>;
+}
+
+export async function lerPedidoDoDono(numero: number): Promise<PedidoDoDono | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from('pedidos')
+    .select(
+      'id, numero, status, dia_entrega, subtotal_centavos, frete_centavos, total_centavos, veredito, created_at, endereco_snapshot, pedido_itens(produto_id, nome_snapshot, quantidade, preco_unitario_snapshot)',
+    )
+    .eq('numero', numero)
+    .maybeSingle();
+
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    numero: data.numero,
+    status: data.status,
+    diaEntrega: data.dia_entrega,
+    subtotalCentavos: data.subtotal_centavos,
+    freteCentavos: data.frete_centavos,
+    totalCentavos: data.total_centavos,
+    veredito: data.veredito,
+    criadoEm: data.created_at,
+    enderecoSnapshot: data.endereco_snapshot,
+    itens: (data.pedido_itens ?? []).map((i) => ({
+      produtoId: i.produto_id,
+      nome: i.nome_snapshot,
+      quantidade: i.quantidade,
+      precoUnitarioCentavos: i.preco_unitario_snapshot,
+    })),
+  };
 }

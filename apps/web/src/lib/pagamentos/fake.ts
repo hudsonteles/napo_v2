@@ -32,6 +32,10 @@ export class PortaFake implements PortaPagamento {
       id,
       status: 'aprovado',
       valorCentavos: Number.isNaN(centavos) ? 0 : centavos,
+      // Sem webhook em localhost, quem confirma é a tela de retorno, que já traz
+      // o número do pedido na URL — a referência não precisa vir daqui.
+      numeroPedido: '',
+      formaPagamento: 'pix',
     };
   }
 

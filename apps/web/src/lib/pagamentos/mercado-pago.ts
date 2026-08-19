@@ -70,6 +70,8 @@ export class PortaMercadoPago implements PortaPagamento {
       id: String(pagamento.id ?? id),
       status: traduzirStatus(pagamento.status),
       valorCentavos: Math.round((pagamento.transaction_amount ?? 0) * 100),
+      numeroPedido: pagamento.external_reference ?? '',
+      formaPagamento: pagamento.payment_method_id ?? 'desconhecido',
     };
   }
 
@@ -81,5 +83,8 @@ export class PortaMercadoPago implements PortaPagamento {
 function traduzirStatus(status: string | undefined): StatusPagamento {
   if (status === 'approved') return 'aprovado';
   if (status === 'rejected' || status === 'cancelled') return 'recusado';
+  // Estorno e chargeback chegam por notificação e precisam de destino (RN14):
+  // o webhook os traduz para a transição `pago → estornado`.
+  if (status === 'refunded' || status === 'charged_back') return 'estornado';
   return 'pendente';
 }

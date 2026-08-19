@@ -1039,6 +1039,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      estornar_pedido: {
+        Args: {
+          p_pedido: string
+          p_devolucao: string
+        }
+        Returns: boolean
+      }
       exigir_admin_e_motivo: {
         Args: {
           motivo: string
