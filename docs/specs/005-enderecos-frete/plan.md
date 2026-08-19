@@ -4,6 +4,7 @@
 **Tamanho detectado:** GRANDE
 **Critério:** N_arquivos=27, N_testes=27, sensitivo=SIM (PII de localização, RLS, chaves de API)
 **Plano criado em:** 2026-08-18
+**Concluído em:** 2026-08-18 — Gate Visual B aprovado pelo PM
 **Modo de execução:** com checkpoints (aprovado pelo PM em 2026-08-18 — paradas após A, F e G)
 
 ---
@@ -67,13 +68,13 @@ Arquivos: `features/enderecos/services/geocoding.ts` + teste · Testes: T23, T18
 Arquivos: `features/enderecos/services/enderecos.ts`, `features/enderecos/index.ts`, `app/api/enderecos/route.ts`, `app/api/enderecos/[id]/route.ts`, `app/api/enderecos/[id]/padrao/route.ts`, `app/api/frete/route.ts` + testes · Testes: T2, T3, T4, T12, T13, T14, T15, T17, T20 · Depende: A, B, C, E · Est: 90min · Agente: backend-specialist + security-auditor · `[x]`
 
 ### Bloco G — UI: Dialog, régua, card e lista
-Arquivos: `packages/ui/src/components/dialog.tsx`, `features/enderecos/components/{regua-distancia,card-endereco}.tsx`, `app/(conta)/conta/enderecos/page.tsx` · Testes: T5, T27 (tela) + critérios visuais 1, 2, 3, 6 · Depende: F · Est: 80min · Agente: frontend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
+Arquivos: `packages/ui/src/components/dialog.tsx`, `features/enderecos/components/{regua-distancia,card-endereco}.tsx`, `app/(conta)/conta/enderecos/page.tsx` · Testes: T5, T27 (tela) + critérios visuais 1, 2, 3, 6 · Depende: F · Est: 80min · Agente: frontend-specialist · `[x]`
 
 ### Bloco I — Etapa de confirmação de posição (drift)
-Arquivos: `app/api/enderecos/posicao/route.ts`, `features/enderecos/components/{mapa-confirmacao,etapa-posicao}.tsx`, `formulario-endereco.tsx`, as duas páginas de cadastro/edição, `schema.ts`, `services/enderecos.ts` · Testes: T24 (reescrito), T28, T29 + critérios visuais 4 e 5 (reescritos) · Depende: H · Est: 90min · Agente: frontend-specialist + backend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
+Arquivos: `app/api/enderecos/posicao/route.ts`, `features/enderecos/components/{mapa-confirmacao,etapa-posicao}.tsx`, `formulario-endereco.tsx`, as duas páginas de cadastro/edição, `schema.ts`, `services/enderecos.ts` · Testes: T24 (reescrito), T28, T29 + critérios visuais 4 e 5 (reescritos) · Depende: H · Est: 90min · Agente: frontend-specialist + backend-specialist · `[x]`
 
 ### Bloco H — UI: mapa e formulário
-Arquivos: `features/enderecos/components/{mapa-pin,formulario-endereco}.tsx`, `app/(conta)/conta/enderecos/novo/page.tsx`, `app/(conta)/conta/enderecos/[id]/page.tsx`, `apps/web/package.json` · Testes: T8, T10, T11 + critérios visuais 4, 5, 6 · Depende: F, G · Est: 90min · Agente: frontend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
+Arquivos: `features/enderecos/components/{mapa-pin,formulario-endereco}.tsx`, `app/(conta)/conta/enderecos/novo/page.tsx`, `app/(conta)/conta/enderecos/[id]/page.tsx`, `apps/web/package.json` · Testes: T8, T10, T11 + critérios visuais 4, 5, 6 · Depende: F, G · Est: 90min · Agente: frontend-specialist · `[x]`
 
 ---
 

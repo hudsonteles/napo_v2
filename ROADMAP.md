@@ -34,14 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-- [ ] **NAPO-005** Endereços e frete por faixa de distância
-  - **Spec:** [`docs/specs/005-enderecos-frete/`](docs/specs/005-enderecos-frete/)
-  - **Iniciado em:** 2026-08-18
-  - **Dependências:** NAPO-001, NAPO-002
-  - **Bloqueia:** NAPO-006
-  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
-  - **Notas:** CEP → ViaCEP → geocoding → ajuste de pin. Faixas fixas (0–4 km R$6 · 4–8 km R$10 · 8–12 km R$14), frete grátis acima de R$ 150, raio de 12 km configurável + exceções de CEP. Distância **rodoviária** (Brasília tem o lago), calculada uma vez por endereço e gravada. Custo real de referência: R$ 9,60/entrega em rota de 10. Spec §6.
-
+_Nenhum item em andamento._
 
 ---
 
@@ -193,6 +186,15 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 ## ✅ Concluídos
 
 _Histórico — adicionar mais recentes NO TOPO._
+
+- [x] **NAPO-005** Endereços e frete por faixa de distância · concluído 2026-08-18 · [`docs/specs/005-enderecos-frete/`](docs/specs/005-enderecos-frete/)
+  - Cadastro de endereço em **duas etapas**: texto primeiro, confirmação da posição depois, com pin fixo no centro e o mapa se movendo embaixo. A página única aprovada no Gate Visual A foi superada em execução (`drift.md`): apresentado como elemento opcional entre nove campos, o mapa não é usado — e pin no meio da quadra não gera reclamação, gera **viagem perdida numa rota de dez paradas**.
+  - **A régua de distância fica colada à confirmação e recalcula ao vivo:** mover o mapa move o dinheiro, e é isso que dá motivo para olhar. `POST /api/enderecos/medida` mede sem geocodificar de novo — uma chamada por ajuste, com espera de 600 ms e piso de 30 m.
+  - Frete é decisão pura em `packages/core` (RN16), chamada igual pelo card da lista, pela etapa de confirmação e pelo futuro checkout. A última faixa fecha à direita porque 12,00 km é atendido e precisava de preço; fora de área devolve `null`, nunca R$ 0,00 — frete zero silencioso é o prejuízo que não aparece no painel.
+  - **RLS por dono com políticas separadas por comando:** equipe lê para suporte e separação de entrega, só o dono escreve. Privilégios de `DELETE` e de anônimo **revogados**, não apenas deixados sem política — a RN15 vira erro de privilégio, e um `for all` acrescentado por descuido amanhã não reabre o caminho.
+  - Distância é rodoviária, medida no servidor e gravada uma vez (RN12); rota indisponível cai para linha reta × fator **sempre marcada** (RN11). O corpo da requisição não tem campo de distância — o cliente não tem como escolher a própria faixa.
+  - `POST /api/frete` já está no ar como o contrato que o NAPO-006 consome. 290 testes Vitest + 70 pgTAP. T18 verificado no bundle real: chave de servidor e `service_role` ausentes, chave de navegador presente.
+  - **Pendência conhecida:** a `GOOGLE_MAPS_SERVER_KEY` do PM está com restrição por referrer e o Google recusa — a geocodificação cai no caminho degradado até a chave ser recriada sem restrição de aplicativo.
 
 - [x] **NAPO-003** Site público, catálogo e SEO · concluído 2026-08-17 · [`docs/specs/003-site-catalogo/`](docs/specs/003-site-catalogo/)
   - Vitrine `/sabores`, 12 páginas de produto em SSG (`dynamicParams=false` — slug desconhecido ou inativo cai em 404 sem tocar o banco), home com storytelling sobre o eixo "Longa fermentação. Assada na pedra. Em casa, só aquecer.", `/como-aquecer`, `/eventos` e as páginas legais provisórias.
