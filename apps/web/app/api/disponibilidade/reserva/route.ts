@@ -57,12 +57,15 @@ export async function POST(request: Request) {
     .filter((c) => c.diaEntrega === diaEntrega && c.produtoId === produtoId)
     .reduce((total, c) => total + c.quantidade, 0);
 
-  const { data, error } = await createSupabaseAdminClient().rpc('reservar_capacidade', {
+  // Uma reserva de item único pela função do carrinho: um só advisory lock por
+  // dia para toda a operação de reserva do sistema, em vez de duas funções
+  // tomando o mesmo lock por caminhos diferentes (design §5, decisão 3).
+  const { data, error } = await createSupabaseAdminClient().rpc('reservar_carrinho', {
     p_dia: diaEntrega,
-    p_produto: produtoId,
-    p_quantidade: quantidade,
+    p_itens: [{ produto_id: produtoId, quantidade }],
     p_profile: user.id,
-    p_limite: disponivel + ocupadas,
+    p_limites: [{ produto_id: produtoId, limite: disponivel + ocupadas }],
+    p_minutos: snapshot.config.reservaMinutos,
   });
 
   if (error) {

@@ -11,10 +11,15 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
  * produtos vem do chamador. Enquanto isso, a vitrine informa quais ids
  * consultar e quais deles são massa — a flag que dispara o sub-teto (RN8).
  */
+// Estados que consomem a fornada. Espelha o filtro de `vagas_ocupadas` (0014):
+// a função SQL é a fonte de verdade — mudar lá muda aqui. `aguardando_pagamento`
+// fica de fora porque sua vaga já está contada pela reserva que o sustenta (RN7).
+const STATUS_QUE_OCUPAM = ['pago', 'em_producao', 'pronto', 'em_rota', 'entregue'] as const;
+
 export async function carregarSnapshot(produtos: Produto[], agora = new Date()): Promise<Snapshot> {
   const supabase = createSupabaseAdminClient();
 
-  const [config, diasEntrega, diasProducao, excecoes, lotes, producao, reservas] =
+  const [config, diasEntrega, diasProducao, excecoes, lotes, producao, reservas, pedidos] =
     await Promise.all([
       supabase.from('config_operacao').select('*').limit(1).single(),
       supabase.from('dias_semana_entrega').select('*'),
@@ -27,6 +32,12 @@ export async function carregarSnapshot(produtos: Produto[], agora = new Date()):
         .select('dia_entrega, produto_id, quantidade')
         .eq('status', 'ativa')
         .gt('expira_em', agora.toISOString()),
+      // Pedido ativo ocupa vaga mesmo quando a reserva que o originou já venceu
+      // (RN12). Sem isto, o motor reoferece uma fornada já vendida.
+      supabase
+        .from('pedidos')
+        .select('dia_entrega, pedido_itens(produto_id, quantidade)')
+        .in('status', [...STATUS_QUE_OCUPAM]),
     ]);
 
   if (config.error) throw config.error;
@@ -67,11 +78,20 @@ export async function carregarSnapshot(produtos: Produto[], agora = new Date()):
       produtoId: p.produto_id,
       quantidade: p.quantidade,
     })),
-    consumos: (reservas.data ?? []).map((r) => ({
-      diaEntrega: r.dia_entrega,
-      produtoId: r.produto_id,
-      quantidade: r.quantidade,
-    })),
+    consumos: [
+      ...(reservas.data ?? []).map((r) => ({
+        diaEntrega: r.dia_entrega,
+        produtoId: r.produto_id,
+        quantidade: r.quantidade,
+      })),
+      ...(pedidos.data ?? []).flatMap((p) =>
+        (p.pedido_itens ?? []).map((i) => ({
+          diaEntrega: p.dia_entrega,
+          produtoId: i.produto_id,
+          quantidade: i.quantidade,
+        })),
+      ),
+    ],
   };
 }
 

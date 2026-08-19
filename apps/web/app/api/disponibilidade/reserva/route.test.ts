@@ -15,6 +15,13 @@ vi.mock('@/features/disponibilidade', () => ({
   createSupabaseAdminClient: () => ({ rpc }),
 }));
 
+// O cálculo de disponibilidade é do núcleo puro; aqui só precisamos que o dia
+// exista e devolva um limite, para exercitar o contrato da RPC.
+const calcularDisponibilidade = vi.fn();
+vi.mock('@napo/core', () => ({
+  calcularDisponibilidade: (...args: unknown[]) => calcularDisponibilidade(...args),
+}));
+
 const { POST } = await import('./route');
 
 function requisicao(corpo: unknown) {
@@ -58,6 +65,8 @@ describe('POST /api/disponibilidade/reserva', () => {
   // Sem isto, `not.toHaveBeenCalled()` enxerga as chamadas do teste anterior.
   beforeEach(() => {
     vi.clearAllMocks();
+    // Default: horizonte vazio. Os testes de sucesso sobrescrevem.
+    calcularDisponibilidade.mockReturnValue([]);
   });
 
   it('T17 — sem sessão responde 401 e nada é consultado nem persistido', async () => {
@@ -97,5 +106,42 @@ describe('POST /api/disponibilidade/reserva', () => {
 
     expect(resposta.status).toBe(400);
     expect(carregarSnapshot).not.toHaveBeenCalled();
+  });
+
+  it('reserva bem-sucedida chama reservar_carrinho com limite = disponível + ocupadas', async () => {
+    getUser.mockResolvedValueOnce({ data: { user: { id: 'u-1' } } });
+    // 1 já ocupada no dia/produto + 9 ainda disponíveis → limite tolerado = 10.
+    carregarSnapshot.mockResolvedValueOnce({
+      ...snapshotSemDiaDeEntrega(),
+      consumos: [{ diaEntrega: CORPO_VALIDO.diaEntrega, produtoId: CORPO_VALIDO.produtoId, quantidade: 1 }],
+    });
+    calcularDisponibilidade.mockReturnValue([
+      { data: CORPO_VALIDO.diaEntrega, produtos: [{ produtoId: CORPO_VALIDO.produtoId, disponivel: 9 }] },
+    ]);
+    rpc.mockResolvedValueOnce({ data: [{ id: 'r-1' }], error: null });
+
+    const resposta = await POST(requisicao({ ...CORPO_VALIDO, quantidade: 2 }));
+
+    expect(resposta.status).toBe(200);
+    expect(rpc).toHaveBeenCalledWith('reservar_carrinho', {
+      p_dia: CORPO_VALIDO.diaEntrega,
+      p_itens: [{ produto_id: CORPO_VALIDO.produtoId, quantidade: 2 }],
+      p_profile: 'u-1',
+      p_limites: [{ produto_id: CORPO_VALIDO.produtoId, limite: 10 }],
+      p_minutos: 15,
+    });
+  });
+
+  it('sem vaga (RPC recusa) responde 409 antes de qualquer cobrança', async () => {
+    getUser.mockResolvedValueOnce({ data: { user: { id: 'u-1' } } });
+    carregarSnapshot.mockResolvedValueOnce(snapshotSemDiaDeEntrega());
+    calcularDisponibilidade.mockReturnValue([
+      { data: CORPO_VALIDO.diaEntrega, produtos: [{ produtoId: CORPO_VALIDO.produtoId, disponivel: 0 }] },
+    ]);
+    rpc.mockResolvedValueOnce({ data: null, error: { message: 'sem vaga' } });
+
+    const resposta = await POST(requisicao(CORPO_VALIDO));
+
+    expect(resposta.status).toBe(409);
   });
 });
