@@ -39,9 +39,9 @@ comment on function public.is_equipe() is
 -- A coordenada da cozinha é a origem de TODA distância do sistema. Fica aqui, ao
 -- lado do raio, para mudar de endereço ser um UPDATE — não um deploy.
 alter table public.config_operacao
-  add column lat_cozinha numeric(9,6) not null default -15.849872
+  add column lat_cozinha numeric(9,6) not null default -15.850018
     check (lat_cozinha between -90 and 90),
-  add column lng_cozinha numeric(9,6) not null default -47.972633
+  add column lng_cozinha numeric(9,6) not null default -47.972645
     check (lng_cozinha between -180 and 180),
   add column raio_km numeric(5,2) not null default 12
     check (raio_km > 0),
@@ -274,8 +274,8 @@ insert into public.faixas_frete (id, km_de, km_ate, valor_centavos) values
 -- A linha singleton de config_operacao já existe (0003); os defaults acima
 -- valem para ela. Explicitar aqui deixa o valor visível a quem lê a migration.
 update public.config_operacao set
-  lat_cozinha = -15.849872,
-  lng_cozinha = -47.972633,
+  lat_cozinha = -15.850018,
+  lng_cozinha = -47.972645,
   raio_km = 12,
   frete_gratis_centavos = 15000,
   fator_distancia_estimada = 1.35,
