@@ -48,7 +48,11 @@ _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
 
-_Fila vazia — repriorizar do Backlog ao concluir NAPO-006. Candidatos naturais: NAPO-009 (LGPD, Must independente) e NAPO-021 (provisionar ambientes)._
+- [ ] **NAPO-022** Escolher/adiar a fornada de entrega no carrinho
+  - **Dependências:** NAPO-006
+  - **Valor:** Médio · **Esforço:** Médio-Alto · **MoSCoW:** Could _(proposto — ajustar)_
+  - **⚠️ Contradiz a RN2 do NAPO-006 como está escrita** ("um pedido, um dia — o **mais tardio** entre os itens; o dia é **derivado**, não escolhido"). Promover exige reabrir a RN2 (provável ADR/revisão de spec do NAPO-006) antes de especificar.
+  - **Notas:** o PM quer poder mudar a data de entrega do carrinho inteiro, com validação. Hoje `POST /api/pedidos` e `/api/carrinho/validar` **recusam** qualquer data vinda do cliente de propósito (RN3 — "valor que chega pronto do navegador é valor que o cliente escolhe"); o dia é resolvido no servidor. Fazer isso significa: (a) o dia vira **parâmetro validado** — só dias em que **todos** os itens cabem (interseção de disponibilidade), nunca anterior à derivada sem descartar item; (b) mexe em `packages/core` (resolução do dia), na reserva (`reservar_carrinho`) e no contrato das duas rotas; (c) UI de seletor no carrinho/checkout. **A vitrine já tem o `SeletorFornada`** (`?entrega=`) para escolher a fornada por sabor ao adicionar — este item é sobre empurrar o **pedido inteiro** de uma vez. Registrado em 2026-08-19. **Origem:** Gate Visual B do NAPO-006 (bloco I). **Corte anterior relacionado:** "Levar tudo para outra fornada" foi descartada no Gate Visual A por remontar a disponibilidade de todos os itens e poder falhar de novo — este item é a versão "feita direito" daquela ação.
 
 ---
 
@@ -78,6 +82,11 @@ _Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informa
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **⚠️ Conferir antes de publicar (do NAPO-003, 2026-08-17):** (a) a separação real de bancada entre doce e salgado, que sustenta o precaucional de avelã estar só nos doces; (b) a Banana declara leite em "contém" e a Massa Doce, que é a base dela, declara só glúten — uma das duas está errada.
   - **Notas:** desmembrado do NAPO-001 em 2026-08-10 por decisão de focar em desenvolvimento primeiro. Cria os dois projetos Supabase online (staging e prod — **2 ativos cabem no free tier**), conecta a Vercel, aponta o DNS de `napobsb.com.br` no Registro.br e roda o primeiro `db:push` de verdade. Dois pontos de atenção conhecidos: projeto free **pausa após ~7 dias sem atividade** (o CI tocando o banco a cada PR resolve), e produção no free não tem PITR — vira Pro (~US$ 25/mês) antes de faturar. **Quanto mais specs acumularem antes deste item, maior a superfície de surpresa de ambiente** (`docs/specs/001-fundacao/design.md` §8).
+
+- [ ] **NAPO-023** "Disponível" por sabor vs. teto compartilhado da fornada (disponibilidade honesta)
+  - **Dependências:** NAPO-003, NAPO-004
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Should _(proposto — ajustar)_
+  - **Notas:** hoje cada um dos 12 sabores exibe "N disponíveis" com o **mesmo N** (ex.: 60), porque `calcularDisponibilidade` (NAPO-004) devolve, por produto, `capacidadeRestante` (teto de forno **compartilhado** do dia) + lotes congelados do produto (0 enquanto não há estoque). **Não é bug de dado** — a reserva impõe o teto real (reservar um sabor derruba o disponível de todos), e a `BarraFornada` já mostra o agregado honesto. É **semântica de exibição**: 12 × 60 lê como 720 de estoque independente, contra o objetivo do MVP "disponibilidade honesta". Precisa de **decisão de produto**: como comunicar capacidade compartilhada (CTP por sabor) sem parecer estoque por sabor — ex.: número no nível da fornada + sinal por sabor (disponível/escasso/esgotado) em vez de repetir o pool. Sem mudança de dados; ajuste em NAPO-003 (`estado-disponibilidade`, `disponibilidade-view`) e possivelmente na forma como NAPO-004 expõe o número. Registrado em 2026-08-19. **Origem:** Gate Visual B do NAPO-006 (bloco I), observação do PM.
 
 ### R2 — Eventos
 
