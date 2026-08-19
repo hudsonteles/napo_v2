@@ -20,12 +20,16 @@ const publicSchema = z.object({
   // produção o app roda atrás de proxy, e `window.location` do navegador que
   // pediu o link não é fonte confiável do domínio para onde ele deve voltar.
   NEXT_PUBLIC_SITE_URL: z.string().url(),
+  // Maps JS para o ajuste do pin (NAPO-005 RN6). Pública de propósito — quem a
+  // protege é a restrição por referrer, não o segredo.
+  NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: z.string().min(1),
 });
 
 const publicParsed = publicSchema.safeParse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY,
 });
 
 if (!publicParsed.success) {
@@ -98,6 +102,36 @@ export function getServerEnv(): ServerEnv {
 
   serverCache = parsed.data;
   return serverCache;
+}
+
+// ── Google Maps: escopo próprio, não o schema monolítico ─────────────────────
+// `getServerEnv()` valida tudo de uma vez, e é chamado no SSG do catálogo: pôr a
+// chave lá faria uma credencial de geocodificação ausente impedir a Margherita
+// de ser prerenderizada. Cada subsistema falha alto no que é dele, e só nisso.
+const googleSchema = z.object({
+  // Geocoding + Routes (NAPO-005 RN5). Sem prefixo NEXT_PUBLIC_ de propósito: o
+  // Next substitui a referência por `undefined` no bundle do cliente, e é essa
+  // substituição que impede a chave de servidor de vazar (T18).
+  GOOGLE_MAPS_SERVER_KEY: z.string().min(1),
+});
+
+type GoogleEnv = z.infer<typeof googleSchema>;
+let googleCache: GoogleEnv | null = null;
+
+/** Credenciais do Google usadas apenas por geocodificação e rota. Código de servidor apenas. */
+export function getGoogleEnv(): GoogleEnv {
+  if (googleCache) return googleCache;
+
+  const parsed = googleSchema.safeParse({
+    GOOGLE_MAPS_SERVER_KEY: process.env.GOOGLE_MAPS_SERVER_KEY,
+  });
+
+  if (!parsed.success) {
+    throw new Error(mensagemDeErro('do Google Maps', parsed.error));
+  }
+
+  googleCache = parsed.data;
+  return googleCache;
 }
 
 function mensagemDeErro(escopo: string, erro: z.ZodError): string {

@@ -54,6 +54,43 @@ Adicione novas entradas **no topo** da seção "Entradas", mais recentes primeir
 
 <!-- Adicione novas entradas NO TOPO desta seção. Mais recentes primeiro. -->
 
+### 2026-08-18 — Comandos de ambiente rodados sem considerar processos vivos e escopo do worktree
+
+**Spec/Contexto:** NAPO-005, durante os Gates Visuais dos blocos G, H e I.
+**O que pedi:** implementar os blocos e disponibilizar o ambiente real para aprovação visual.
+**O que esperava:** que o agente rodasse os gates e mantivesse o ambiente utilizável entre uma verificação e outra.
+**O que veio:** três quebras do ambiente local, todas causadas pelo agente e todas percebidas primeiro pelo humano:
+
+1. `pnpm add` com o dev server rodando — `pnpm` religou o `node_modules` sob o processo vivo e a página passou a ser servida sem CSS (`__webpack_modules__[moduleId] is not a function`).
+2. `pnpm build` com o dev server rodando — ambos escrevem em `apps/web/.next`, e o build de produção sobrescreveu o cache do dev (`MODULE_NOT_FOUND` em `_document.js`).
+3. `pnpm format` — é `prettier --write .` no repositório inteiro; reformatou 80 arquivos, incluindo `ARCHITECTURE.md` e os previews aprovados no Gate Visual A.
+
+**Causa provável:** o agente tratou comandos de ferramenta como operações isoladas, sem modelar dois efeitos colaterais óbvios — que existe um processo de longa duração usando os mesmos artefatos, e que script de repositório age sobre o repositório todo, não sobre o Mapa de Impacto. Não havia regra sobre estado de ambiente: a seção de gates dizia *quais* comandos rodar, não *com o que* eles conflitam.
+**Correção naquele momento:** encerrar o processo do dev, apagar `apps/web/.next` e subir de novo (casos 1 e 2); `git stash` dos arquivos legítimos + `git checkout -- .` + `stash pop` para reverter a formatação (caso 3).
+**Ação de follow-up:**
+
+- [x] Virou regra em AGENTS.md? Seção: Regras Inegociáveis (item 12)
+- [ ] Virou caso de eval? Arquivo: —
+- [ ] Apenas registrado (1ª ocorrência)
+
+---
+
+### 2026-08-18 — Bloco de UI declarado verde sem exercitar o ambiente real
+
+**Spec/Contexto:** NAPO-005, blocos G e H.
+**O que pedi:** implementar as telas conforme o preview aprovado no Gate Visual A.
+**O que esperava:** que o agente só apresentasse a tela para aprovação depois de tê-la visto funcionar.
+**O que veio:** o agente rodou lint, typecheck, 290 testes e build, declarou os blocos verdes e **só então** subiu o ambiente. O Gate Visual B do humano encontrou quatro defeitos que nenhum teste pegou: mapa em branco por `mapId` não registrado; guarda de StrictMode que impedia a criação do mapa; `stroke-width` em kebab-case (silenciosamente ignorado em JSX); e campos editáveis durante a busca de CEP, contrariando o §4.3 do próprio design.
+**Causa provável:** confiança indevida no gate automatizado. Os quatro defeitos são de integração com API de terceiro, ciclo de vida do React e atributos de DOM — categorias que teste unitário com mock, por construção, não alcança. O agente tratou "gate verde" como sinônimo de "pronto para revisão".
+**Correção naquele momento:** o humano encontrou cada defeito manualmente ao longo de cinco interações; o agente corrigiu um a um.
+**Ação de follow-up:**
+
+- [x] Virou regra em AGENTS.md? Seção: Regras Inegociáveis (item 11b)
+- [ ] Virou caso de eval? Arquivo: —
+- [ ] Apenas registrado (1ª ocorrência)
+
+---
+
 ### 2026-07-26 — Gates executáveis redundantes em fluxos documentais
 
 **Spec/Contexto:** Fluxo documental seguido imediatamente por um fluxo de implementação.

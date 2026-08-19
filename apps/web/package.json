@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^2.1.1",
     "@napo/core": "workspace:*",
     "@napo/db": "workspace:*",
     "@napo/ui": "workspace:*",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
+    "@types/google.maps": "^3.65.5",
     "@types/node": "^20.17.6",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

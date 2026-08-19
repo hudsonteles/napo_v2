@@ -34,13 +34,13 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-- [ ] **NAPO-005** Endereços e frete por faixa de distância
-  - **Spec:** `docs/specs/005-enderecos-frete/`
-  - **Iniciado em:** 2026-08-18
-  - **Dependências:** NAPO-001
-  - **Bloqueia:** NAPO-006
-  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
-  - **Notas:** CEP → ViaCEP → geocoding → ajuste de pin. Faixas fixas (0–4 km R$6 · 4–8 km R$10 · 8–12 km R$14), frete grátis acima de R$ 150, raio de 12 km configurável + exceções de CEP. Distância **rodoviária** (Brasília tem o lago), calculada uma vez por endereço e gravada. Custo real de referência: R$ 9,60/entrega em rota de 10. Spec §6.
+- [ ] **NAPO-006** Carrinho e checkout com Mercado Pago
+  - **Spec:** [`docs/specs/006-checkout/`](docs/specs/006-checkout/) — aprovada em 2026-08-19
+  - **Iniciado em:** 2026-08-19
+  - **Dependências:** NAPO-002, NAPO-003, NAPO-004, NAPO-005 — todas concluídas
+  - **Bloqueia:** NAPO-007
+  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
+  - **Notas:** Pix, crédito e débito. **Pagamento online obrigatório no site** — um no-show não custa a viagem, custa uma vaga de 30. Snapshot de preço, custo e endereço no pedido (editar cadastro não pode reescrever histórico). Cancelamento devolve estoque; estorno é manual no painel MP. Spec §7.
 
 ---
 
@@ -48,12 +48,7 @@ _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
 
-- [ ] **NAPO-006** Carrinho e checkout com Mercado Pago
-  - **Spec:** `docs/specs/006-checkout/` _(a criar)_
-  - **Dependências:** NAPO-002, NAPO-003, NAPO-004, NAPO-005
-  - **Bloqueia:** NAPO-007
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** Pix, crédito e débito. **Pagamento online obrigatório no site** — um no-show não custa a viagem, custa uma vaga de 30. Snapshot de preço, custo e endereço no pedido (editar cadastro não pode reescrever histórico). Cancelamento devolve estoque; estorno é manual no painel MP. Spec §7.
+_Fila vazia — repriorizar do Backlog ao concluir NAPO-006. Candidatos naturais: NAPO-009 (LGPD, Must independente) e NAPO-021 (provisionar ambientes)._
 
 ---
 
@@ -161,6 +156,8 @@ Ainda abertas, para as fases seguintes:
 - [ ] **Copy do site derivada de configuração, não cravada no código** — o site do NAPO-003 escreve à mão o que hoje é premissa de dado único: o **dia de entrega** ("Brasília, às sextas", rótulo "esta sexta" no seletor de fornada), as **faixas de frete** (R$6/R$10/R$14, grátis >R$150) e os **valores de evento** (R$99→R$64,90/pessoa, garçom R$250). O motor de entrega já é config-driven (`dias_semana_entrega`, NAPO-004), mas os textos não derivam dela. Quando o frete (NAPO-005) e a gestão no admin (NAPO-008) existirem, essas superfícies do site devem **ler** a config em vez de repetir números — senão ligar um segundo dia de entrega ou reajustar frete exige editar copy. Registrado em 2026-08-17. **Origem:** Gate Visual B do NAPO-003 (PM perguntou como escalar dias de entrega e tornar frete/evento gerenciáveis).
 - [ ] **Indicador de precificação de frete no admin** (combustível + parâmetros) — um assistente que sugere o frete por faixa a partir de custo real: preço do combustível ÷ consumo + desgaste por km, distância **rodoviária** ×2, dividido pela **densidade da rota** (entregas por viagem — referência NAPO-005: R$ 9,60/entrega em rota de 10), mais parcela do entregador e margem alvo; com **alerta quando a faixa cobra abaixo do custo** (o mesmo erro que a fórmula `km×2÷qtd` rejeitada cometia). Encaixa no **"simulador de viabilidade de frete"** já previsto nas notas do NAPO-008. Registrado em 2026-08-17. **Origem:** Gate Visual B do NAPO-003.
 
+- [ ] **Porta de entrada para a conta no site público** — não existe nenhuma referência a `/entrar` ou `/conta` em qualquer superfície do site: quem entra pela home não tem como chegar ao login, e quem já está logado não tem como voltar para a área do cliente. O NAPO-002 entregou as telas de auth e o NAPO-003 entregou o site; ligar os dois não coube em nenhuma das duas specs e passou no meio. Precisa decidir o comportamento do cabeçalho para os dois estados (anônimo → "Entrar"; autenticado → nome ou "Minha conta"), o que arrasta leitura de sessão para uma superfície hoje 100% estática — e o SSG do `(site)` é decisão de custo declarada em `ARCHITECTURE.md` §4.5, não detalhe. Candidato natural a nascer junto do **NAPO-007**, que é quem dá dono ao cabeçalho da área do cliente. Registrado em 2026-08-18. **Origem:** Gate Visual B do NAPO-005 — o PM logou e não achou caminho de volta.
+
 - [ ] **Ranking das "mais pedidas" derivado de venda real** — hoje `ranking_mais_pedidas` é preenchido à mão na migration de catálogo (1 Calabresa · 2 Peito de Peru com Gorgonzola · 3 Frango c/ Catupiry). O PM pediu que a home ordenasse pelo que mais vende, mas não existe pedido no banco até o NAPO-006 — e um ranking cravado envelhece calado: quando a preferência mudar, a home continua afirmando um fato que deixou de ser verdade. Quando houver histórico de venda, derivar de uma janela móvel (ex.: 90 dias) com o valor manual como override do admin (NAPO-008). Registrado em 2026-08-17. **Origem:** bloco C do NAPO-003. **Depende de NAPO-006.**
 
 ## ⏸️ Bloqueados (Aguardando externo)
@@ -190,6 +187,15 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 ## ✅ Concluídos
 
 _Histórico — adicionar mais recentes NO TOPO._
+
+- [x] **NAPO-005** Endereços e frete por faixa de distância · concluído 2026-08-18 · [`docs/specs/005-enderecos-frete/`](docs/specs/005-enderecos-frete/)
+  - Cadastro de endereço em **duas etapas**: texto primeiro, confirmação da posição depois, com pin fixo no centro e o mapa se movendo embaixo. A página única aprovada no Gate Visual A foi superada em execução (`drift.md`): apresentado como elemento opcional entre nove campos, o mapa não é usado — e pin no meio da quadra não gera reclamação, gera **viagem perdida numa rota de dez paradas**.
+  - **A régua de distância fica colada à confirmação e recalcula ao vivo:** mover o mapa move o dinheiro, e é isso que dá motivo para olhar. `POST /api/enderecos/medida` mede sem geocodificar de novo — uma chamada por ajuste, com espera de 600 ms e piso de 30 m.
+  - Frete é decisão pura em `packages/core` (RN16), chamada igual pelo card da lista, pela etapa de confirmação e pelo futuro checkout. A última faixa fecha à direita porque 12,00 km é atendido e precisava de preço; fora de área devolve `null`, nunca R$ 0,00 — frete zero silencioso é o prejuízo que não aparece no painel.
+  - **RLS por dono com políticas separadas por comando:** equipe lê para suporte e separação de entrega, só o dono escreve. Privilégios de `DELETE` e de anônimo **revogados**, não apenas deixados sem política — a RN15 vira erro de privilégio, e um `for all` acrescentado por descuido amanhã não reabre o caminho.
+  - Distância é rodoviária, medida no servidor e gravada uma vez (RN12); rota indisponível cai para linha reta × fator **sempre marcada** (RN11). O corpo da requisição não tem campo de distância — o cliente não tem como escolher a própria faixa.
+  - `POST /api/frete` já está no ar como o contrato que o NAPO-006 consome. 290 testes Vitest + 70 pgTAP. T18 verificado no bundle real: chave de servidor e `service_role` ausentes, chave de navegador presente.
+  - **Pendência conhecida:** a `GOOGLE_MAPS_SERVER_KEY` do PM está com restrição por referrer e o Google recusa — a geocodificação cai no caminho degradado até a chave ser recriada sem restrição de aplicativo.
 
 - [x] **NAPO-003** Site público, catálogo e SEO · concluído 2026-08-17 · [`docs/specs/003-site-catalogo/`](docs/specs/003-site-catalogo/)
   - Vitrine `/sabores`, 12 páginas de produto em SSG (`dynamicParams=false` — slug desconhecido ou inativo cai em 404 sem tocar o banco), home com storytelling sobre o eixo "Longa fermentação. Assada na pedra. Em casa, só aquecer.", `/como-aquecer`, `/eventos` e as páginas legais provisórias.

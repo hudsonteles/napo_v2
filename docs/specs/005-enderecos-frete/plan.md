@@ -2,76 +2,148 @@
 
 **Spec:** [`spec.md`](./spec.md) · **Design:** [`design.md`](./design.md) · **Tests:** [`tests.md`](./tests.md)
 **Tamanho detectado:** GRANDE
-**Critério:** N_arquivos=26, N_testes=27, sensitivo=S (RLS, PII/coordenada, LGPD)
+**Critério:** N_arquivos=27, N_testes=27, sensitivo=SIM (PII de localização, RLS, chaves de API)
 **Plano criado em:** 2026-08-18
-**Modo de execução:** com checkpoints (após Bloco A e após Bloco D)
+**Concluído em:** 2026-08-18 — Gate Visual B aprovado pelo PM
+**Modo de execução:** com checkpoints (aprovado pelo PM em 2026-08-18 — paradas após A, F e G)
 
 ---
 
 ## Stack (derivada de ARCHITECTURE.md)
-`TypeScript strict · Next.js 15 App Router · Route Handlers · Supabase/Postgres (sem ORM, SQL + tipos gerados) · Vitest (core + fetch mockado) + pgTAP (RLS) · shadcn/ui em packages/ui + Tailwind v4`
+
+`TypeScript strict · Next.js 15 App Router · Supabase (Postgres + Auth + RLS) · pnpm workspaces · Vitest + pgTAP · Tailwind v4 + shadcn em packages/ui · Zod · Vercel`
+
+Regra de dependência ativa: `packages/core` é TS puro (sem React, sem Supabase, sem HTTP).
 
 ## Agentes elegíveis (após fitness)
-`.agents/agent/` não existe → todos os blocos executam **inline no main agent** (sem subagentes especialistas). Blocos paralelizáveis marcados abaixo; execução sequencial por decisão de sessão (não spawnar agentes sem pedido do PM).
+
+- ✅ Elegíveis: `database-architect` (A), `security-auditor` (A, F), `backend-specialist` (D, E, F), `frontend-specialist` (G, H), `test-engineer` (todos)
+- ❌ Não elegíveis: `mobile-developer` (web puro), `seo-specialist` (área logada, `noindex`), `devops-engineer` (sem pipeline novo)
+- 🟡 Com ressalva: `frontend-specialist` tem opiniões fortes contra shadcn; aqui o catálogo shadcn de `packages/ui` é mandatado por `ARCHITECTURE.md` §2.2 e **vence** — o agente entra pela camada de composição e acessibilidade, não pela escolha de biblioteca.
+
+**Paralelismo (AGENTS.md §2.9):** os pares A‖B e (nada mais) são disjuntos, mas a execução será **sequencial em agente único** — este ambiente não dispara subagentes sem pedido explícito do PM. O grafo abaixo registra a ordem real.
+
+---
+
+## Ajustes ao Mapa de Impacto
+
+Itens declarados no `design.md` §4.4.3 / §6.1 mas ausentes da tabela §1 — completude, não escopo novo:
+
+| Arquivo | Origem da autorização |
+|---|---|
+| `packages/core/src/frete/index.ts` · `packages/core/src/entrega/index.ts` | convenção de barrel por domínio (`catalogo/`, `disponibilidade/`, `otp/`) |
+| `packages/core/src/entrega/descricao.test.ts` | §1 lista teste só para `frete/*`; RN17 exige cobertura determinística |
+| `apps/web/src/features/enderecos/components/regua-distancia.tsx` | `design.md` §4.4.3 (`<ReguaDistancia>`) |
+| `apps/web/package.json` | `design.md` §6.1 — `@googlemaps/js-api-loader` |
+| testes `*.test.ts` dos route handlers | `tests.md` cabeçalho: Route Handlers → Vitest com fetch mockado |
+| `apps/web/src/features/enderecos/services/cep-repo.ts` | separação repositório/serviço, para o fallback entre provedores ser testável sem banco |
+| `apps/web/vitest.config.ts` | variável pública nova precisa existir no runner, que valida env no import |
+| `apps/web/src/features/enderecos/services/enderecos-repo.ts` | mesma separação repositório/serviço do CEP |
+| `apps/web/src/features/enderecos/schema.ts` | Next 15 proíbe export extra em arquivo de rota; o schema é compartilhado com o formulário do bloco H |
+| `apps/web/src/lib/guarda-api.ts` | guarda usada por 5 rotas de 2 features; feature não importa de feature (ARCHITECTURE §3.2) |
+| `apps/web/app/(conta)/conta/layout.tsx` | `design.md` §4.1 manda REUSAR "o layout de (conta)", que não tinha cabeçalho; duas telas desta spec precisam dele |
+| `packages/ui/package.json` | `@radix-ui/react-dialog`, dependência do `<Dialog>` de §4.4.3 |
+| `apps/web/src/features/enderecos/schema.test.ts` | RN3/T11 vira predicado testável; sem teste, a lista de padrões de quadra é palpite |
 
 ---
 
 ## Blocos
 
-### Bloco A — Schema, RLS e seed
-Arquivos: `supabase/migrations/0012_enderecos_frete.sql`, `supabase/tests/0012_enderecos_rls.sql`, `packages/db/src/types.generated.ts` (via `pnpm db:types`) · Testes: T16, T19 (pgTAP) · Depende: — · Paralelo: B, C, E · Est: 60min · Agente: inline · `[ ]`
-**Status: [x] concluído.** Tabelas `ceps`, `enderecos` (2 coordenadas + flags), `faixas_frete`, `excecoes_area`, colunas em `config_operacao` (`raio_km`, `frete_gratis_centavos`, `fator_distancia_estimada`, `limite_ajuste_pin_m`). Índices §2.3 (único parcial de padrão). Seed faixas + raio=12 + frete_gratis=15000. RLS matriz §2.4. Helper `is_equipe()` criado. 7 pgTAP (T16/T19) verdes.
+### Bloco A — Schema, RLS e tipos
+Arquivos: `supabase/migrations/0012_enderecos_frete.sql`, `supabase/tests/0012_enderecos_rls.sql`, `packages/db/src/types.generated.ts` · Testes: T16, T19 (pgTAP) + invariantes RN13/RN15 no banco · Depende: — · Est: 75min · Agente: database-architect + security-auditor · `[x]`
 
-### Bloco B — Core puro (frete, distância, área, descrição)
-Arquivos: `packages/core/src/frete/frete.ts`, `.../distancia.ts`, `.../area.ts`, `packages/core/src/entrega/descricao.ts`, `*.test.ts`, `packages/core/src/index.ts` (barrel) · Testes: T6, T7, T25, T26, T27 + lógica de T2/T12/T13/T23/T24 · Depende: — · Paralelo: A, C, E · Est: 75min · Agente: inline · `[ ]`
-Funções puras, sem rede/banco (RN16). Faixa→valor com borda `[de, ate)` (T26), frete grátis (T8/RN8), haversine + fator (RN11), deslocamento do pin (RN6), raio×exceção (RN9/RN10, borda inclusiva T25), frase de cobertura flexionada (RN17/T27).
+### Bloco B — Core: frete, distância e área
+Arquivos: `packages/core/src/frete/{frete,distancia,area,index}.ts` + `*.test.ts` · Testes: T6, T7, T23 (parte pura), T24 (parte pura), T25, T26 · Depende: — (disjunto de A) · Est: 60min · Agente: inline (Domain Engineer) · `[x]`
 
-### Bloco C — Serviços externos (CEP + geocoding)
-Arquivos: `apps/web/src/features/enderecos/services/cep.ts`, `.../geocoding.ts`, `apps/web/src/lib/env.ts` (mod), `.env.example` (mod), `apps/web/package.json` (+`@googlemaps/js-api-loader`) · Testes: T1, T8, T9, T21, T22 (fetch mockado) · Depende: — · Paralelo: A, B, E · Est: 75min · Agente: inline · `[ ]`
-CEP: cache→ViaCEP→BrasilAPI, timeout 3s/provedor (T21), fallback manual (T22). Geocoding+Routes só-servidor, `GOOGLE_MAPS_SERVER_KEY` nunca público (T18). Duas chaves Zod (§6.2).
+### Bloco C — Core: descrição de cobertura (RN17)
+Arquivos: `packages/core/src/entrega/{descricao,index}.ts` + teste, `packages/core/src/index.ts` · Testes: T27 (parte pura) · Depende: B (compartilha o barrel) · Est: 30min · Agente: inline · `[x]`
 
-### Bloco D — Persistência + API
-Arquivos: `apps/web/src/features/enderecos/services/enderecos.ts`, `app/api/cep/[cep]/route.ts`, `app/api/enderecos/route.ts`, `app/api/enderecos/[id]/route.ts`, `app/api/enderecos/[id]/padrao/route.ts`, `app/api/frete/route.ts` · Testes: T2, T3, T4, T5, T10, T11, T12, T13, T14, T15, T17, T20, T23, T24 · Depende: A, B, C · Paralelo: — · Est: 90min · Agente: inline · `[ ]`
-POST /enderecos: geocodifica→mede deslocamento→distância rodoviária→avalia área→grava; distância **nunca** do corpo (T17/RN5). Teto 1 medição/endereço (T20/RN12). Padrão atômico (T4/RN13). Limite 10 (T14). POST /frete = contrato do NAPO-006.
+### Bloco D — Env + CEP com cache e fallback
+Arquivos: `.env.example`, `apps/web/src/lib/env.ts`, `features/enderecos/services/cep.ts`, `app/api/cep/[cep]/route.ts` + testes · Testes: T1, T8 (servidor), T9, T21, T22 · Depende: A · Est: 60min · Agente: backend-specialist · `[x]`
 
-### Bloco E — Catálogo: Dialog
-Arquivos: `packages/ui/src/components/dialog.tsx`, barrel de `packages/ui` · Testes: — (coberto no Gate Visual B) · Depende: — · Paralelo: A, B, C · Est: 20min · Agente: inline · `[ ]`
-`<Dialog>` shadcn — overlay que o catálogo não tem; confirmação de desativação (proíbe `confirm()` nativo, ARCHITECTURE §4.4).
+### Bloco E — Geocoding e rota rodoviária
+Arquivos: `features/enderecos/services/geocoding.ts` + teste · Testes: T23, T18 (parte) · Depende: D · Est: 50min · Agente: backend-specialist · `[x]`
 
-### Bloco F — UI lista (`/conta/enderecos`)
-Arquivos: `apps/web/src/features/enderecos/components/regua-distancia.tsx`, `.../card-endereco.tsx`, `apps/web/src/features/enderecos/index.ts` (barrel), `app/(conta)/conta/enderecos/page.tsx` · Testes: critérios visuais 1–3, 6 (Gate Visual B) + T5/T12 na leitura · Depende: A, B, D, E · Paralelo: — · Est: 75min · Agente: inline · `[ ]`
-Server Component lê config+endereços, passa frase de cobertura pronta (RN17). Régua 0–12 km reaproveita linguagem da home. Fora de área sem vermelho.
+### Bloco F — API de endereços e contrato de frete
+Arquivos: `features/enderecos/services/enderecos.ts`, `features/enderecos/index.ts`, `app/api/enderecos/route.ts`, `app/api/enderecos/[id]/route.ts`, `app/api/enderecos/[id]/padrao/route.ts`, `app/api/frete/route.ts` + testes · Testes: T2, T3, T4, T12, T13, T14, T15, T17, T20 · Depende: A, B, C, E · Est: 90min · Agente: backend-specialist + security-auditor · `[x]`
 
-### Bloco G — UI formulário + mapa (`/conta/enderecos/novo` e `/[id]`)
-Arquivos: `apps/web/src/features/enderecos/components/mapa-pin.tsx`, `.../formulario-endereco.tsx`, `app/(conta)/conta/enderecos/novo/page.tsx`, `app/(conta)/conta/enderecos/[id]/page.tsx` · Testes: critérios visuais 4, 5, 6 (Gate Visual B) + T8/T9/T24 na interação · Depende: C, D, E, F · Paralelo: — · Est: 90min · Agente: inline · `[ ]`
-`<MapaPin>` encapsula Maps JS, emite `{lat,lng}`; mapa **depois** de número/complemento (crit. 4). Cadastro é página (não modal). Acessível sem mouse (§4.7).
+### Bloco G — UI: Dialog, régua, card e lista
+Arquivos: `packages/ui/src/components/dialog.tsx`, `features/enderecos/components/{regua-distancia,card-endereco}.tsx`, `app/(conta)/conta/enderecos/page.tsx` · Testes: T5, T27 (tela) + critérios visuais 1, 2, 3, 6 · Depende: F · Est: 80min · Agente: frontend-specialist · `[x]`
+
+### Bloco I — Etapa de confirmação de posição (drift)
+Arquivos: `app/api/enderecos/posicao/route.ts`, `features/enderecos/components/{mapa-confirmacao,etapa-posicao}.tsx`, `formulario-endereco.tsx`, as duas páginas de cadastro/edição, `schema.ts`, `services/enderecos.ts` · Testes: T24 (reescrito), T28, T29 + critérios visuais 4 e 5 (reescritos) · Depende: H · Est: 90min · Agente: frontend-specialist + backend-specialist · `[x]`
+
+### Bloco H — UI: mapa e formulário
+Arquivos: `features/enderecos/components/{mapa-pin,formulario-endereco}.tsx`, `app/(conta)/conta/enderecos/novo/page.tsx`, `app/(conta)/conta/enderecos/[id]/page.tsx`, `apps/web/package.json` · Testes: T8, T10, T11 + critérios visuais 4, 5, 6 · Depende: F, G · Est: 90min · Agente: frontend-specialist · `[x]`
 
 ---
 
 ## Grafo de dependências
 
 ```
-A, B, C, E → paralelos (sem deps entre si)
-D depende de A + B + C
-F depende de A + B + D + E
-G depende de C + D + E + F
+A ─┬─────────────► D ──► E ──┐
+   │                          ├──► F ──► G ──► H
+B ──► C ──────────────────────┘
 ```
 
-## Checkpoints intermediários sugeridos (GRANDE)
+Ordem de execução real (sequencial): **B · A** · C · D · E · F · G · H
 
-- **Após Bloco A:** gate + commit + confirmar schema/RLS antes de construir sobre ele (base sensível — PII e isolamento entre clientes).
-- **Após Bloco D:** gate + commit + revisar contrato de API (`POST /api/frete` é consumido pelo NAPO-006) antes de iniciar a UI.
+B vem antes de A porque o seed da `0012` depende da coordenada da cozinha, que é fato do negócio pendente do PM. Os dois blocos são disjuntos — a troca não altera o grafo.
 
-Bloqueantes só se o PM escolher `Modo de execução: com checkpoints`. Em `autônomo`, cada bloco verde é commitado e o próximo inicia sem confirmação.
+## Checkpoints intermediários sugeridos
+
+- **Após Bloco A:** schema é o que outros sete blocos assumem; errar aqui custa migration corretiva.
+- **Após Bloco F:** backend completo e testado — último ponto antes de a UI congelar contratos.
+- **Após Bloco G:** primeira metade do Gate Visual B (lista) disponível para o PM.
+
+Só bloqueiam se o modo aprovado for `com checkpoints`.
 
 ## Notas de execução
 
-- Commits incrementais: prefixo `feat(NAPO-005): bloco [letra] — [resumo] (Tx, Ty verdes)`. `plan.md` entra no commit do Bloco A.
-- Gate Visual B (blocos F e G) precisa das **chaves reais do Google Maps** — dependência externa do PM (spec §6). Testes automatizados não dependem dela (fetch mockado).
-- Blocos A–E não tocam UI; F e G aplicam mockup-driven scaffolding (Etapa 4.0).
+- Commits incrementais: `feat(NAPO-005): bloco [letra] — [resumo] (Tx, Ty verdes)`
+- Gate por bloco: `pnpm lint && pnpm typecheck && pnpm test && pnpm build` (+ `pnpm db:test` nos blocos que tocam schema)
+- Plano é o ponto de retomada — Status atualizado no mesmo commit do bloco
 
-## Decisões de execução (preenchida durante a implementação)
+## Decisões de execução
 
-- **Bloco A:** `db:migrate` local falhou por histórico dessincronizado (tentou reaplicar 0011); usei `db:reset` — recria limpo. Sem impacto de schema, é a divergência de CLI entre máquinas já registrada em 💡 Ideias.
-- **Bloco A:** criado helper `is_equipe()` (não previsto explicitamente no design) — a matriz RLS §2.4 exige "leitura por equipe" e só existia `is_admin()`. Mesmo padrão SECURITY DEFINER + search_path fixo.
-- **Bloco A:** `ceps` com PK natural (o CEP) em vez de `id uuid` do padrão §4.2 — decisão já tomada no design §2.1 (cache com chave de negócio única).
+<!-- 1 bullet por decisão, máx. 2 linhas: fato + motivo. Nunca reexplicada em commit ou chat. -->
+
+- **Coordenada da cozinha entra em `config_operacao` (`lat_cozinha`/`lng_cozinha`)** — RN5 mede distância "da cozinha" e nem o design §2.1 nem a tabela previam a origem; vai onde já mora o raio, para mudar de endereço ser `UPDATE` e não deploy.
+- **`is_equipe()` nasce na 0012** — a RLS de equipe do design §2.4 precisa dela e só existe `is_admin()`; mesmo padrão `SECURITY DEFINER` + `search_path` fixo da 0001, que evita recursão de RLS em `profiles`.
+- **A última faixa de frete fecha à direita** — T26 pede intervalo `[de, ate)` e T25 pede 12,00 km atendido; sem a exceção a borda exata do raio ficaria sem preço.
+- **Fora de área devolve `freteCentavos: null`, nunca 0** — inclusive quando não há faixa cobrindo a distância; frete zero silencioso é prejuízo que não aparece no painel.
+- **Entre exceções de CEP vence o prefixo mais longo** — com `716` bloqueando e `71680` liberando, deixar a ordem decidir faria a regra geral engolir a exceção dela.
+- **`export * from './frete'` entrou no barrel já no bloco B** (o mapa previa a modificação de `core/index.ts` no bloco C) — bloco tem de fechar consumível de fora, senão o gate valida código inalcançável.
+- **Mapa sem `mapId` e com `Marker` clássico** — `mapId` não registrado no console faz o Google recusar o estilo e a div fica em branco; `AdvancedMarkerElement` exige Map ID registrado, que é passo de console e vira dependência externa nova. Trocar depois é uma linha.
+- **Campos dependentes do CEP viram esqueleto durante a busca** — estava no design §4.3 ("demais campos travados até responder") e no estado 2 do preview; a primeira implementação só travou o próprio CEP, e o que a pessoa digitasse na espera era sobrescrito sem aviso. Encontrado pelo PM no Gate Visual B.
+- **A régua recalcula ao vivo a cada ajuste do mapa** (decisão do PM, 2026-08-18) — riscar o número e esperar a confirmação contradizia a própria razão de existir da régua ("mover o mapa move o dinheiro"). Endpoint `/api/enderecos/medida` mede **sem geocodificar**: o endereço textual não mudou, então o ponto sugerido também não, e uma chamada por ajuste basta. Espera de 600 ms depois que o mapa para e piso de 30 m de deslocamento seguram o custo em ~900 de 5.000 chamadas/mês.
+- **A medida ao vivo não carrega `precisaConferencia`** — o deslocamento é decidido no servidor ao salvar, onde há geocodificação de verdade; devolver a marcação ao cliente permitiria influenciá-la e quebraria a RN6.
+- **Basemap híbrido por padrão, com tela cheia própria e traço com halo** — o controle nativo de tela cheia leva só a div do mapa, e o pin é irmão dela; traço de cor única não sobrevive a satélite, então vai escuro grosso embaixo e branco tracejado em cima, o mesmo princípio do contorno do pin.
+- **Geocodificação sem resultado abre a etapa 2, não a bloqueia** — a primeira versão devolvia 422 e travava o fluxo, contrariando o estado 3 do preview aprovado. Endereço que o Google não acha não é erro de quem digitou: o mapa abre no centro da cidade, sem régua (número em 0 km seria mentira) e sem gastar chamada de rota para um ponto arbitrário.
+- **Erro de validação leva o foco ao primeiro campo e dispara toast** — mensagem inline sozinha não avisa quando o erro está acima da dobra: a pessoa fica olhando um botão que "não faz nada". A ordem de prioridade é a da tela, não a do schema.
+- **Drift aprovado em 2026-08-18: o mapa vira etapa própria** — ver `drift.md`. O `<MapaPin>` arrastável foi substituído por `<MapaConfirmacao>` com pin fixo no centro, e a página única virou duas etapas.
+- **`gestureHandling: 'greedy'` na etapa 2** — `cooperative` exige dois dedos, e ali mover o mapa é a ação principal, não um efeito colateral de rolagem.
+- **O mapa emite no evento `idle`, não em `center_changed`** — este dispara a cada quadro do arrasto, e cada disparo vira recálculo na tela.
+- **`ResultadoDoCadastro` foi removido** — a distância e o frete agora aparecem na etapa 2, **antes** da decisão, que era o que o design §4.5 pedia desde o começo; repeti-los depois de salvar seria a mesma informação duas vezes, tarde.
+- **RN3/T11 vive no schema Zod compartilhado, não em `packages/core`** — é regra do contrato de entrada, e o `superRefine` a aplica no formulário e na rota de uma vez; duas validações do mesmo endereço divergem no primeiro campo novo.
+- **O frete aparece DEPOIS de salvar, não antes** — a medição é do servidor (RN5) e só existe após o POST; o preview mostrava a barra preenchida porque mockup não tem servidor. O endereço fora de área é salvo e o aviso é informativo, como manda a RN9 — não é um gate de confirmação.
+- **`@googlemaps/js-api-loader` v2 usa `setOptions`/`importLibrary`; a classe `Loader` está deprecada** — o design §6.1 nomeou a biblioteca, não a API.
+- **pgTAP do T19 passou a contar só as fixtures** — contava a tabela inteira e quebrou quando o banco local ganhou dado de desenvolvimento; teste que depende do total afirma sobre o ambiente, não sobre a política.
+- **Cabeçalho da conta nasce no layout, com só o link que existe** — o preview mostrava "Pedidos" ao lado de "Endereços", mas essa tela é NAPO-007: link morto seria pior que link nenhum. Muda também a aparência de `/conta`, aprovada no NAPO-002 — a conferir no Gate Visual B.
+- **Régua no card usa "R$ 6", não "R$ 6,00"** — são quatro rótulos de 11px lado a lado; o centavo que nunca varia só rouba espaço. O valor cheio fica no card, onde é preço.
+- **Card do endereço calcula frete com subtotal zero** — mostra quanto a entrega custa, não quanto sairia num pedido hipotético; o desconto acima de R$ 150 é do carrinho, não do endereço.
+- **Pílula de navegação do cabeçalho é markup cru declarado** — não é ação, é destino; virar `<Button>` daria a ela peso visual de CTA dentro do próprio cabeçalho.
+- **CRUD de endereço usa o client de SESSÃO; config e exceções, o `service_role`** — a RN1 fica a cargo da RLS, não de um `where profile_id` que um `if` esquecido derruba; `config_operacao` e `excecoes_area` fecham para cliente por política.
+- **Troca de padrão em dois comandos ordenados, não em transação** — divergência do design §3.1: o índice único parcial é checado linha a linha e um `update set padrao = (id = $1)` poderia marcar o novo antes de limpar o antigo. Desmarcar primeiro nunca viola; no pior caso o cliente fica sem padrão, o que a tela mostra sem mentir.
+- **Limite de 10 é 409, não 400** — o envio está correto, o estado é que não comporta, e a orientação é desativar um endereço, não corrigir o corpo.
+- **Repositório tipado com `Database['public']['Tables']`, não `Record<string, unknown>`** — coluna renomeada em migration vira erro de tipo, não linha `undefined` numa tela três camadas adiante.
+- **`getGoogleEnv()` em escopo próprio, fora do schema monolítico de servidor** — `getServerEnv()` valida tudo de uma vez e é chamado no SSG do catálogo: com a chave no schema comum, uma credencial de geocodificação ausente derrubou a prerenderização da Margherita no gate do bloco E. Cada subsistema falha alto só no que é dele.
+- **A chave de rota vai em cabeçalho, nunca em query string** — query string entra em log de proxy e de CDN; a de geocoding vai na URL porque a API não aceita cabeçalho.
+- **`medirDistancia` nunca devolve nulo nem zero** — pior caso é estimativa marcada (RN11); distância ausente viraria frete zero ou cadastro travado.
+- **~~`GOOGLE_MAPS_SERVER_KEY` fica fora do schema até o bloco E~~** (superada pela decisão acima) — `getServerEnv()` valida tudo de uma vez; declarar a chave antes de existir derrubaria OTP e callback de auth junto, por uma variável que nada ainda usa.
+- **A rota de CEP exige sessão com telefone validado** — sem isso é proxy gratuito de CEP escrevendo na nossa tabela de cache.
+- **Falha de terceiro é 404 com `podeDigitarManual`, nunca 500** — 500 fica reservado a defeito nosso; confundir os dois faria o formulário tratar CEP inexistente como pane (RN2).
+- **Privilégios revogados explicitamente em `enderecos`, `ceps`, `excecoes_area` e `faixas_frete`** — o Supabase concede ALL por default privilege a toda tabela nova de `public`; sem revogar, RN15 dependeria só da ausência de política, e um `for all` acrescentado amanhã reabriria o DELETE.
+- **A preposição do dia reaparece só quando o gênero vira** ("às sextas e aos sábados") — repetir sempre soa robótico e omitir sempre erra o português no dia que o sábado abrir.
+- **Sem dia de entrega ativo, a frase de cobertura é `null`** — a tela omite em vez de anunciar entrega que a operação não faz (RN17).
+- **Bloco B executado antes do A** — o seed da 0012 depende da coordenada da cozinha, fato do negócio pendente do PM; blocos disjuntos, grafo intacto.

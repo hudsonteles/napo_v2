@@ -105,6 +105,16 @@ Cache → ViaCEP → BrasilAPI → `404` com `podeDigitarManual: true`. **Nunca*
 #### `POST /api/enderecos`
 Recebe endereço + coordenada final escolhida no mapa. No servidor, em ordem: geocodifica (se o cliente não moveu o pin, é a mesma coordenada), calcula o deslocamento, mede a distância rodoviária, avalia a área, grava. **A distância nunca vem do corpo da requisição** — se viesse, o cliente escolheria a própria faixa de frete (RN5).
 
+#### `POST /api/enderecos/posicao`
+Recebe o endereço em texto, geocodifica, mede a rota, avalia a área e devolve tudo
+**sem gravar nada**. É o que permite a etapa 2 existir: sem ele, a posição só seria
+conhecida depois de salvar, e o cliente confirmaria um ponto que não viu.
+
+Não recebe nem devolve id: não há linha ainda. O custo é uma geocodificação e uma
+rota a mais por endereço (~600/mês contra franquias de 10.000 e 5.000) — ao salvar
+o servidor **remede**, porque coordenada que volta do cliente não prova deslocamento
+(RN6).
+
 #### `POST /api/frete`
 `{ enderecoId, subtotalCentavos }` → `{ freteCentavos, gratis, faixa, foraDeArea, motivo }`. O endereço é lido do banco pelo id do dono; nada de distância vinda do cliente. É o contrato que o checkout do NAPO-006 chama — por isso ele nasce aqui, e não lá.
 
@@ -170,7 +180,8 @@ Recebe endereço + coordenada final escolhida no mapa. No servidor, em ordem: ge
 #### 4.4.1 Arquivos
 
 - [`preview-lista.html`](./preview-lista.html) — `/conta/enderecos`: padrão, distância estimada, fora de área, lista vazia, limite de 10
-- [`preview-formulario.html`](./preview-formulario.html) — `/conta/enderecos/novo`: preenchido, buscando CEP, CEP não encontrado, pin deslocado + fora de área
+- [`preview-formulario.html`](./preview-formulario.html) — `/conta/enderecos/novo`, **etapa 1**: preenchido, buscando CEP, CEP não encontrado. A seção de mapa deste arquivo foi **superada** pelo drift
+- [`preview-etapa-mapa.html`](./preview-etapa-mapa.html) — **etapa 2**, aprovada em 2026-08-18: posição encontrada, mapa movido além do limite, geocodificação sem resultado, saída sem mouse
 
 **Direção aprovada — régua de distância.** O card posiciona o endereço numa régua de 0 a 12 km com as três faixas marcadas, reaproveitando a linguagem da régua da home (NAPO-003). A alternativa "etiqueta de remessa" (monoespaçada, frete carimbado) foi apresentada e **rejeitada**: é o vocabulário do estoque, não o do cliente — quem cadastra endereço quer saber quanto custa, não conferir uma etiqueta.
 
@@ -194,7 +205,7 @@ Recebe endereço + coordenada final escolhida no mapa. No servidor, em ordem: ge
 | `<CardEndereco>` | `features/enderecos/components/` | Compõe `<Card>` + `<Badge>` + régua; a régua de faixa não existe em lugar nenhum |
 | `<ReguaDistancia>` | `features/enderecos/components/` | Trilho 0–12 km com as três faixas e o pin do endereço — é a direção visual aprovada |
 | `<FormularioEndereco>` | `features/enderecos/components/` | Orquestra CEP, campos e mapa; serve só a este domínio, não sobe para `packages/ui` |
-| `<MapaPin>` | `features/enderecos/components/` | Encapsula a Maps JS API e emite `{lat, lng}` |
+| `<MapaConfirmacao>` | `features/enderecos/components/` | Encapsula a Maps JS API com pin fixo no centro e emite `{lat, lng}` do centro (drift.md) |
 
 #### 4.4.4 Markup cru aceito
 
@@ -211,10 +222,13 @@ Derivados em `tests.md` (seção "Critérios visuais de aceite"), verificados no
 
 - **A frase de cobertura é dado, não texto.** "Entregamos às sextas em Brasília, num raio de 12 km" é montada a partir de `dias_semana_entrega` e `config_operacao.raio_km` (RN17). A função pura recebe a lista de dias ativos e o raio e devolve a frase já flexionada — plural, "e" antes do último dia, singular quando há um só. A página de lista é Server Component: lê a configuração e passa a frase pronta, sem chamada extra no cliente.
 
+- **A confirmação da posição é etapa própria, não elemento da página** (drift.md, 2026-08-18). A spec previu o risco e escolheu o remédio fraco: instrução não compete com hierarquia. Numa tela com nove campos, a atenção vai para o botão de salvar. O que faz alguém conferir a posição é a conferência **ser a tarefa**.
+- **O pin é fixo no centro e o mapa se move.** Pin arrastável é o padrão errado em celular: o alvo é pequeno e o dedo cobre o que a pessoa precisa ver.
+- **A régua de distância fica colada à confirmação.** Mover o mapa move o dinheiro — é o que dá motivo para olhar. Deslocamento acima do limite risca o número e anuncia o recálculo, em vez de deixá-lo mudar calado depois de salvar.
 - **Cadastro é página, não modal.** O fluxo tem CEP, sete campos e um mapa; em celular, modal com mapa arrastável dentro é armadilha de scroll — arrastar o pin rola a página.
 - **O frete aparece no cadastro, não só no checkout.** É a resposta à pergunta que o cliente realmente tem ("quanto sai para minha casa?") e antecipa a objeção antes do carrinho.
 - **Fora de área não usa vermelho de erro.** O cliente não errou; a casa é que ainda não chega lá. Erro visual em quem fez tudo certo é o que faz a pessoa não voltar.
-- **O pin nasce onde o geocoding colocou**, com instrução explícita. Mapa sem instrução é decoração: ninguém arrasta.
+- ~~**O pin nasce onde o geocoding colocou**, com instrução explícita.~~ Superado pelo drift de 2026-08-18: a conclusão estava certa (mapa sem peso é decoração), o remédio não. Ver `drift.md`.
 
 ### 4.6 Responsividade
 
