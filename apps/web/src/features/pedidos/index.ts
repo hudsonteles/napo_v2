@@ -8,7 +8,7 @@ export { criarPedido, revalidarCarrinho } from './services/criar-pedido';
 export type { ResultadoCriarPedido, Revalidacao } from './services/criar-pedido';
 export { confirmarPeloRetorno, processarNotificacao } from './services/confirmar-pagamento';
 export type { ResultadoWebhook } from './services/confirmar-pagamento';
-export { cancelarPedidoRpc, expirarPedidosRpc, lerPedidoDoDono } from './services/pedidos-repo';
+export { cancelarPedidoRpc, expirarPedidosRpc, lerPagamentoMinutos, lerPedidoDoDono } from './services/pedidos-repo';
 export type { PedidoDoDono } from './services/pedidos-repo';
 export {
   criarPedidoSchema,

@@ -34,6 +34,9 @@ const AREA_POR_SEGMENTO: Record<string, AreaProtegida> = {
   conta: 'conta',
   admin: 'admin',
   checkout: 'checkout',
+  // NAPO-006: a página do pedido é do cliente e exige sessão + telefone, como a
+  // conta. `/carrinho` fica de fora de propósito — o carrinho é anônimo (RN1).
+  pedido: 'conta',
 };
 
 const PAPEIS_DE_EQUIPE: readonly Papel[] = ['atendente', 'cozinha', 'gerente', 'admin'];

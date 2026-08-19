@@ -20,6 +20,9 @@ const badgeVariantes = cva(
         // Alérgeno é informação crítica: cor é reforço, o texto carrega o sinal
         // (design §4.7). O vermelho não é o único indicador — o "Contém …" é.
         alergeno: 'bg-erro/[0.08] text-erro',
+        // Estado do pedido (NAPO-006 §4.1): tom suave para "pago" — o selo diz o
+        // estado sem gritar. Encerrados (cancelado/expirado/estornado) usam `neutro`.
+        sucesso: 'bg-amarelo/[0.15] text-amarelo',
       },
       size: {
         default: 'px-2.5 py-1 text-xs',

@@ -10,6 +10,21 @@
  */
 @source '../../../packages/ui/src';
 
+/*
+ * Recorte de canhoto do bloco da fornada (NAPO-006, direção A do Gate Visual A).
+ * Dois semicírculos vazados nas bordas laterais, na divisa entre o cabeçalho e o
+ * corpo do card — a "ficha" que faz a fornada parecer um bilhete, não uma linha
+ * de resumo. Virou CSS de produto conforme design §4.4.5 do NAPO-006.
+ */
+.serrilha {
+  -webkit-mask-image: radial-gradient(circle at 0 50%, transparent 7px, #000 7.5px),
+    radial-gradient(circle at 100% 50%, transparent 7px, #000 7.5px);
+  -webkit-mask-composite: source-in;
+  mask-image: radial-gradient(circle at 0 50%, transparent 7px, #000 7.5px),
+    radial-gradient(circle at 100% 50%, transparent 7px, #000 7.5px);
+  mask-composite: intersect;
+}
+
 /* Arquitetura §7.1: movimento sempre respeita a preferência do sistema. */
 @media (prefers-reduced-motion: reduce) {
   *,
