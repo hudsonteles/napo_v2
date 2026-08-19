@@ -1,15 +1,20 @@
 import { ShoppingBag } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { Marca } from '../components/marca';
 
 /**
- * Cabeçalho compartilhado por todas as rotas de `(site)`. Estrutura aprovada no
- * Gate Visual A. Usa `<a>` e não `next/link` porque `packages/ui` não depende do
- * Next (ARCHITECTURE §3.2); num site SSG servido do CDN a navegação de página
- * inteira é aceitável. O carrinho nasce desabilitado — o canal de compra abre no
- * NAPO-006 (RN da tela: CTA presente e honesto sobre o canal ainda não aberto).
+ * Cabeçalho compartilhado pelas rotas de `(site)` e `(loja)`. Estrutura aprovada
+ * no Gate Visual A. Usa `<a>` e não `next/link` porque `packages/ui` não depende
+ * do Next (ARCHITECTURE §3.2); num site SSG servido do CDN a navegação de página
+ * inteira é aceitável.
+ *
+ * O acesso ao carrinho entra por `acessoCarrinho` (design §4.4.3: o cabeçalho
+ * RECEBE o `<AcessoCarrinho>`). O contador lê `localStorage`, que só existe no
+ * app — o cabeçalho continua sem importar estado de cliente, e é o app quem
+ * injeta a ilha já ligada. Sem a prop, cai num link simples (sem contador).
  */
-export function CabecalhoSite() {
+export function CabecalhoSite({ acessoCarrinho }: { acessoCarrinho?: ReactNode }) {
   return (
     <header className="sticky top-0 z-50 border-b border-borda bg-preto/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
@@ -35,15 +40,15 @@ export function CabecalhoSite() {
           >
             Como aquecer
           </a>
-          <button
-            disabled
-            title="O carrinho abre com o pedido online, em breve"
-            className="ml-1 flex cursor-not-allowed items-center gap-2 rounded-campo bg-superficie-alta px-4 py-2 text-sm font-semibold text-neutral-500"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            <span className="hidden sm:inline">Carrinho</span>
-            <span className="rounded-full bg-borda px-1.5 text-[11px]">0</span>
-          </button>
+          {acessoCarrinho ?? (
+            <a
+              href="/carrinho"
+              aria-label="Carrinho"
+              className="ml-1 flex h-11 w-11 items-center justify-center rounded-campo text-branco transition hover:bg-superficie-alta"
+            >
+              <ShoppingBag className="h-5 w-5" />
+            </a>
+          )}
         </nav>
       </div>
     </header>

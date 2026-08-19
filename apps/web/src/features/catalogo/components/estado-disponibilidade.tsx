@@ -1,9 +1,12 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { WifiOff } from 'lucide-react';
 import { Button } from '@napo/ui/components/button';
 import { SeletorQuantidade } from '@napo/ui/components/seletor-quantidade';
 import { cn } from '@napo/ui/lib/cn';
+
+import { useCarrinho } from '@/lib/carrinho/provider';
 
 import { estadoDoProduto, formatarDiaMes } from '../disponibilidade-view';
 import { useDisponibilidade } from './disponibilidade-provider';
@@ -18,6 +21,17 @@ import { useDisponibilidade } from './disponibilidade-provider';
  */
 export function EstadoDisponibilidade({ produtoId }: { produtoId: string }) {
   const { estado, trocarFornada } = useDisponibilidade();
+  const { adicionar } = useCarrinho();
+  const [quantidade, setQuantidade] = useState(1);
+  const [adicionado, setAdicionado] = useState(false);
+
+  // O "Adicionado ✓" é feedback passageiro; o registro durável é o contador do
+  // cabeçalho, que sobe na hora. Reverte sozinho para o próximo add ser claro.
+  useEffect(() => {
+    if (!adicionado) return;
+    const t = setTimeout(() => setAdicionado(false), 2200);
+    return () => clearTimeout(t);
+  }, [adicionado]);
 
   if (estado.status === 'carregando') {
     return <div className="mt-5 h-[70px] animate-pulse rounded-campo bg-superficie-alta" aria-hidden />;
@@ -64,16 +78,31 @@ export function EstadoDisponibilidade({ produtoId }: { produtoId: string }) {
     );
   }
 
+  // A quantidade nunca passa do teto da fornada — o seletor já limita, e o
+  // clamp cobre o caso de a fornada ter encolhido desde a última renderização.
+  const aoAdicionar = () => {
+    adicionar(produtoId, Math.min(quantidade, st.quantidade));
+    setAdicionado(true);
+  };
+
   return (
     <div className="mt-5">
       <div className="flex items-center gap-2">
-        <SeletorQuantidade valor={1} max={st.quantidade} disabled />
-        <Button disabled size="sm" className="flex-1 bg-superficie-alta font-semibold text-neutral-500">
+        <SeletorQuantidade valor={quantidade} max={st.quantidade} onChange={setQuantidade} />
+        <Button size="sm" largura="natural" onClick={aoAdicionar} className="flex-1 font-semibold">
           Adicionar
         </Button>
       </div>
-      <p className={cn('mt-2.5 font-mono text-xs', st.escasso ? 'text-amarelo' : 'text-texto-suave')}>
-        {st.quantidade} disponíveis{st.escasso ? ' — última chamada' : ''}
+      <p
+        className={cn(
+          'mt-2.5 font-mono text-xs',
+          adicionado || st.escasso ? 'text-amarelo' : 'text-texto-suave',
+        )}
+        aria-live="polite"
+      >
+        {adicionado
+          ? 'Adicionado ao carrinho ✓'
+          : `${st.quantidade} disponíveis${st.escasso ? ' — última chamada' : ''}`}
       </p>
     </div>
   );
