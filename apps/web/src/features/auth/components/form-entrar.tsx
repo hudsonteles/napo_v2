@@ -122,9 +122,19 @@ export function FormEntrar({ proximo, erro }: { proximo: string | null; erro: st
     >
       <form
         className="space-y-4"
+        noValidate
         onSubmit={(evento) => {
           evento.preventDefault();
-          void enviarLink(email);
+          const valor = email.trim();
+          if (!valor) {
+            setErroEmail('Informe seu e-mail.');
+            return;
+          }
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) {
+            setErroEmail('E-mail inválido — confira e tente de novo.');
+            return;
+          }
+          void enviarLink(valor);
         }}
       >
         <div className="space-y-2">
@@ -132,13 +142,15 @@ export function FormEntrar({ proximo, erro }: { proximo: string | null; erro: st
           <Input
             id="email"
             type="email"
-            required
             autoComplete="email"
             placeholder="voce@email.com"
             value={email}
             aria-invalid={erroEmail !== null}
             aria-describedby={erroEmail ? 'erro-email' : undefined}
-            onChange={(evento) => setEmail(evento.target.value)}
+            onChange={(evento) => {
+              setEmail(evento.target.value);
+              if (erroEmail) setErroEmail(null);
+            }}
           />
           {erroEmail ? (
             <p id="erro-email" role="alert" className="text-sm text-erro">

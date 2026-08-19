@@ -67,6 +67,7 @@ export function FormValidarTelefone({
   const [enviadoPara, setEnviadoPara] = useState('');
   const [restam, setRestam] = useState(0);
   const [carregando, setCarregando] = useState(false);
+  const [erroNome, setErroNome] = useState<string | null>(null);
   const [erroCampo, setErroCampo] = useState<string | null>(null);
 
   // O contador aparece sempre, mesmo antes de esgotar: sem ele a pessoa clica em
@@ -78,8 +79,22 @@ export function FormValidarTelefone({
   }, [restam]);
 
   async function pedirCodigo() {
-    setCarregando(true);
+    // Validação inline (ARCHITECTURE §7.1): erro do campo aparece abaixo dele, em
+    // vermelho — nunca a bolha nativa do HTML5, que o `noValidate` do form desliga.
+    setErroNome(null);
     setErroCampo(null);
+    let invalido = false;
+    if (!nome.trim()) {
+      setErroNome('Informe seu nome.');
+      invalido = true;
+    }
+    if (telefone.replace(/\D/g, '').length !== 11) {
+      setErroCampo('Informe um celular com DDD, no formato (61) 99999-9999.');
+      invalido = true;
+    }
+    if (invalido) return;
+
+    setCarregando(true);
 
     const { ok, corpo } = await enviarJson('/api/otp/enviar', { telefone, nome });
     setCarregando(false);
@@ -194,6 +209,7 @@ export function FormValidarTelefone({
     >
       <form
         className="space-y-4"
+        noValidate
         onSubmit={(evento) => {
           evento.preventDefault();
           void pedirCodigo();
@@ -203,18 +219,26 @@ export function FormValidarTelefone({
           <Label htmlFor="nome">Seu nome</Label>
           <Input
             id="nome"
-            required
             autoComplete="name"
             value={nome}
-            onChange={(evento) => setNome(evento.target.value)}
+            aria-invalid={erroNome !== null}
+            aria-describedby={erroNome ? 'erro-nome' : undefined}
+            onChange={(evento) => {
+              setNome(evento.target.value);
+              if (erroNome) setErroNome(null);
+            }}
           />
+          {erroNome ? (
+            <p id="erro-nome" role="alert" className="text-sm text-erro">
+              {erroNome}
+            </p>
+          ) : null}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="telefone">Celular com WhatsApp</Label>
           <Input
             id="telefone"
-            required
             inputMode="tel"
             autoComplete="tel-national"
             placeholder="(61) 99999-9999"
@@ -222,7 +246,10 @@ export function FormValidarTelefone({
             value={telefone}
             aria-invalid={erroCampo !== null}
             aria-describedby={erroCampo ? 'erro-telefone' : undefined}
-            onChange={(evento) => setTelefone(mascaraDeCelular(evento.target.value))}
+            onChange={(evento) => {
+              setTelefone(mascaraDeCelular(evento.target.value));
+              if (erroCampo) setErroCampo(null);
+            }}
           />
           {erroCampo ? (
             <p id="erro-telefone" role="alert" className="text-sm text-erro">

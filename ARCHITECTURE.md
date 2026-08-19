@@ -329,6 +329,22 @@ Tudo persistido em `timestamptz` **UTC**. **Toda** decisão de data de negócio 
   preço e disponibilidade. Preço e disponibilidade marcados são sempre os mesmos exibidos na tela
   (NAPO-003 RN9) — divergência é motivo de penalização, não de ranking.
 
+### 7.4 Formulários e validação de campo
+
+> Decisão do PM em 2026-08-19 (durante o Gate Visual B do NAPO-006). Vale para **todo o sistema**.
+
+- **Erro de validação é sempre inline, nunca a bolha nativa do HTML5.** Todo erro de campo aparece
+  **abaixo do campo, em vermelho** (`text-erro`, `role="alert"`), com `aria-invalid` no input e
+  `aria-describedby` apontando para a mensagem. A caixa cinza do navegador quebra a identidade preta-e-amarela
+  e some sozinha — o cliente pode pagar sem ter lido.
+- **`<form noValidate>` é obrigatório.** Desliga a validação nativa do HTML5 na origem. Não use
+  `required`, `pattern`, `min`/`max`, `minlength` como mecanismo de validação **bloqueante/visível** — a
+  validação mora em JS (checagem explícita ou Zod) e dispara o erro inline. `type="email"`/`inputMode` continuam
+  válidos como **dica de teclado**, não como validação.
+- **Padrão de referência:** o `<Campo erro=…>` de `features/enderecos` e o slot
+  `{erro ? <p role="alert" className="text-sm text-erro">…</p> : null}` dos formulários de auth. Todo formulário
+  novo segue esse padrão; nenhum formulário volta a depender da validação nativa.
+
 ---
 
 ## 8. Comportamento Esperado do Agente
