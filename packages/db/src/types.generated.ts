@@ -154,6 +154,7 @@ export type Database = {
           limite_ajuste_pin_m: number
           limite_ocupacao_massa_pct: number
           lng_cozinha: number
+          pagamento_minutos: number
           raio_km: number
           reserva_minutos: number
           sub_teto_massa_dia: number
@@ -173,6 +174,7 @@ export type Database = {
           limite_ajuste_pin_m?: number
           limite_ocupacao_massa_pct?: number
           lng_cozinha?: number
+          pagamento_minutos?: number
           raio_km?: number
           reserva_minutos?: number
           sub_teto_massa_dia?: number
@@ -192,6 +194,7 @@ export type Database = {
           limite_ajuste_pin_m?: number
           limite_ocupacao_massa_pct?: number
           lng_cozinha?: number
+          pagamento_minutos?: number
           raio_km?: number
           reserva_minutos?: number
           sub_teto_massa_dia?: number
@@ -533,6 +536,192 @@ export type Database = {
             columns: ["produto_id"]
             isOneToOne: false
             referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pagamento_eventos: {
+        Row: {
+          corpo: Json | null
+          created_at: string
+          detalhe: string | null
+          id: string
+          mp_payment_id: string | null
+          pedido_id: string | null
+          resultado: Database["public"]["Enums"]["resultado_evento_pagamento"]
+          updated_at: string
+        }
+        Insert: {
+          corpo?: Json | null
+          created_at?: string
+          detalhe?: string | null
+          id?: string
+          mp_payment_id?: string | null
+          pedido_id?: string | null
+          resultado: Database["public"]["Enums"]["resultado_evento_pagamento"]
+          updated_at?: string
+        }
+        Update: {
+          corpo?: Json | null
+          created_at?: string
+          detalhe?: string | null
+          id?: string
+          mp_payment_id?: string | null
+          pedido_id?: string | null
+          resultado?: Database["public"]["Enums"]["resultado_evento_pagamento"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pagamento_eventos_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pedido_itens: {
+        Row: {
+          created_at: string
+          custo_unitario_snapshot: number | null
+          id: string
+          nome_snapshot: string
+          pedido_id: string
+          preco_unitario_snapshot: number
+          produto_id: string
+          quantidade: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custo_unitario_snapshot?: number | null
+          id?: string
+          nome_snapshot: string
+          pedido_id: string
+          preco_unitario_snapshot: number
+          produto_id: string
+          quantidade: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custo_unitario_snapshot?: number | null
+          id?: string
+          nome_snapshot?: string
+          pedido_id?: string
+          preco_unitario_snapshot?: number
+          produto_id?: string
+          quantidade?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedido_itens_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedido_itens_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pedidos: {
+        Row: {
+          atividade_fiscal: Database["public"]["Enums"]["atividade_fiscal"]
+          canal: Database["public"]["Enums"]["canal_pedido"]
+          created_at: string
+          dia_entrega: string
+          endereco_id: string | null
+          endereco_snapshot: Json
+          expira_em: string
+          forma_pagamento: string | null
+          frete_centavos: number
+          id: string
+          mp_payment_id: string | null
+          mp_preference_id: string | null
+          numero: number
+          pago_em: string | null
+          profile_id: string
+          reserva_id: string | null
+          status: Database["public"]["Enums"]["status_pedido"]
+          subtotal_centavos: number
+          total_centavos: number
+          updated_at: string
+          veredito: Database["public"]["Enums"]["veredito_viabilidade"] | null
+        }
+        Insert: {
+          atividade_fiscal?: Database["public"]["Enums"]["atividade_fiscal"]
+          canal?: Database["public"]["Enums"]["canal_pedido"]
+          created_at?: string
+          dia_entrega: string
+          endereco_id?: string | null
+          endereco_snapshot: Json
+          expira_em: string
+          forma_pagamento?: string | null
+          frete_centavos: number
+          id?: string
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
+          numero?: number
+          pago_em?: string | null
+          profile_id: string
+          reserva_id?: string | null
+          status?: Database["public"]["Enums"]["status_pedido"]
+          subtotal_centavos: number
+          total_centavos: number
+          updated_at?: string
+          veredito?: Database["public"]["Enums"]["veredito_viabilidade"] | null
+        }
+        Update: {
+          atividade_fiscal?: Database["public"]["Enums"]["atividade_fiscal"]
+          canal?: Database["public"]["Enums"]["canal_pedido"]
+          created_at?: string
+          dia_entrega?: string
+          endereco_id?: string | null
+          endereco_snapshot?: Json
+          expira_em?: string
+          forma_pagamento?: string | null
+          frete_centavos?: number
+          id?: string
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
+          numero?: number
+          pago_em?: string | null
+          profile_id?: string
+          reserva_id?: string | null
+          status?: Database["public"]["Enums"]["status_pedido"]
+          subtotal_centavos?: number
+          total_centavos?: number
+          updated_at?: string
+          veredito?: Database["public"]["Enums"]["veredito_viabilidade"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_endereco_id_fkey"
+            columns: ["endereco_id"]
+            isOneToOne: false
+            referencedRelation: "enderecos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedidos_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedidos_reserva_id_fkey"
+            columns: ["reserva_id"]
+            isOneToOne: false
+            referencedRelation: "reservas"
             referencedColumns: ["id"]
           },
         ]
@@ -908,11 +1097,32 @@ export type Database = {
         | "avela"
         | "peixe"
         | "crustaceos"
+      atividade_fiscal: "congelado_industrializado" | "fresca_balcao"
+      canal_pedido: "site" | "balcao" | "whatsapp"
+      resultado_evento_pagamento:
+        | "confirmado"
+        | "duplicado"
+        | "assinatura_invalida"
+        | "valor_divergente"
+        | "pagamento_nao_aprovado"
+        | "pedido_desconhecido"
+        | "erro"
+      status_pedido:
+        | "aguardando_pagamento"
+        | "pago"
+        | "expirado"
+        | "em_producao"
+        | "pronto"
+        | "em_rota"
+        | "entregue"
+        | "cancelado"
+        | "estornado"
       status_reserva: "ativa" | "consumida" | "expirada" | "cancelada"
       tipo_consentimento: "termos" | "privacidade" | "marketing"
       tipo_excecao_area: "bloqueio" | "liberacao"
       tipo_excecao_calendario: "sem_producao" | "sem_entrega" | "entrega_extra"
       user_role: "cliente" | "atendente" | "cozinha" | "gerente" | "admin"
+      veredito_viabilidade: "viavel" | "cutoff_vencido" | "sem_vaga"
     }
     CompositeTypes: {
       [_ in never]: never

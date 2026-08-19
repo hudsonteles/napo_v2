@@ -34,7 +34,7 @@
 Arquivos: `packages/core/src/carrinho/{carrinho,dia,tipos,index}.ts`, `packages/core/src/index.ts` · Testes: T2, T13, T14, T19, T32 · Depende: — · Paralelo: B, E · Est: 45min · Agente: inline · `[x]`
 
 ### Bloco B — Schema e RLS
-Arquivos: `supabase/migrations/0013_pedidos.sql` · Testes (pgTAP): T17, T22, T23, T24 · Depende: — · Paralelo: A, E · Est: 60min · Agente: `general-purpose` + persona `security-auditor` · `[ ]`
+Arquivos: `supabase/migrations/0013_pedidos.sql` · Testes (pgTAP): T17, T22, T23, T24 · Depende: — · Paralelo: A, E · Est: 60min · Agente: inline (paralelismo declarado impossível — ver Decisões) · `[x]`
 
 ### Bloco C — Funções SQL ⚠️ ordem interna obrigatória
 Arquivos: `supabase/migrations/0014_pedidos_funcoes.sql` · Testes (pgTAP): **T33, T34 primeiro**, depois T9, T10, T11, T15, T35 · Depende: B · Est: 75min · Agente: `general-purpose` + persona `security-auditor` · `[ ]`
@@ -103,3 +103,7 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco A — `montarTotais` devolve `totalCentavos: null` quando o frete é `null`.** Total sem frete conhecido não é total; somar zero calado é o mesmo erro de frete grátis silencioso que a RN18 proíbe.
 - **Bloco A — quantidade fracionária cai junto com zero e negativa em `normalizarItens`.** `1.5` pediria à reserva uma vaga que o forno não sabe produzir.
 - **Bloco A — `conferirPrecos` trata queda de preço como divergência.** O pedido precisa registrar que o valor mudou entre a vitrine e a cobrança, para cima ou para baixo.
+- **Paralelismo declarado impossível nesta execução** (`AGENTS.md` §2 item 9). As instruções de sessão proíbem disparar subagentes sem pedido explícito do PM; A‖B‖E e D‖F rodam sequencialmente, inline. Custo: tempo de relógio.
+- **Bloco B — `INSERT`/`UPDATE` de `pedidos` revogados de `authenticated`, não regulados por política.** A RN17 fala em "cliente cria os próprios pedidos"; uma política `with check (profile_id = auth.uid())` daria isolamento correto e cobrança errada — o cliente escolheria o próprio `total_centavos`. Pedido nasce e muda por servidor.
+- **Bloco B — `pagamento_eventos` ganhou política `using (false)` explícita.** O invariante do NAPO-001 exige política em toda tabela; ausência é indistinguível de esquecimento, e um `grant` futuro encontraria a tabela aberta.
+- **Bloco B — `pedidos_total_confere` e `pedidos_pago_tem_pagamento` como `CHECK`.** Total divergente e pedido pago sem prova de pagamento passam a ser impossíveis, não improváveis — mesmo critério da RN2 do NAPO-003.
