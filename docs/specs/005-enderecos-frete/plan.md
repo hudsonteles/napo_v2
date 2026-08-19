@@ -69,6 +69,9 @@ Arquivos: `features/enderecos/services/enderecos.ts`, `features/enderecos/index.
 ### Bloco G — UI: Dialog, régua, card e lista
 Arquivos: `packages/ui/src/components/dialog.tsx`, `features/enderecos/components/{regua-distancia,card-endereco}.tsx`, `app/(conta)/conta/enderecos/page.tsx` · Testes: T5, T27 (tela) + critérios visuais 1, 2, 3, 6 · Depende: F · Est: 80min · Agente: frontend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
 
+### Bloco I — Etapa de confirmação de posição (drift)
+Arquivos: `app/api/enderecos/posicao/route.ts`, `features/enderecos/components/{mapa-confirmacao,etapa-posicao}.tsx`, `formulario-endereco.tsx`, as duas páginas de cadastro/edição, `schema.ts`, `services/enderecos.ts` · Testes: T24 (reescrito), T28, T29 + critérios visuais 4 e 5 (reescritos) · Depende: H · Est: 90min · Agente: frontend-specialist + backend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
+
 ### Bloco H — UI: mapa e formulário
 Arquivos: `features/enderecos/components/{mapa-pin,formulario-endereco}.tsx`, `app/(conta)/conta/enderecos/novo/page.tsx`, `app/(conta)/conta/enderecos/[id]/page.tsx`, `apps/web/package.json` · Testes: T8, T10, T11 + critérios visuais 4, 5, 6 · Depende: F, G · Est: 90min · Agente: frontend-specialist · `[~]` (código verde; aguarda Gate Visual B do PM)
 
@@ -112,6 +115,10 @@ Só bloqueiam se o modo aprovado for `com checkpoints`.
 - **`export * from './frete'` entrou no barrel já no bloco B** (o mapa previa a modificação de `core/index.ts` no bloco C) — bloco tem de fechar consumível de fora, senão o gate valida código inalcançável.
 - **Mapa sem `mapId` e com `Marker` clássico** — `mapId` não registrado no console faz o Google recusar o estilo e a div fica em branco; `AdvancedMarkerElement` exige Map ID registrado, que é passo de console e vira dependência externa nova. Trocar depois é uma linha.
 - **Campos dependentes do CEP viram esqueleto durante a busca** — estava no design §4.3 ("demais campos travados até responder") e no estado 2 do preview; a primeira implementação só travou o próprio CEP, e o que a pessoa digitasse na espera era sobrescrito sem aviso. Encontrado pelo PM no Gate Visual B.
+- **Drift aprovado em 2026-08-18: o mapa vira etapa própria** — ver `drift.md`. O `<MapaPin>` arrastável foi substituído por `<MapaConfirmacao>` com pin fixo no centro, e a página única virou duas etapas.
+- **`gestureHandling: 'greedy'` na etapa 2** — `cooperative` exige dois dedos, e ali mover o mapa é a ação principal, não um efeito colateral de rolagem.
+- **O mapa emite no evento `idle`, não em `center_changed`** — este dispara a cada quadro do arrasto, e cada disparo vira recálculo na tela.
+- **`ResultadoDoCadastro` foi removido** — a distância e o frete agora aparecem na etapa 2, **antes** da decisão, que era o que o design §4.5 pedia desde o começo; repeti-los depois de salvar seria a mesma informação duas vezes, tarde.
 - **RN3/T11 vive no schema Zod compartilhado, não em `packages/core`** — é regra do contrato de entrada, e o `superRefine` a aplica no formulário e na rota de uma vez; duas validações do mesmo endereço divergem no primeiro campo novo.
 - **O frete aparece DEPOIS de salvar, não antes** — a medição é do servidor (RN5) e só existe após o POST; o preview mostrava a barra preenchida porque mockup não tem servidor. O endereço fora de área é salvo e o aviso é informativo, como manda a RN9 — não é um gate de confirmação.
 - **`@googlemaps/js-api-loader` v2 usa `setOptions`/`importLibrary`; a classe `Loader` está deprecada** — o design §6.1 nomeou a biblioteca, não a API.

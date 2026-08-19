@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Info, LoaderCircle } from 'lucide-react';
 
-import { formatarReais, type Coordenada } from '@napo/core';
+import type { Coordenada } from '@napo/core';
 import { Button } from '@napo/ui/components/button';
 import { Card } from '@napo/ui/components/card';
 import { Checkbox } from '@napo/ui/components/checkbox';
@@ -14,13 +14,20 @@ import { Input } from '@napo/ui/components/input';
 import { Label } from '@napo/ui/components/label';
 import { toast } from '@napo/ui/components/toaster';
 
-import { esquemaEndereco, exigeComplemento, type Endereco } from '../schema';
+import {
+  esquemaEndereco,
+  exigeComplemento,
+  type Endereco,
+  type PosicaoAvaliada,
+} from '../schema';
+import type { ConfigDeExibicao } from './etapa-posicao';
 
-// O mapa carrega um script externo de ~200 kB: fora do bundle inicial, e sem
-// SSR porque a Maps JS API só existe no navegador (ARCHITECTURE §7.2).
-const MapaPin = dynamic(() => import('./mapa-pin').then((m) => m.MapaPin), {
+// A etapa 2 carrega a Maps JS API (~200 kB): fora do bundle inicial, e sem SSR
+// porque a API só existe no navegador (ARCHITECTURE §7.2). Quem abre o cadastro
+// e desiste na etapa 1 nunca paga esse download.
+const EtapaPosicao = dynamic(() => import('./etapa-posicao').then((m) => m.EtapaPosicao), {
   ssr: false,
-  loading: () => <div className="h-56 animate-pulse rounded-campo bg-superficie-alta sm:h-64" />,
+  loading: () => <div className="mt-6 h-96 animate-pulse rounded-card bg-superficie-alta" />,
 });
 
 /**
@@ -36,9 +43,6 @@ function Esqueleto() {
     <div className="h-12 w-full animate-pulse rounded-campo border border-borda bg-superficie-alta/60 motion-reduce:animate-none" />
   );
 }
-
-/** Centro de Brasília — só o enquadramento inicial quando não há coordenada ainda. */
-const CENTRO_BRASILIA: Coordenada = { lat: -15.7939, lng: -47.8828 };
 
 type Campos = {
   apelido: string;
@@ -67,15 +71,23 @@ const VAZIO: Campos = {
 };
 
 /**
- * Cadastro e edição de endereço.
+ * Cadastro e edição de endereço, em duas etapas (drift.md).
  *
- * É página, não modal: o fluxo tem CEP, sete campos e um mapa, e em celular
- * arrastar um pin dentro de overlay rola a página (design §4.5).
+ * Etapa 1 é o texto; etapa 2 é a confirmação da posição. A separação não é
+ * estética: apresentado como elemento opcional de uma página cheia, o mapa não
+ * é usado — e pin no meio da quadra é viagem perdida numa rota de dez paradas.
+ * Confirmar a posição precisa **ser a tarefa**.
  *
- * O mapa entra **depois** do número, e não no topo: a coordenada só existe
- * depois que o número existe (RN4).
+ * É página, não modal: em celular, mapa dentro de overlay é armadilha de scroll
+ * (design §4.5).
  */
-export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
+export function FormularioEndereco({
+  endereco,
+  config,
+}: {
+  endereco?: Endereco;
+  config: ConfigDeExibicao;
+}) {
   const router = useRouter();
   const [salvando, iniciarSalvamento] = useTransition();
 
@@ -99,10 +111,9 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [modoManual, setModoManual] = useState(false);
   const [erros, setErros] = useState<Record<string, string>>({});
-  const [coordenada, setCoordenada] = useState<Coordenada | null>(
-    endereco ? { lat: endereco.lat, lng: endereco.lng } : null,
-  );
-  const [salvo, setSalvo] = useState<Endereco | null>(null);
+  // `null` = etapa 1 (texto). Preenchido = etapa 2 (confirmar no mapa).
+  const [posicao, setPosicao] = useState<PosicaoAvaliada | null>(null);
+  const [avancando, iniciarAvanco] = useTransition();
 
   const atualizar = (campo: keyof Campos, valor: string | boolean) =>
     setCampos((atual) => ({ ...atual, [campo]: valor }));
@@ -147,8 +158,9 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
     }
   }
 
-  function salvar() {
-    const entrada = {
+  /** Campos → contrato validado, ou `null` com os erros já na tela. */
+  function entradaValidada(coordenada: Coordenada | null) {
+    const conferido = esquemaEndereco.safeParse({
       apelido: campos.apelido,
       cep: campos.cep.replace(/\D/g, ''),
       logradouro: campos.logradouro,
@@ -161,27 +173,63 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
       lat: coordenada?.lat ?? null,
       lng: coordenada?.lng ?? null,
       padrao: campos.padrao,
-    };
+    });
 
-    // Mesma validação que o servidor roda (RN3, T11): o schema é um só.
-    const conferido = esquemaEndereco.safeParse(entrada);
     if (!conferido.success) {
       setErros(
         Object.fromEntries(
           conferido.error.issues.map((i) => [String(i.path[0] ?? 'geral'), i.message]),
         ),
       );
-      return;
+      return null;
     }
 
     setErros({});
+    return conferido.data;
+  }
+
+  /**
+   * Etapa 1 → 2: o servidor geocodifica e mede **sem gravar** (drift.md).
+   *
+   * A coordenada não vai daqui: quem decide onde o endereço fica é a
+   * geocodificação, e é dela que a etapa 2 parte.
+   */
+  function avancar() {
+    const entrada = entradaValidada(null);
+    if (!entrada) return;
+
+    iniciarAvanco(async () => {
+      const resposta = await fetch('/api/enderecos/posicao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entrada),
+      });
+
+      const corpo = await resposta.json();
+
+      if (!resposta.ok || !corpo.success) {
+        toast.error(corpo.error ?? 'Não foi possível localizar esse endereço.');
+        return;
+      }
+
+      setPosicao(corpo.data as PosicaoAvaliada);
+    });
+  }
+
+  /** Etapa 2: grava com a coordenada confirmada. O servidor remede — RN6. */
+  function confirmar(coordenada: Coordenada) {
+    const entrada = entradaValidada(coordenada);
+    if (!entrada) return;
 
     iniciarSalvamento(async () => {
-      const resposta = await fetch(endereco ? `/api/enderecos/${endereco.id}` : '/api/enderecos', {
-        method: endereco ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(conferido.data),
-      });
+      const resposta = await fetch(
+        endereco ? `/api/enderecos/${endereco.id}` : '/api/enderecos',
+        {
+          method: endereco ? 'PATCH' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(entrada),
+        },
+      );
 
       const corpo = await resposta.json();
 
@@ -190,14 +238,38 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
         return;
       }
 
-      // O resultado da medição só existe depois de salvar — é aqui que o cliente
-      // descobre a distância, o frete e se a casa entrega lá (RN9).
-      setSalvo(corpo.data as Endereco);
+      const salvo = corpo.data as Endereco;
+      toast.success(
+        salvo.atendido
+          ? 'Endereço salvo.'
+          : 'Endereço salvo — ainda não entregamos nessa região, mas guardamos ele.',
+      );
+      router.push('/conta/enderecos');
       router.refresh();
     });
   }
 
-  if (salvo) return <ResultadoDoCadastro endereco={salvo} />;
+  const enderecoEmUmaLinha = [
+    campos.logradouro,
+    campos.complemento,
+    campos.bairro && `— ${campos.bairro}`,
+    campos.cep,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  if (posicao) {
+    return (
+      <EtapaPosicao
+        endereco={enderecoEmUmaLinha}
+        posicao={posicao}
+        config={config}
+        salvando={salvando}
+        onConfirmar={confirmar}
+        onVoltar={() => setPosicao(null)}
+      />
+    );
+  }
 
   return (
     <Card className="mt-6 p-5 sm:p-6 sm:shadow-none">
@@ -362,19 +434,6 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
         </div>
       )}
 
-      {/* O mapa vem DEPOIS do número: a coordenada só existe depois dele (RN4). */}
-      <div className="mt-6">
-        <div className="mb-2 flex items-center justify-between">
-          <p className="text-sm font-medium">Confirme no mapa onde a entrega chega</p>
-          <span className="font-mono text-[11px] text-texto-suave">arraste o pin se precisar</span>
-        </div>
-        <MapaPin
-          centro={coordenada ?? CENTRO_BRASILIA}
-          original={endereco ? { lat: endereco.lat, lng: endereco.lng } : null}
-          onMover={setCoordenada}
-        />
-      </div>
-
       <label className="mt-5 flex items-center gap-2.5 text-sm">
         <Checkbox
           checked={campos.padrao}
@@ -384,80 +443,11 @@ export function FormularioEndereco({ endereco }: { endereco?: Endereco }) {
       </label>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button size="sm" largura="natural" disabled={salvando || buscandoCep} onClick={salvar}>
-          {salvando ? 'Salvando…' : 'Salvar endereço'}
+        <Button size="sm" largura="natural" disabled={avancando || buscandoCep} onClick={avancar}>
+          {avancando ? 'Localizando…' : 'Continuar'}
         </Button>
         <Button asChild variant="ghost" size="sm" largura="natural">
           <Link href="/conta/enderecos">Cancelar</Link>
-        </Button>
-      </div>
-    </Card>
-  );
-}
-
-/**
- * O que o cliente vê depois de salvar: a distância medida, a faixa e o frete —
- * ou o aviso honesto de que a casa ainda não chega lá (RN9).
- *
- * O endereço **já está salvo** nos dois casos: fora de área é lead, não erro, e
- * é a única fonte de dado sobre demanda em região não atendida.
- */
-function ResultadoDoCadastro({ endereco }: { endereco: Endereco }) {
-  return (
-    <Card className="mt-6 p-5 sm:p-6 sm:shadow-none">
-      {/* Barra de resumo do frete: markup cru declarado no design §4.4.4 — bloco
-          de dado único que não se repete em outra tela. */}
-      {endereco.atendido ? (
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-campo border border-borda-forte bg-superficie-alta px-5 py-4">
-          <div>
-            <p className="font-mono text-[11px] tracking-widest text-texto-suave">
-              DA COZINHA ATÉ AQUI
-            </p>
-            <p className="mt-0.5 text-lg font-semibold tabular-nums">
-              {endereco.distanciaEstimada ? '~' : ''}
-              {String(endereco.distanciaKm).replace('.', ',')} km
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-texto-suave">frete grátis acima de {formatarReais(15000)}</p>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-campo border border-dashed border-borda-forte bg-superficie-alta/50 px-5 py-4">
-          <div>
-            <p className="font-mono text-[11px] tracking-widest text-texto-suave">
-              DA COZINHA ATÉ AQUI
-            </p>
-            <p className="mt-0.5 text-lg font-semibold tabular-nums text-texto-suave">
-              {String(endereco.distanciaKm).replace('.', ',')} km
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm font-semibold">ainda não entregamos aí</p>
-            <p className="text-xs text-texto-suave">seu endereço fica salvo</p>
-          </div>
-        </div>
-      )}
-
-      {!endereco.atendido && (
-        <p className="mt-4 text-sm text-texto-suave">
-          Guardamos o endereço para saber onde tem gente esperando — é assim que a área de entrega
-          cresce. Quando chegarmos em {endereco.bairro ?? endereco.cidade}, você é avisado.
-        </p>
-      )}
-
-      {endereco.precisaConferencia && (
-        <p className="mt-4 text-sm text-texto-suave">
-          Vamos conferir essa posição antes da primeira entrega.
-        </p>
-      )}
-
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Button asChild size="sm" largura="natural">
-          <Link href="/conta/enderecos">Ver meus endereços</Link>
-        </Button>
-        <Button asChild variant="ghost" size="sm" largura="natural">
-          <Link href={`/conta/enderecos/${endereco.id}`}>Corrigir endereço</Link>
         </Button>
       </div>
     </Card>

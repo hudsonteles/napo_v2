@@ -9,6 +9,7 @@ const feature = {
   desativarEndereco: vi.fn(),
   definirPadrao: vi.fn(),
   calcularFreteDoEndereco: vi.fn(),
+  avaliarPosicao: vi.fn(),
   MAX_ENDERECOS_ATIVOS: 10,
 };
 
@@ -26,6 +27,7 @@ const { GET, POST } = await import('./route');
 const { PATCH, DELETE } = await import('./[id]/route');
 const { POST: TORNAR_PADRAO } = await import('./[id]/padrao/route');
 const { POST: FRETE } = await import('../frete/route');
+const { POST: POSICAO } = await import('./posicao/route');
 
 const PERFIL = {
   id: '50000000-0000-0000-0000-000000000001',
@@ -228,5 +230,85 @@ describe('POST /api/frete', () => {
 
   it('subtotal negativo é recusado', async () => {
     expect((await pedirFrete({ enderecoId: ID, subtotalCentavos: -1 })).status).toBe(400);
+  });
+});
+
+
+describe('POST /api/enderecos/posicao — etapa 2 (drift.md)', () => {
+  const POSICAO_OK = {
+    geocodificada: { lat: -15.7565, lng: -47.885 },
+    final: { lat: -15.7565, lng: -47.885 },
+    distanciaKm: 3.4,
+    distanciaEstimada: false,
+    precisaConferencia: false,
+    atendido: true,
+    motivoNaoAtendido: null,
+    frete: {
+      freteCentavos: 600,
+      gratis: false,
+      faixa: { kmDe: 0, kmAte: 4, valorCentavos: 600 },
+      foraDeArea: false,
+      motivo: null,
+    },
+  };
+
+  const pedirPosicao = (corpo: unknown) =>
+    POSICAO(requisicao(corpo, 'http://localhost/api/enderecos/posicao'));
+
+  it('T28 — devolve distância, área e frete sem gravar nada', async () => {
+    feature.avaliarPosicao.mockResolvedValue(POSICAO_OK);
+
+    const resposta = await pedirPosicao(CORPO);
+    const corpo = await resposta.json();
+
+    expect(resposta.status).toBe(200);
+    expect(corpo.data.distanciaKm).toBe(3.4);
+    expect(corpo.data.frete.freteCentavos).toBe(600);
+    // Nenhuma linha criada: a gravação continua sendo o POST /api/enderecos.
+    expect(feature.criarEndereco).not.toHaveBeenCalled();
+    expect(corpo.data).not.toHaveProperty('id');
+  });
+
+  it('T29 — devolve o ponto sugerido, que é o que confirmar sem tocar no mapa usa', async () => {
+    feature.avaliarPosicao.mockResolvedValue(POSICAO_OK);
+
+    const corpo = await (await pedirPosicao(CORPO)).json();
+
+    expect(corpo.data.final).toEqual(POSICAO_OK.geocodificada);
+  });
+
+  it('sem geocodificação, avisa que a posição precisa de conferência', async () => {
+    feature.avaliarPosicao.mockResolvedValue({
+      ...POSICAO_OK,
+      geocodificada: null,
+      precisaConferencia: true,
+    });
+
+    const corpo = await (await pedirPosicao(CORPO)).json();
+
+    expect(corpo.data.geocodificada).toBeNull();
+    expect(corpo.data.precisaConferencia).toBe(true);
+  });
+
+  it('endereço que não dá para localizar de jeito nenhum é 422, não 500', async () => {
+    feature.avaliarPosicao.mockResolvedValue(null);
+
+    expect((await pedirPosicao(CORPO)).status).toBe(422);
+  });
+
+  it('T17 — o corpo continua sem aceitar distância', async () => {
+    feature.avaliarPosicao.mockResolvedValue(POSICAO_OK);
+
+    await pedirPosicao({ ...CORPO, distanciaKm: 0.5 });
+
+    const entrada = feature.avaliarPosicao.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(entrada).not.toHaveProperty('distanciaKm');
+  });
+
+  it('exige sessão com telefone validado', async () => {
+    carregarPerfilDaSessao.mockResolvedValue(null);
+
+    expect((await pedirPosicao(CORPO)).status).toBe(401);
+    expect(feature.avaliarPosicao).not.toHaveBeenCalled();
   });
 });

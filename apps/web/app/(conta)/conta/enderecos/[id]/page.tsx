@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
 import { FormularioEndereco } from '@/features/enderecos/components/formulario-endereco';
-import { listarEnderecos } from '@/features/enderecos';
+import { carregarConfigDeArea, listarEnderecos } from '@/features/enderecos';
 
 export const metadata: Metadata = {
   title: 'Editar endereço — Napo',
@@ -22,7 +22,8 @@ export default async function EditarEnderecoPage({
 
   // Lê da própria listagem do dono: endereço de outro cliente simplesmente não
   // está aqui, e vira 404 — não "proibido" (RN1, T16).
-  const endereco = (await listarEnderecos()).find((e) => e.id === id);
+  const [enderecos, config] = await Promise.all([listarEnderecos(), carregarConfigDeArea()]);
+  const endereco = enderecos.find((e) => e.id === id);
   if (!endereco) notFound();
 
   return (
@@ -40,7 +41,14 @@ export default async function EditarEnderecoPage({
         sozinha.
       </p>
 
-      <FormularioEndereco endereco={endereco} />
+      <FormularioEndereco
+        endereco={endereco}
+        config={{
+          raioKm: config.raioKm,
+          faixas: config.faixas,
+          limiteAjustePinM: config.limiteAjustePinM,
+        }}
+      />
     </main>
   );
 }

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import type { Coordenada, ResultadoFrete } from '@napo/core';
+
 /**
  * Contrato de entrada do endereço — o mesmo no formulário e na rota.
  *
@@ -91,4 +93,21 @@ export interface Endereco {
   atendido: boolean;
   motivoNaoAtendido: string | null;
   padrao: boolean;
+}
+
+/**
+ * Resultado da avaliação de posição da etapa 2 (drift.md).
+ *
+ * Vive aqui, e não em `services/`, pelo mesmo motivo de `Endereco`: o serviço é
+ * `server-only` e a etapa 2 é ilha de cliente.
+ */
+export interface PosicaoAvaliada {
+  geocodificada: Coordenada | null;
+  final: Coordenada;
+  distanciaKm: number;
+  distanciaEstimada: boolean;
+  precisaConferencia: boolean;
+  atendido: boolean;
+  motivoNaoAtendido: string | null;
+  frete: ResultadoFrete;
 }

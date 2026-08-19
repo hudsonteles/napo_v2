@@ -3,13 +3,18 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 import { FormularioEndereco } from '@/features/enderecos/components/formulario-endereco';
+import { carregarConfigDeArea } from '@/features/enderecos';
 
 export const metadata: Metadata = {
   title: 'Novo endereço — Napo',
   robots: { index: false, follow: false },
 };
 
-export default function NovoEnderecoPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function NovoEnderecoPage() {
+  const config = await carregarConfigDeArea();
+
   return (
     <main className="mx-auto max-w-4xl px-5 py-10 sm:px-8">
       <Link
@@ -25,7 +30,13 @@ export default function NovoEnderecoPage() {
         número”.
       </p>
 
-      <FormularioEndereco />
+      <FormularioEndereco
+        config={{
+          raioKm: config.raioKm,
+          faixas: config.faixas,
+          limiteAjustePinM: config.limiteAjustePinM,
+        }}
+      />
     </main>
   );
 }

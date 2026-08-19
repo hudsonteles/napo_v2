@@ -220,13 +220,32 @@ Então a distância é a linha reta multiplicada pelo fator configurado
 E o endereço fica com distancia_estimada = true e sinalizado na UI
 ```
 
-### T24 — Pin arrastado além do limite exige conferência
-*Cobre: RN6*
+### T24 — Mapa movido além do limite exige conferência
+*Cobre: RN6* · _reescrito pelo drift de 2026-08-18: o pin é fixo e o mapa se move_
 ```gherkin
-Dado um pin movido 1,2 km em relação ao ponto geocodificado
-Quando o endereço é salvo
+Dado que a etapa 2 abriu com o ponto que a geocodificação devolveu
+Quando o cliente move o mapa 1,2 km e confirma a localização
 Então a distância é recalculada a partir da coordenada final
 E o endereço fica com precisa_conferencia = true
+E a régua de distância anuncia o recálculo em vez de exibir o valor antigo
+```
+
+### T28 — A etapa 2 mostra o frete antes de gravar
+*Cobre: RN5, RN7* · _acrescentado pelo drift de 2026-08-18_
+```gherkin
+Dado um endereço preenchido na etapa 1
+Quando o cliente avança para a confirmação de localização
+Então o servidor devolve distância, área e frete sem gravar linha nenhuma
+E nenhum id de endereço existe até a confirmação
+```
+
+### T29 — Confirmar não depende do mapa
+*Cobre: RN6* · _acrescentado pelo drift de 2026-08-18 (design §4.7)_
+```gherkin
+Dado um cliente que não consegue operar o mapa
+Quando ele confirma sem mover nada
+Então o endereço é salvo com a coordenada da geocodificação
+E, se não houve geocodificação, fica marcado para conferência
 ```
 
 ### T25 — Borda exata do raio
@@ -263,8 +282,8 @@ Derivados do preview aprovado em 2026-08-17.
 1. O card de endereço traz a **régua de 0 a 12 km** com as três faixas marcadas e o pin do endereço na posição proporcional à distância.
 2. Endereço fora de área usa borda tracejada e texto neutro — **nenhum vermelho de erro**, e o ponto aparece além do fim da régua.
 3. Selo de padrão em amarelo sólido; selos de "distância aproximada" e "fora de área" em contorno — hierarquia visível sem ler o texto.
-4. No formulário, o mapa aparece **depois** dos campos de número e complemento, com instrução explícita de arrastar o pin.
-5. Pin deslocado exibe a linha tracejada até o ponto original e o aviso de conferência; o botão continua sendo "Salvar mesmo assim".
+4. A confirmação de posição é **etapa própria**, com indicador de passo, resumo do endereço digitado e uma única ação primária. O pin é **fixo no centro** e o mapa se move sob ele.
+5. A régua de distância fica junto da confirmação, com a faixa e o frete daquela posição. Movido além de 300 m, o número é riscado e substituído por "recalculamos ao confirmar", com o traço tracejado até o ponto original. Sem geocodificação, não há régua — nenhum número é inventado.
 6. Em viewport ≥1280 px e em 375 px, nenhum texto cortado ou sobreposto; o mapa tem altura fixa proporcional e nunca ocupa a tela inteira.
 
 ---
@@ -272,7 +291,7 @@ Derivados do preview aprovado em 2026-08-17.
 ## Checklist de Conclusão
 
 ### Testes
-- [ ] T1–T27 verdes
+- [ ] T1–T29 verdes
 - [ ] `packages/core` sem rede nem banco nos testes de frete/distância/área
 - [ ] pgTAP cobrindo T16 e T19
 

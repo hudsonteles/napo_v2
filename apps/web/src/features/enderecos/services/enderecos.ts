@@ -9,7 +9,7 @@ import {
   type ResultadoFrete,
 } from '@napo/core';
 
-import type { Endereco, EntradaEndereco } from '../schema';
+import type { Endereco, EntradaEndereco, PosicaoAvaliada } from '../schema';
 import { geocodificar, medirDistancia } from './geocoding';
 import {
   atualizar,
@@ -111,6 +111,48 @@ async function posicionar(
     // Estimativa e pin muito deslocado são os dois caminhos para uma distância
     // que ninguém conferiu virar rota de entrega real.
     precisaConferencia: deslocou || medida.estimada || geocodificada === null,
+  };
+}
+
+/**
+ * Geocodifica, mede e avalia — **sem gravar** (drift.md).
+ *
+ * É o que permite a etapa de confirmação existir: sem ela a posição só seria
+ * conhecida depois de salvar, e o cliente confirmaria um ponto que não viu. Ao
+ * salvar o servidor refaz tudo, porque coordenada que volta do cliente não prova
+ * deslocamento (RN6) — a conta é de duas geocodificações por endereço, contra uma
+ * franquia de 10.000 por mês.
+ */
+export async function avaliarPosicao(entrada: EntradaEndereco): Promise<PosicaoAvaliada | null> {
+  const config = await carregarConfigDeArea();
+  const posicao = await posicionar(entrada, config);
+  if (!posicao) return null;
+
+  const area = avaliarArea({
+    distanciaKm: posicao.distanciaKm,
+    cep: entrada.cep,
+    raioKm: config.raioKm,
+    excecoes: config.excecoes,
+  });
+
+  return {
+    geocodificada: posicao.geocodificada,
+    final: posicao.final,
+    distanciaKm: posicao.distanciaKm,
+    distanciaEstimada: posicao.distanciaEstimada,
+    precisaConferencia: posicao.precisaConferencia,
+    atendido: area.atendido,
+    motivoNaoAtendido: area.motivo,
+    // Subtotal zero: a etapa mostra quanto a entrega custa naquela posição, não
+    // quanto sairia num pedido que ainda não existe.
+    frete: calcularFrete({
+      distanciaKm: posicao.distanciaKm,
+      subtotalCentavos: 0,
+      atendido: area.atendido,
+      motivoNaoAtendido: area.motivo,
+      faixas: config.faixas,
+      freteGratisCentavos: config.freteGratisCentavos,
+    }),
   };
 }
 
