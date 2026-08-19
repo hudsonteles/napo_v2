@@ -32,8 +32,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ nume
 
   const paymentId = new URL(request.url).searchParams.get('payment_id');
   if (pedido.status === 'aguardando_pagamento' && paymentId) {
-    await confirmarPeloRetorno(numero, paymentId);
-    pedido = (await lerPedidoDoDono(numero)) ?? pedido;
+    // Reconciliação é best-effort: se falhar (gateway fora, corrida de
+    // confirmação), a leitura do status ainda responde. A tela segue em
+    // "confirmando" e tenta de novo — nunca um 500 em loop na cara do cliente.
+    try {
+      await confirmarPeloRetorno(numero, paymentId);
+      pedido = (await lerPedidoDoDono(numero)) ?? pedido;
+    } catch (erro) {
+      console.error('[pedido] reconciliação falhou', { numero, erro });
+    }
   }
 
   // O UUID interno não vai para o cliente — o identificador público é o número (RN16).

@@ -17,7 +17,11 @@ import type {
 export class PortaFake implements PortaPagamento {
   async criarCobranca(input: CriarCobrancaInput): Promise<CobrancaCriada> {
     const url = new URL(input.urlRetorno);
-    url.searchParams.set('payment_id', `fake-${input.totalCentavos}`);
+    // O id carrega o valor (para o teste da RN10) E o número do pedido, para ser
+    // ÚNICO: dois pedidos de mesmo total não podem colidir no índice de
+    // idempotência (`mp_payment_id`). `parseInt` para no primeiro hífen, então a
+    // decodificação do valor em `consultarPagamento` continua valendo.
+    url.searchParams.set('payment_id', `fake-${input.totalCentavos}-${input.numeroPedido}`);
     url.searchParams.set('status', 'approved');
 
     return {
