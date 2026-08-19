@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Carrinho e checkout (NAPO-006)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+
+    <style>
+      /* Andaime do mockup — não faz parte do produto. Separa as seções desta
+         página de revisão e simula a foto do produto, que é placeholder. */
+      .foto-placeholder {
+        background:
+          radial-gradient(circle at 50% 45%, #2e2a22 0%, #1a1a1a 62%, #141414 100%);
+      }
+      .serrilha {
+        /* Recorte de ficha/canhoto — usado só na Direção A. */
+        -webkit-mask-image: radial-gradient(circle at 0 50%, transparent 7px, #000 7.5px),
+          radial-gradient(circle at 100% 50%, transparent 7px, #000 7.5px);
+        -webkit-mask-composite: source-in;
+        mask-image: radial-gradient(circle at 0 50%, transparent 7px, #000 7.5px),
+          radial-gradient(circle at 100% 50%, transparent 7px, #000 7.5px);
+        mask-composite: intersect;
+      }
+      .rotulo {
+        letter-spacing: 0.18em;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — NAPO-006 Carrinho e checkout ══
+      MODELO:            A (arquivo único, 3 telas da mesma jornada, mesma shell de cabeçalho)
+      TELAS:             /carrinho · /checkout · /pedido/[numero]
+      CATÁLOGO USADO:    <Marca>, <CabecalhoSite>, <Card>, <Button> (default|outline|ghost),
+                         <Badge>, <SeletorQuantidade>, <Dialog>, <CardEndereco>
+      A ESTENDER:        <Badge> (prop `tone` — 8 status de pedido)
+                         <Card>  (variante de aviso que BLOQUEIA o fluxo, não some sozinha)
+      NOVOS A CRIAR:     <AcessoCarrinho>    (packages/ui/src/patterns — ícone + contador no cabeçalho)
+      CORTADOS NO GATE:  <LinhaStatusPedido> — sem admin que mova status no R1, nasce no NAPO-008
+                         "Levar tudo para outra fornada" — o seletor da vitrine já cobre
+      DIREÇÃO APROVADA:  A · "Ficha da fornada" (PM em 2026-08-19, ver §C)
+      MARKUP CRU ACEITO: container raiz, grid de duas colunas do checkout, espaçamento entre cards
+      DADO DERIVADO:     dia de entrega vem do motor (RN2) · frete vem da faixa (RN18) ·
+                         prazo do pagamento vem de config_operacao.pagamento_minutos (RN7)
+      PREÇOS REAIS:      Tradicional 39,90 · Especial 45,90 · Premium 49,90 · Massa 15,00
+    -->
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         ANDAIME DE REVISÃO — navegação entre as seções desta página.
+         NÃO faz parte do produto.
+         ════════════════════════════════════════════════════════════════════ -->
+    <nav class="sticky top-0 z-50 border-b border-borda-forte bg-superficie-alta/95 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-1 px-4 py-2.5 text-xs">
+        <span class="rotulo mr-3 font-mono text-[10px] uppercase text-texto-suave">Revisão NAPO-006</span>
+        <a href="#carrinho" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">A · Carrinho</a>
+        <a href="#checkout" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">B · Checkout</a>
+        <a href="#direcoes" class="rounded-campo px-2.5 py-1 font-medium text-amarelo hover:bg-borda">C · Duas direções ⇦ decisão</a>
+        <a href="#pedido" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">D · Pedido</a>
+        <a href="#estados" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">E · Estados críticos</a>
+      </div>
+    </nav>
+
+    <!-- → <CabecalhoSite> — pattern do NAPO-003, MODIFICADO: ganha <AcessoCarrinho> -->
+    <header class="border-b border-borda bg-preto">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <!-- → <Marca variante="escura" /> -->
+        <a href="#" class="flex items-center gap-2" aria-label="Napo — início">
+          <span class="text-xl font-extrabold tracking-tight">NAP<span class="text-amarelo">O</span></span>
+        </a>
+        <nav class="hidden items-center gap-6 text-sm text-texto-suave sm:flex">
+          <a href="#" class="hover:text-branco">Sabores</a>
+          <a href="#" class="hover:text-branco">Eventos</a>
+          <a href="#" class="hover:text-branco">Como aquecer</a>
+        </nav>
+        <!-- → ✨ <AcessoCarrinho> — NOVO em packages/ui/src/patterns -->
+        <a
+          href="#carrinho"
+          class="relative flex h-11 w-11 items-center justify-center rounded-campo hover:bg-superficie-alta"
+          aria-label="Carrinho com 3 itens"
+        >
+          <i data-lucide="shopping-bag" class="h-5 w-5"></i>
+          <span
+            class="absolute right-1 top-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-amarelo px-1 font-mono text-[10px] font-bold text-preto"
+            >3</span
+          >
+        </a>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         A · /carrinho
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="carrinho" class="mx-auto max-w-6xl px-4 py-10">
+      <p class="rotulo mb-6 font-mono text-[10px] uppercase text-amarelo">A · /carrinho</p>
+
+      <h1 class="text-3xl font-extrabold tracking-tight">Seu carrinho</h1>
+
+      <div class="mt-7 grid gap-8 lg:grid-cols-[1fr_320px]">
+        <!-- → lista de <Card> · componente <ItemCarrinho> de features/pedidos -->
+        <div class="space-y-3">
+          <!-- → <Card> — item padrão -->
+          <article class="flex gap-4 rounded-card border border-borda bg-superficie p-4">
+            <div class="foto-placeholder h-20 w-20 shrink-0 rounded-campo" aria-hidden></div>
+            <div class="min-w-0 flex-1">
+              <h2 class="font-semibold">Calabresa</h2>
+              <p class="mt-0.5 font-mono text-xs text-texto-suave">Tradicional · 550 g</p>
+              <div class="mt-3 flex items-center gap-3">
+                <!-- → ♻️ <SeletorQuantidade> — o mesmo do NAPO-003, agora sem `disabled` -->
+                <div class="flex items-center gap-0.5 rounded-campo border border-borda-forte">
+                  <button class="flex h-11 w-11 items-center justify-center rounded-l-campo hover:bg-superficie-alta" aria-label="Diminuir">
+                    <i data-lucide="minus" class="h-4 w-4"></i>
+                  </button>
+                  <span class="w-8 text-center font-mono text-sm font-bold">2</span>
+                  <button class="flex h-11 w-11 items-center justify-center rounded-r-campo hover:bg-superficie-alta" aria-label="Aumentar">
+                    <i data-lucide="plus" class="h-4 w-4"></i>
+                  </button>
+                </div>
+                <!-- → <Button variant="ghost" size="sm"> -->
+                <button class="rounded-campo px-2 py-1 text-xs text-texto-suave hover:text-erro">remover</button>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-mono text-sm font-bold">R$ 79,80</p>
+              <p class="mt-0.5 font-mono text-[11px] text-texto-suave">R$ 39,90 cada</p>
+            </div>
+          </article>
+
+          <!-- → <Card> — item padrão -->
+          <article class="flex gap-4 rounded-card border border-borda bg-superficie p-4">
+            <div class="foto-placeholder h-20 w-20 shrink-0 rounded-campo" aria-hidden></div>
+            <div class="min-w-0 flex-1">
+              <h2 class="font-semibold">Peito de Peru com Gorgonzola</h2>
+              <p class="mt-0.5 font-mono text-xs text-texto-suave">Premium · 550 g</p>
+              <div class="mt-3 flex items-center gap-3">
+                <div class="flex items-center gap-0.5 rounded-campo border border-borda-forte">
+                  <button class="flex h-11 w-11 items-center justify-center rounded-l-campo hover:bg-superficie-alta" aria-label="Diminuir">
+                    <i data-lucide="minus" class="h-4 w-4"></i>
+                  </button>
+                  <span class="w-8 text-center font-mono text-sm font-bold">1</span>
+                  <button class="flex h-11 w-11 items-center justify-center rounded-r-campo hover:bg-superficie-alta" aria-label="Aumentar">
+                    <i data-lucide="plus" class="h-4 w-4"></i>
+                  </button>
+                </div>
+                <button class="rounded-campo px-2 py-1 text-xs text-texto-suave hover:text-erro">remover</button>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="font-mono text-sm font-bold">R$ 49,90</p>
+              <p class="mt-0.5 font-mono text-[11px] text-texto-suave">R$ 49,90 cada</p>
+            </div>
+          </article>
+        </div>
+
+        <!-- → <Card> — resumo -->
+        <aside class="h-fit rounded-card border border-borda bg-superficie p-5">
+          <!-- O dia é DERIVADO (RN2) e vem com o motivo. Não é seletor. -->
+          <div class="rounded-campo border border-borda-forte bg-superficie-alta p-3.5">
+            <p class="rotulo font-mono text-[10px] uppercase text-texto-suave">Entrega</p>
+            <p class="mt-1 font-bold">sexta, 22 de agosto</p>
+            <p class="mt-1.5 text-xs leading-relaxed text-texto-suave">
+              É a primeira fornada que assa todos os seus sabores.
+            </p>
+          </div>
+
+          <dl class="mt-5 space-y-2 text-sm">
+            <div class="flex justify-between">
+              <dt class="text-texto-suave">Subtotal</dt>
+              <dd class="font-mono">R$ 129,70</dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-texto-suave">Frete</dt>
+              <dd class="font-mono text-texto-suave">no próximo passo</dd>
+            </div>
+          </dl>
+
+          <!-- → <Button className="w-full"> -->
+          <button class="mt-5 flex h-12 w-full items-center justify-center gap-2 rounded-campo bg-amarelo font-bold text-preto hover:bg-amarelo-escuro">
+            Finalizar pedido <i data-lucide="arrow-right" class="h-4 w-4"></i>
+          </button>
+          <p class="mt-2.5 text-center text-[11px] leading-relaxed text-texto-suave">
+            Você entra na conta no próximo passo.
+          </p>
+        </aside>
+      </div>
+    </section>
+
+    <div class="mx-auto max-w-6xl border-t border-borda"></div>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         B · /checkout
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="checkout" class="mx-auto max-w-6xl px-4 py-10">
+      <p class="rotulo mb-6 font-mono text-[10px] uppercase text-amarelo">B · /checkout</p>
+
+      <h1 class="text-3xl font-extrabold tracking-tight">Finalizar pedido</h1>
+
+      <div class="mt-7 grid gap-8 lg:grid-cols-[1fr_340px]">
+        <div class="space-y-8">
+          <!-- ── Etapa 1: endereço ─────────────────────────────────────── -->
+          <div>
+            <h2 class="flex items-center gap-2.5 text-lg font-bold">
+              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amarelo font-mono text-xs font-bold text-preto">1</span>
+              Onde entregamos
+            </h2>
+
+            <div class="mt-4 space-y-2.5">
+              <!-- → ♻️ <CardEndereco> — de features/enderecos, composto pela PÁGINA
+                   (feature não importa feature — ARCHITECTURE.md §3.2) -->
+              <label class="flex cursor-pointer items-start gap-3 rounded-card border-2 border-amarelo bg-superficie p-4">
+                <span class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 border-amarelo">
+                  <span class="h-2 w-2 rounded-full bg-amarelo"></span>
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="flex flex-wrap items-center gap-2">
+                    <span class="font-semibold">SQN 210 Bloco C · Apto 302</span>
+                    <!-- → <Badge> -->
+                    <span class="rounded-full bg-superficie-alta px-2 py-0.5 font-mono text-[10px] text-texto-suave">padrão</span>
+                  </span>
+                  <span class="mt-1 block text-sm text-texto-suave">Asa Norte, Brasília · 70862-030</span>
+                  <span class="mt-2 block font-mono text-xs text-amarelo">3,2 km · frete R$ 6,00</span>
+                </span>
+              </label>
+
+              <!-- Endereço fora de área: visível, desabilitado e COM o motivo (RN18) -->
+              <label class="flex items-start gap-3 rounded-card border border-borda bg-superficie/40 p-4 opacity-60">
+                <span class="mt-1 h-4 w-4 shrink-0 rounded-full border-2 border-borda-forte"></span>
+                <span class="min-w-0 flex-1">
+                  <span class="font-semibold text-texto-suave">SHIS QI 15 Conjunto 4 · Casa 12</span>
+                  <span class="mt-1 block text-sm text-texto-suave">Lago Sul, Brasília · 71635-240</span>
+                  <span class="mt-2 flex items-center gap-1.5 font-mono text-xs text-texto-suave">
+                    <i data-lucide="map-pin-off" class="h-3.5 w-3.5"></i> 16,4 km · ainda não entregamos aqui
+                  </span>
+                </span>
+              </label>
+
+              <!-- → <Button variant="outline"> -->
+              <button class="flex h-11 w-full items-center justify-center gap-2 rounded-campo border border-borda-forte text-sm font-medium hover:bg-superficie-alta">
+                <i data-lucide="plus" class="h-4 w-4"></i> Cadastrar novo endereço
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Etapa 2: pagamento ────────────────────────────────────── -->
+          <div>
+            <h2 class="flex items-center gap-2.5 text-lg font-bold">
+              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amarelo font-mono text-xs font-bold text-preto">2</span>
+              Como você paga
+            </h2>
+            <p class="mt-3 text-sm leading-relaxed text-texto-suave">
+              O pagamento acontece no ambiente do Mercado Pago. Pix vem selecionado —
+              cai na hora e a fornada é confirmada na hora.
+            </p>
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+              <span class="flex items-center gap-1.5 rounded-campo border border-amarelo/40 bg-amarelo/10 px-3 py-1.5 font-mono text-xs text-amarelo">
+                <i data-lucide="zap" class="h-3.5 w-3.5"></i> Pix
+              </span>
+              <span class="rounded-campo border border-borda px-3 py-1.5 font-mono text-xs text-texto-suave">crédito</span>
+              <span class="rounded-campo border border-borda px-3 py-1.5 font-mono text-xs text-texto-suave">débito</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- → <Card> — resumo fixo (vira barra de rodapé no mobile, design §4.6) -->
+        <aside class="h-fit space-y-4 lg:sticky lg:top-20">
+          <!-- ⇩ ESTE BLOCO É A DECISÃO DA SEÇÃO C ⇩ (aqui: Direção A) -->
+          <div class="overflow-hidden rounded-card border border-amarelo/30 bg-superficie">
+            <div class="serrilha border-b border-dashed border-borda-forte bg-amarelo/5 px-5 py-4">
+              <p class="rotulo font-mono text-[10px] uppercase text-amarelo">Fornada</p>
+              <p class="mt-1.5 text-2xl font-extrabold leading-none tracking-tight">sexta, 22/08</p>
+              <p class="mt-2 text-xs leading-relaxed text-texto-suave">
+                Assada e congelada no dia. Entrega entre 14h e 20h.
+              </p>
+            </div>
+            <div class="px-5 py-4">
+              <dl class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <dt class="text-texto-suave">3 pizzas</dt>
+                  <dd class="font-mono">R$ 129,70</dd>
+                </div>
+                <div class="flex justify-between">
+                  <dt class="text-texto-suave">Frete · 3,2 km</dt>
+                  <dd class="font-mono">R$ 6,00</dd>
+                </div>
+                <div class="mt-3 flex items-baseline justify-between border-t border-borda pt-3">
+                  <dt class="font-bold">Total</dt>
+                  <dd class="font-mono text-xl font-extrabold">R$ 135,70</dd>
+                </div>
+              </dl>
+              <p class="mt-2.5 font-mono text-[11px] text-texto-suave">
+                faltam R$ 20,30 para frete grátis
+              </p>
+
+              <button class="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-campo bg-amarelo font-bold text-preto hover:bg-amarelo-escuro">
+                <i data-lucide="lock" class="h-4 w-4"></i> Pagar R$ 135,70
+              </button>
+              <p class="mt-2.5 text-center text-[11px] leading-relaxed text-texto-suave">
+                Sua vaga na fornada fica reservada por 30 minutos.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="mx-auto max-w-6xl border-t border-borda"></div>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         C · DECISÃO — duas direções para o bloco da fornada
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="direcoes" class="mx-auto max-w-6xl px-4 py-10">
+      <p class="rotulo mb-2 font-mono text-[10px] uppercase text-amarelo">C · decisão do gate</p>
+      <h2 class="text-2xl font-extrabold tracking-tight">O que o resumo do checkout coloca em primeiro lugar</h2>
+      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-texto-suave">
+        O gargalo da Napo é o forno, e o que o cliente compra não é "3 pizzas": é
+        <strong class="text-branco">uma vaga numa fornada de um dia específico</strong>. As duas
+        direções abaixo dizem coisas diferentes sobre isso.
+      </p>
+
+      <div class="mt-7 grid gap-5 md:grid-cols-2">
+        <!-- ── Direção A ── -->
+        <div>
+          <div class="mb-3 flex items-center gap-2">
+            <span class="rounded-full bg-amarelo px-2.5 py-0.5 font-mono text-[10px] font-bold text-preto">A</span>
+            <span class="text-sm font-bold">Ficha da fornada</span>
+            <span class="font-mono text-[10px] text-amarelo">— APROVADA pelo PM em 19/08</span>
+          </div>
+          <div class="overflow-hidden rounded-card border border-amarelo/30 bg-superficie">
+            <div class="serrilha border-b border-dashed border-borda-forte bg-amarelo/5 px-5 py-4">
+              <p class="rotulo font-mono text-[10px] uppercase text-amarelo">Fornada</p>
+              <p class="mt-1.5 text-2xl font-extrabold leading-none tracking-tight">sexta, 22/08</p>
+              <p class="mt-2 text-xs leading-relaxed text-texto-suave">
+                Assada e congelada no dia. Entrega entre 14h e 20h.
+              </p>
+            </div>
+            <div class="px-5 py-4">
+              <dl class="space-y-2 text-sm">
+                <div class="flex justify-between"><dt class="text-texto-suave">3 pizzas</dt><dd class="font-mono">R$ 129,70</dd></div>
+                <div class="flex justify-between"><dt class="text-texto-suave">Frete · 3,2 km</dt><dd class="font-mono">R$ 6,00</dd></div>
+                <div class="mt-3 flex items-baseline justify-between border-t border-borda pt-3">
+                  <dt class="font-bold">Total</dt><dd class="font-mono text-xl font-extrabold">R$ 135,70</dd>
+                </div>
+              </dl>
+              <button class="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-campo bg-amarelo font-bold text-preto">
+                <i data-lucide="lock" class="h-4 w-4"></i> Pagar R$ 135,70
+              </button>
+            </div>
+          </div>
+          <p class="mt-3 text-xs leading-relaxed text-texto-suave">
+            O dia vira o título, com recorte de canhoto. Reforça escassez honesta e
+            prepara o vocabulário de "fornada" que o WhatsApp (NAPO-015) vai herdar.
+            <span class="text-branco">Custo:</span> um elemento visual a mais para manter.
+          </p>
+        </div>
+
+        <!-- ── Direção B ── -->
+        <div>
+          <div class="mb-3 flex items-center gap-2">
+            <span class="rounded-full bg-superficie-alta px-2.5 py-0.5 font-mono text-[10px] font-bold text-texto-suave">B</span>
+            <span class="text-sm font-bold text-texto-suave">Resumo convencional</span>
+            <span class="font-mono text-[10px] text-texto-suave">— descartada</span>
+          </div>
+          <div class="rounded-card border border-borda bg-superficie px-5 py-4">
+            <dl class="space-y-2 text-sm">
+              <div class="flex justify-between"><dt class="text-texto-suave">3 pizzas</dt><dd class="font-mono">R$ 129,70</dd></div>
+              <div class="flex justify-between"><dt class="text-texto-suave">Frete · 3,2 km</dt><dd class="font-mono">R$ 6,00</dd></div>
+              <div class="flex justify-between"><dt class="text-texto-suave">Entrega</dt><dd class="font-mono">sex, 22/08</dd></div>
+              <div class="mt-3 flex items-baseline justify-between border-t border-borda pt-3">
+                <dt class="font-bold">Total</dt><dd class="font-mono text-xl font-extrabold">R$ 135,70</dd>
+              </div>
+            </dl>
+            <button class="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-campo bg-amarelo font-bold text-preto">
+              <i data-lucide="lock" class="h-4 w-4"></i> Pagar R$ 135,70
+            </button>
+          </div>
+          <p class="mt-3 text-xs leading-relaxed text-texto-suave">
+            O dia vira uma linha entre outras. É o padrão de qualquer e-commerce —
+            previsível e barato. <span class="text-branco">Custo:</span> apaga a única
+            coisa que diferencia comprar da Napo de comprar congelada de supermercado.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="mx-auto max-w-6xl border-t border-borda"></div>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         D · /pedido/[numero]
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="pedido" class="mx-auto max-w-6xl px-4 py-10">
+      <p class="rotulo mb-6 font-mono text-[10px] uppercase text-amarelo">D · /pedido/[numero]</p>
+
+      <div class="grid gap-5 lg:grid-cols-2">
+        <!-- Estado: confirmando (webhook ainda não chegou) — RN19 -->
+        <div>
+          <p class="mb-3 font-mono text-[11px] text-texto-suave">D1 · pagamento em confirmação</p>
+          <div class="rounded-card border border-borda bg-superficie p-6">
+            <div class="flex items-center gap-3">
+              <i data-lucide="loader-circle" class="h-5 w-5 animate-spin text-amarelo"></i>
+              <h1 class="text-lg font-bold">Confirmando seu pagamento</h1>
+            </div>
+            <p class="mt-3 text-sm leading-relaxed text-texto-suave">
+              Pode fechar esta página — o pedido continua valendo. Assim que o Mercado
+              Pago confirmar, ele aparece aqui e na sua conta.
+            </p>
+            <p class="mt-4 font-mono text-xs text-texto-suave">Pedido #1042 · R$ 135,70</p>
+          </div>
+        </div>
+
+        <!-- Estado: confirmado -->
+        <div>
+          <p class="mb-3 font-mono text-[11px] text-texto-suave">D2 · confirmado</p>
+          <div class="rounded-card border border-amarelo/30 bg-superficie p-6">
+            <div class="flex items-center gap-3">
+              <span class="flex h-9 w-9 items-center justify-center rounded-full bg-amarelo">
+                <i data-lucide="check" class="h-5 w-5 text-preto"></i>
+              </span>
+              <div>
+                <h1 class="text-lg font-bold leading-tight">Pedido confirmado</h1>
+                <p class="font-mono text-xs text-texto-suave">#1042</p>
+              </div>
+            </div>
+
+            <div class="mt-5 rounded-campo border border-borda-forte bg-superficie-alta p-4">
+              <p class="rotulo font-mono text-[10px] uppercase text-texto-suave">Sua fornada</p>
+              <p class="mt-1 text-xl font-extrabold tracking-tight">sexta, 22 de agosto</p>
+              <p class="mt-1.5 text-xs text-texto-suave">entre 14h e 20h · SQN 210 Bloco C, Apto 302</p>
+            </div>
+
+            <!-- Linha do tempo CORTADA no Gate Visual A (2026-08-19): no R1 não
+                 existe admin que mova status, então ela mostraria quatro etapas
+                 das quais só a primeira acontece. Nasce no NAPO-008, junto de quem
+                 move os status. Aqui, <Badge> com o estado atual. -->
+            <div class="mt-5 flex items-center gap-2">
+              <!-- → 🔧 <Badge tone="ok"> -->
+              <span class="rounded-full bg-amarelo/15 px-2.5 py-1 font-mono text-[11px] font-bold text-amarelo">pago</span>
+              <span class="font-mono text-[11px] text-texto-suave">19/08 às 14:32</span>
+            </div>
+
+            <dl class="mt-5 space-y-1.5 border-t border-borda pt-4 text-sm">
+              <div class="flex justify-between"><dt class="text-texto-suave">2× Calabresa</dt><dd class="font-mono">R$ 79,80</dd></div>
+              <div class="flex justify-between"><dt class="text-texto-suave">1× Peito de Peru c/ Gorgonzola</dt><dd class="font-mono">R$ 49,90</dd></div>
+              <div class="flex justify-between"><dt class="text-texto-suave">Frete</dt><dd class="font-mono">R$ 6,00</dd></div>
+              <div class="mt-2 flex justify-between border-t border-borda pt-2"><dt class="font-bold">Total</dt><dd class="font-mono font-extrabold">R$ 135,70</dd></div>
+            </dl>
+
+            <!-- → <Button variant="ghost"> + <Dialog> de confirmação (RN15) -->
+            <button class="mt-4 w-full rounded-campo py-2 text-xs text-texto-suave hover:text-erro">
+              Cancelar pedido
+            </button>
+            <p class="mt-1 text-center text-[11px] text-texto-suave">
+              disponível até quinta, 21/08 às 12h
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="mx-auto max-w-6xl border-t border-borda"></div>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         E · Estados críticos
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="estados" class="mx-auto max-w-6xl px-4 py-10 pb-24">
+      <p class="rotulo mb-6 font-mono text-[10px] uppercase text-amarelo">E · estados críticos</p>
+      <h2 class="text-2xl font-extrabold tracking-tight">Os quatro que decidem se a venda acontece</h2>
+
+      <div class="mt-7 grid gap-5 md:grid-cols-2">
+        <!-- E1 — preço mudou (bloqueia) -->
+        <div>
+          <p class="mb-3 font-mono text-[11px] text-texto-suave">E1 · preço mudou desde que entrou no carrinho</p>
+          <!-- → 🔧 <Card> variante de AVISO — bloqueia, não some sozinho -->
+          <div class="rounded-card border border-amarelo/50 bg-amarelo/5 p-4">
+            <div class="flex gap-3">
+              <i data-lucide="triangle-alert" class="mt-0.5 h-5 w-5 shrink-0 text-amarelo"></i>
+              <div class="min-w-0">
+                <p class="font-semibold">O preço de um item mudou</p>
+                <p class="mt-1.5 text-sm leading-relaxed text-texto-suave">
+                  Calabresa: <span class="font-mono text-texto-suave line-through">R$ 37,90</span>
+                  <span class="ml-1 font-mono text-branco">R$ 39,90</span>
+                </p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                  <button class="rounded-campo bg-amarelo px-4 py-2 text-xs font-bold text-preto">Confirmar e seguir</button>
+                  <button class="rounded-campo border border-borda-forte px-4 py-2 text-xs font-medium">Remover item</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- E2 — esgotou -->
+        <div>
+          <p class="mb-3 font-mono text-[11px] text-texto-suave">E2 · item esgotou nesta fornada</p>
+          <div class="rounded-card border border-borda bg-superficie p-4">
+            <article class="flex gap-4 opacity-50">
+              <div class="foto-placeholder h-14 w-14 shrink-0 rounded-campo" aria-hidden></div>
+              <div class="min-w-0 flex-1">
+                <h3 class="font-semibold">Nutella com Avelã</h3>
+                <p class="mt-0.5 font-mono text-xs text-erro">esgotado na fornada de 22/08</p>
+              </div>
+            </article>
+            <!-- "Levar tudo para 29/08" CORTADO no Gate Visual A (2026-08-19):
+                 trocar a fornada inteira remonta a disponibilidade de todos os
+                 itens e pode falhar de novo. O seletor de fornada da vitrine
+                 (NAPO-003) já é o caminho para comprar em outro dia. -->
+            <div class="mt-3">
+              <button class="rounded-campo bg-amarelo px-4 py-2 text-xs font-bold text-preto">Remover e seguir</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- E3 — sem vaga no clique de pagar -->
+        <div>
+          <p class="mb-3 font-mono text-[11px] text-texto-suave">E3 · a fornada encheu enquanto o cliente decidia</p>
+          <div class="rounded-card border border-erro/40 bg-erro/5 p-4">
+            <div class="flex gap-3">
+              <i data-lucide="clock-alert" class="mt-0.5 h-5 w-5 shrink-0 text-erro"></i>
+              <div class="min-w-0">
+                <p class="font-semibold">Esta fornada encheu enquanto você decidia</p>
+                <p class="mt-1.5 text-sm leading-relaxed text-texto-suave">
+                  A próxima com todos os seus sabores é <strong class="text-branco">sexta, 29/08</strong>.
+                  Nada foi cobrado.
+                </p>
+                <button class="mt-3 rounded-campo bg-amarelo px-4 py-2 text-xs font-bold text-preto">
+                  Levar para 29/08
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- E4 — carrinho vazio -->
+        <div>
+          <p class="mb-3 font-mono text-[11px] text-texto-suave">E4 · carrinho vazio</p>
+          <div class="rounded-card border border-borda bg-superficie px-6 py-10 text-center">
+            <i data-lucide="shopping-bag" class="mx-auto h-8 w-8 text-borda-forte"></i>
+            <p class="mt-3 font-semibold">Seu carrinho está vazio</p>
+            <p class="mx-auto mt-1.5 max-w-xs text-sm leading-relaxed text-texto-suave">
+              A próxima fornada sai sexta, 22/08 — e ainda tem vaga.
+            </p>
+            <button class="mt-4 rounded-campo bg-amarelo px-5 py-2.5 text-sm font-bold text-preto">Ver sabores</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

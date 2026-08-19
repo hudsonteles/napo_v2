@@ -235,7 +235,7 @@ Tudo persistido em `timestamptz` **UTC**. **Toda** decisão de data de negócio 
 - **Roles:** `cliente · atendente · cozinha · gerente · admin`
 - **RBAC Obrigatório:** segurança depende da **role**, não apenas da autenticação
 - **Trigger bloqueando alteração de `role`** que não venha de admin — sem isso, um cliente com o próprio token se promove a gerente
-- **Gate de telefone:** tudo que é logado (carrinho, checkout, conta) exige telefone validado por OTP no WhatsApp. Navegação pública é livre — exigência de SEO e conversão
+- **Gate de telefone:** tudo que **grava dado da pessoa** (checkout, conta) exige telefone validado por OTP no WhatsApp. Navegação pública e o carrinho anônimo — que vive no navegador e nunca toca o banco — são livres: exigência de SEO e conversão. O gate é aplicado no clique de finalizar o pedido (NAPO-006 RN1)
 
 ### 5.3 Isolamento de Dados
 
