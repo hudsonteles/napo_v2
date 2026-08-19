@@ -34,13 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-- [ ] **NAPO-006** Carrinho e checkout com Mercado Pago
-  - **Spec:** [`docs/specs/006-checkout/`](docs/specs/006-checkout/) — aprovada em 2026-08-19
-  - **Iniciado em:** 2026-08-19
-  - **Dependências:** NAPO-002, NAPO-003, NAPO-004, NAPO-005 — todas concluídas
-  - **Bloqueia:** NAPO-007
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** Pix, crédito e débito. **Pagamento online obrigatório no site** — um no-show não custa a viagem, custa uma vaga de 30. Snapshot de preço, custo e endereço no pedido (editar cadastro não pode reescrever histórico). Cancelamento devolve estoque; estorno é manual no painel MP. Spec §7.
+_Fila vazia — NAPO-006 concluído em 2026-08-19. Próximo natural: NAPO-022 (topo de Próximos) ou os Must que fecham o R1 (NAPO-007, agora desbloqueado; NAPO-009; NAPO-021)._
 
 ---
 
@@ -201,6 +195,15 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 ## ✅ Concluídos
 
 _Histórico — adicionar mais recentes NO TOPO._
+
+- [x] **NAPO-006** Carrinho e checkout com Mercado Pago · concluído 2026-08-19 · [`docs/specs/006-checkout/`](docs/specs/006-checkout/)
+  - Carrinho **anônimo** que sobrevive à navegação (RN1, `localStorage`), e checkout que exige sessão + telefone só no "Finalizar" (NAPO-002). **Pagamento online obrigatório** (RN5): um no-show custa uma vaga de 30 no forno, não uma viagem.
+  - **A reserva nasce antes de cobrar e com o prazo do pagamento** (RN7): `reservar_carrinho` trava o dia inteiro sob um advisory lock — tudo ou nada. Falha do gateway libera a reserva e expira o pedido na mesma requisição (T37); carrinho abandonado expira sozinho e devolve a vaga (RN13).
+  - **Quem confirma é o webhook, nunca o navegador** (RN8): rota pública que verifica a assinatura HMAC, **consulta o valor na API do MP** (o corpo nunca é fonte, RN10) e confere contra o total. Idempotência pelo índice único de `mp_payment_id` (RN9). Dinheiro que entrou num dia inviável **não é recusado** — nasce `pago` com veredito `sem_vaga`/`cutoff_vencido` (RN11). Tela de retorno reconcilia por consulta ativa (RN19). Estorno reflete no pedido (RN14).
+  - **Snapshot de nome, preço e endereço no pedido** (RN4): reajustar faixa ou editar cadastro não reescreve histórico. Total, frete e dia são **derivados no servidor** — o cliente manda só id, quantidade e endereço (RN3, RN18). Transição de status **auditada** (RN21). Todo pedido nasce com canal e atividade fiscal (RN20).
+  - UI em direção A ("ficha da fornada", Gate Visual A) — o dia é o título do resumo, não uma linha. **Dois Gates Visuais B aprovados** (carrinho + checkout/pedido). 10 blocos (A–J), migrations `0013/0014/0015`, ~290 testes Vitest + 123 pgTAP.
+  - **Pendência conhecida — Gate de Saída:** o fluxo real com `PAGAMENTO_PROVIDER=mercado_pago` + túnel público + credenciais de teste do MP (notificação real assinada ponta a ponta) **não foi exercitado** — roda no **NAPO-021** (ambiente publicado), como a spec §7 previu. Local validado com o adaptador `fake`.
+  - **Desbloqueou NAPO-007.** Itens capturados durante o desenvolvimento: NAPO-022 (escolher fornada no carrinho), NAPO-023 (disponível por sabor vs. teto compartilhado), NAPO-024 (barra fixa de acesso ao carrinho); regra de **validação inline** virou padrão em `ARCHITECTURE.md §7.4`.
 
 - [x] **NAPO-005** Endereços e frete por faixa de distância · concluído 2026-08-18 · [`docs/specs/005-enderecos-frete/`](docs/specs/005-enderecos-frete/)
   - Cadastro de endereço em **duas etapas**: texto primeiro, confirmação da posição depois, com pin fixo no centro e o mapa se movendo embaixo. A página única aprovada no Gate Visual A foi superada em execução (`drift.md`): apresentado como elemento opcional entre nove campos, o mapa não é usado — e pin no meio da quadra não gera reclamação, gera **viagem perdida numa rota de dez paradas**.
