@@ -1023,11 +1023,31 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancelar_pedido: {
+        Args: {
+          p_pedido: string
+          p_devolucao: string
+        }
+        Returns: boolean
+      }
+      confirmar_pagamento: {
+        Args: {
+          p_pedido: string
+          p_payment_id: string
+          p_forma: string
+          p_veredito: Database["public"]["Enums"]["veredito_viabilidade"]
+        }
+        Returns: boolean
+      }
       exigir_admin_e_motivo: {
         Args: {
           motivo: string
         }
         Returns: string
+      }
+      expirar_pedidos: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       horario_servidor: {
         Args: Record<PropertyKey, never>
@@ -1069,6 +1089,16 @@ export type Database = {
           status: Database["public"]["Enums"]["status_reserva"]
           updated_at: string
         }
+      }
+      reservar_carrinho: {
+        Args: {
+          p_dia: string
+          p_itens: Json
+          p_profile: string
+          p_limites: Json
+          p_minutos: number
+        }
+        Returns: Json
       }
       vagas_ocupadas: {
         Args: {

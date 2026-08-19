@@ -37,7 +37,7 @@ Arquivos: `packages/core/src/carrinho/{carrinho,dia,tipos,index}.ts`, `packages/
 Arquivos: `supabase/migrations/0013_pedidos.sql` · Testes (pgTAP): T17, T22, T23, T24 · Depende: — · Paralelo: A, E · Est: 60min · Agente: inline (paralelismo declarado impossível — ver Decisões) · `[x]`
 
 ### Bloco C — Funções SQL ⚠️ ordem interna obrigatória
-Arquivos: `supabase/migrations/0014_pedidos_funcoes.sql` · Testes (pgTAP): **T33, T34 primeiro**, depois T9, T10, T11, T15, T35 · Depende: B · Est: 75min · Agente: `general-purpose` + persona `security-auditor` · `[ ]`
+Arquivos: `supabase/migrations/0014_pedidos_funcoes.sql` · Testes (pgTAP): **T33, T34 primeiro**, depois T9, T10, T11, T15, T35 · Depende: B · Est: 75min · Agente: inline · `[x]`
 > `vagas_ocupadas` é compartilhada com o motor do NAPO-004: T33/T34 verdes **antes** de qualquer outro código (`design.md` §8).
 
 ### Bloco D — Snapshot e rota de reserva
@@ -106,4 +106,7 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Paralelismo declarado impossível nesta execução** (`AGENTS.md` §2 item 9). As instruções de sessão proíbem disparar subagentes sem pedido explícito do PM; A‖B‖E e D‖F rodam sequencialmente, inline. Custo: tempo de relógio.
 - **Bloco B — `INSERT`/`UPDATE` de `pedidos` revogados de `authenticated`, não regulados por política.** A RN17 fala em "cliente cria os próprios pedidos"; uma política `with check (profile_id = auth.uid())` daria isolamento correto e cobrança errada — o cliente escolheria o próprio `total_centavos`. Pedido nasce e muda por servidor.
 - **Bloco B — `pagamento_eventos` ganhou política `using (false)` explícita.** O invariante do NAPO-001 exige política em toda tabela; ausência é indistinguível de esquecimento, e um `grant` futuro encontraria a tabela aberta.
+- **Bloco C — `aguardando_pagamento` NÃO conta em `vagas_ocupadas`.** A vaga dele já está contada pela reserva que o sustenta (RN7); contar os dois cobraria a mesma vaga duas vezes do estoque e faria a fornada parecer cheia com metade vendida.
+- **Bloco C — `entregue` continua ocupando vaga; `estornado` devolve.** A pizza entregue saiu daquela fornada e não volta; o estorno é o único estado terminal que libera.
+- **Bloco C — `reservar_carrinho` recebe `p_minutos` em vez de ler `config_operacao`.** Mantém a função sem regra de negócio, no mesmo contrato do `p_limite` do 0005: quem decide o prazo é o servidor.
 - **Bloco B — `pedidos_total_confere` e `pedidos_pago_tem_pagamento` como `CHECK`.** Total divergente e pedido pago sem prova de pagamento passam a ser impossíveis, não improváveis — mesmo critério da RN2 do NAPO-003.
