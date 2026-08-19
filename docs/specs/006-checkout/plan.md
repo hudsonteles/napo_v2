@@ -47,7 +47,7 @@ Arquivos: `apps/web/src/features/disponibilidade/services/snapshot.ts`, `apps/we
 Arquivos: `apps/web/src/lib/pagamentos/{porta,fake,mercado-pago,assinatura}.ts`, `apps/web/src/lib/env.ts` · Testes: T25, T27, T30 · Depende: — · Paralelo: A, B · Est: 60min · Agente: `general-purpose` + persona `security-auditor` · `[x]`
 
 ### Bloco F — Estado do carrinho no navegador
-Arquivos: `apps/web/src/lib/carrinho/{provider.tsx,armazenamento.ts}` · Testes: T1, T40 · Depende: A · Paralelo: C, E · Est: 40min · Agente: inline · `[ ]`
+Arquivos: `apps/web/src/lib/carrinho/{provider.tsx,armazenamento.ts}` · Testes: T1, T40 · Depende: A · Paralelo: C, E · Est: 40min · Agente: inline · `[x]`
 
 ### Bloco G — Criação de pedido
 Arquivos: `apps/web/src/features/pedidos/{schema.ts,index.ts}`, `.../services/{pedidos-repo,criar-pedido}.ts`, `apps/web/app/api/pedidos/route.ts`, `apps/web/app/api/carrinho/validar/route.ts` · Testes: T3, T5, T12, T13, T14, T18, T19, T20, T21, T36, T37 · Depende: A, C, E · Est: 90min · Agente: `general-purpose` · `[ ]`
@@ -115,3 +115,4 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco E — assinatura HMAC própria em `assinatura.ts`, não o `WebhookSignatureValidator` do SDK.** O design (§42) pede a verificação nossa; manifesto `id:<id>;request-id:<req>;ts:<ts>;` com HMAC-SHA256 e `timingSafeEqual`. Segmento `request-id` só entra quando o header existe (espelha o Mercado Pago).
 - **Bloco E — `PortaFake` codifica o valor no id (`fake-<centavos>`).** Sem webhook em localhost, a consulta precisa devolver o mesmo valor que entrou para o teste de valor (RN10) valer; o id carrega o número pela URL de retorno.
 - **Bloco E — `getPagamentoEnv()` em escopo próprio + `mercadopago@^2` adicionado.** Escopo separado (como `getGoogleEnv`) para o SSG do catálogo não exigir credencial de pagamento. `MANUTENCAO_SECRET` mora aqui por ser env do mesmo bloco de trabalho.
+- **Bloco F — T1/T40 testados em `armazenamento.test.ts`, não no provider.** O runner do app é `environment: 'node'` com `include` só `.test.ts`; testar o provider React exigiria jsdom + testing-library, fora do Mapa deste bloco. O provider é cola fina sobre `normalizarItens` (testado no A) + armazenamento (testado aqui); validação ponta-a-ponta fica no Gate Visual B do bloco I.
