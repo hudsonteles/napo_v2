@@ -44,7 +44,7 @@ Arquivos: `supabase/migrations/0014_pedidos_funcoes.sql` · Testes (pgTAP): **T3
 Arquivos: `apps/web/src/features/disponibilidade/services/snapshot.ts`, `apps/web/app/api/disponibilidade/reserva/route.ts` · Testes: T9, T33, T34 pelo caminho da aplicação · Depende: C · Est: 40min · Agente: inline · `[x]`
 
 ### Bloco E — Porta de pagamento
-Arquivos: `apps/web/src/lib/pagamentos/{porta,fake,mercado-pago,assinatura}.ts`, `apps/web/src/lib/env.ts` · Testes: T25, T27, T30 · Depende: — · Paralelo: A, B · Est: 60min · Agente: `general-purpose` + persona `security-auditor` · `[ ]`
+Arquivos: `apps/web/src/lib/pagamentos/{porta,fake,mercado-pago,assinatura}.ts`, `apps/web/src/lib/env.ts` · Testes: T25, T27, T30 · Depende: — · Paralelo: A, B · Est: 60min · Agente: `general-purpose` + persona `security-auditor` · `[x]`
 
 ### Bloco F — Estado do carrinho no navegador
 Arquivos: `apps/web/src/lib/carrinho/{provider.tsx,armazenamento.ts}` · Testes: T1, T40 · Depende: A · Paralelo: C, E · Est: 40min · Agente: inline · `[ ]`
@@ -112,3 +112,6 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco B — `pedidos_total_confere` e `pedidos_pago_tem_pagamento` como `CHECK`.** Total divergente e pedido pago sem prova de pagamento passam a ser impossíveis, não improváveis — mesmo critério da RN2 do NAPO-003.
 - **Bloco D — `STATUS_QUE_OCUPAM` duplicado em `snapshot.ts`.** Espelha o filtro de `vagas_ocupadas` (0014); duplicação consciente aceita pelo design (linha 78) porque são dois caminhos de código (motor via core vs. RPC via SQL) que precisam contar a mesma vaga. Fonte de verdade é a função SQL.
 - **Bloco D — rota de reserva passou a `reservar_carrinho` (item único num array).** Resposta virou array de reservas; nenhum client consumia o shape antigo. `reservar_capacidade` (0005) fica órfã, preservada como migration histórica.
+- **Bloco E — assinatura HMAC própria em `assinatura.ts`, não o `WebhookSignatureValidator` do SDK.** O design (§42) pede a verificação nossa; manifesto `id:<id>;request-id:<req>;ts:<ts>;` com HMAC-SHA256 e `timingSafeEqual`. Segmento `request-id` só entra quando o header existe (espelha o Mercado Pago).
+- **Bloco E — `PortaFake` codifica o valor no id (`fake-<centavos>`).** Sem webhook em localhost, a consulta precisa devolver o mesmo valor que entrou para o teste de valor (RN10) valer; o id carrega o número pela URL de retorno.
+- **Bloco E — `getPagamentoEnv()` em escopo próprio + `mercadopago@^2` adicionado.** Escopo separado (como `getGoogleEnv`) para o SSG do catálogo não exigir credencial de pagamento. `MANUTENCAO_SECRET` mora aqui por ser env do mesmo bloco de trabalho.

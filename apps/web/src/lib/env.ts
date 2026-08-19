@@ -134,6 +134,57 @@ export function getGoogleEnv(): GoogleEnv {
   return googleCache;
 }
 
+// ── Pagamento: escopo próprio, fora do schema de servidor ────────────────────
+// Mesmo motivo do Google: o SSG do catálogo chama `getServerEnv()` e não pode
+// passar a exigir credencial de pagamento para buildar. Nenhuma com prefixo
+// NEXT_PUBLIC_ — o Checkout Pro é redirecionamento, o navegador não vê chave.
+const pagamentoSchema = z
+  .object({
+    // Ambiente troca por variável, nunca por edição de código (mesmo padrão do
+    // WHATSAPP_PROVIDER). `fake` destrava o fluxo local sem túnel público.
+    PAGAMENTO_PROVIDER: z.enum(['fake', 'mercado_pago']).default('fake'),
+    MP_ACCESS_TOKEN: z.string().min(1).optional(),
+    MP_WEBHOOK_SECRET: z.string().min(1).optional(),
+    // Autoriza a rota de varredura de pedidos parados (RN13/RN19).
+    MANUTENCAO_SECRET: z.string().min(1).optional(),
+  })
+  // Provedor real mal configurado quebra no boot, não na primeira cobrança.
+  .superRefine((valores, ctx) => {
+    if (valores.PAGAMENTO_PROVIDER !== 'mercado_pago') return;
+
+    for (const chave of ['MP_ACCESS_TOKEN', 'MP_WEBHOOK_SECRET'] as const) {
+      if (!valores[chave]) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [chave],
+          message: 'obrigatória quando PAGAMENTO_PROVIDER=mercado_pago',
+        });
+      }
+    }
+  });
+
+type PagamentoEnv = z.infer<typeof pagamentoSchema>;
+let pagamentoCache: PagamentoEnv | null = null;
+
+/** Credenciais de pagamento e manutenção. Código de servidor apenas. */
+export function getPagamentoEnv(): PagamentoEnv {
+  if (pagamentoCache) return pagamentoCache;
+
+  const parsed = pagamentoSchema.safeParse({
+    PAGAMENTO_PROVIDER: process.env.PAGAMENTO_PROVIDER,
+    MP_ACCESS_TOKEN: process.env.MP_ACCESS_TOKEN,
+    MP_WEBHOOK_SECRET: process.env.MP_WEBHOOK_SECRET,
+    MANUTENCAO_SECRET: process.env.MANUTENCAO_SECRET,
+  });
+
+  if (!parsed.success) {
+    throw new Error(mensagemDeErro('de pagamento', parsed.error));
+  }
+
+  pagamentoCache = parsed.data;
+  return pagamentoCache;
+}
+
 function mensagemDeErro(escopo: string, erro: z.ZodError): string {
   const faltando = erro.issues.map((i) => i.path.join('.')).join(', ');
   return (
