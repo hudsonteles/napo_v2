@@ -34,19 +34,18 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_Fila vazia — NAPO-006 concluído em 2026-08-19. Próximo natural: NAPO-022 (topo de Próximos) ou os Must que fecham o R1 (NAPO-007, agora desbloqueado; NAPO-009; NAPO-021)._
+- [ ] **NAPO-022** Escolher/adiar a fornada de entrega no carrinho
+  - **Dependências:** NAPO-006, NAPO-004
+  - **Valor:** Médio · **Esforço:** Médio-Alto · **MoSCoW:** Could
+  - **Iniciado em:** 2026-08-28
+  - **ADR pré-requisito:** ADR-0001-dia-de-entrega-selecionavel-no-carrinho (Status: Aceito) — RN2/RN3 do NAPO-006 revisadas: dia continua derivado por padrão, mas admite dia candidato do cliente validado por interseção de disponibilidade de todos os itens (rejeita o pedido inteiro se algum item não couber).
+  - **Notas:** spec completo aprovado (`docs/specs/NAPO-022-escolha-fornada-carrinho/`: `spec.md` + `design.md` + `tests.md`, preview visual aprovado). Escopo **reduzido a pré-pagamento** durante o diagnóstico técnico — nem a área do cliente (NAPO-007) nem o admin de pedidos (NAPO-008) existem ainda para expor troca de dia de pedido já pago; essa parte virou **NAPO-025**. Pronto para `/implementar`.
 
 ---
 
 ## 🟡 Próximos (Ordem importa — pegar de cima pra baixo)
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
-
-- [ ] **NAPO-022** Escolher/adiar a fornada de entrega no carrinho
-  - **Dependências:** NAPO-006
-  - **Valor:** Médio · **Esforço:** Médio-Alto · **MoSCoW:** Could _(proposto — ajustar)_
-  - **ADR pré-requisito:** ADR-0001-dia-de-entrega-selecionavel-no-carrinho (Status: Aceito) — RN2/RN3 do NAPO-006 revisadas: dia continua derivado por padrão, mas admite dia candidato do cliente validado por interseção de disponibilidade de todos os itens (rejeita o pedido inteiro se algum item não couber).
-  - **Notas:** o PM quer poder mudar a data de entrega do carrinho inteiro, com validação. Hoje `POST /api/pedidos` e `/api/carrinho/validar` **recusam** qualquer data vinda do cliente de propósito (RN3 — "valor que chega pronto do navegador é valor que o cliente escolhe"); o dia é resolvido no servidor. Fazer isso significa: (a) o dia vira **parâmetro validado** — só dias em que **todos** os itens cabem (interseção de disponibilidade), nunca anterior à derivada sem descartar item; (b) mexe em `packages/core` (resolução do dia), na reserva (`reservar_carrinho`) e no contrato das duas rotas; (c) UI de seletor no carrinho/checkout. **A vitrine já tem o `SeletorFornada`** (`?entrega=`) para escolher a fornada por sabor ao adicionar — este item é sobre empurrar o **pedido inteiro** de uma vez. Registrado em 2026-08-19. **Origem:** Gate Visual B do NAPO-006 (bloco I). **Corte anterior relacionado:** "Levar tudo para outra fornada" foi descartada no Gate Visual A por remontar a disponibilidade de todos os itens e poder falhar de novo — este item é a versão "feita direito" daquela ação.
 
 ---
 
@@ -86,6 +85,11 @@ _Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informa
   - **Dependências:** NAPO-006
   - **Valor:** Médio · **Esforço:** Baixo · **MoSCoW:** Should _(proposto — ajustar)_
   - **Notas:** hoje o único acesso ao carrinho depois de adicionar é o ícone de sacola no canto superior direito — pouco descoberto por usuário desatento. **Design aprovado no brainstorm (2026-08-19):** barra fixa no rodapé (padrão de food delivery — iFood/Rappi/Uber Eats), presentacional `<BarraCarrinho>` em `packages/ui/patterns`, aparece só quando `pronto && itens > 0`, mostra **só a contagem** ("🛒 2 itens · Ver carrinho →") e leva a `/carrinho`; alvo de toque ≥44px. Conector no app (`useCarrinho` + `usePathname`) esconde a barra em **`/checkout`** (já tem barra própria, critério visual 8 do NAPO-006) e **`/carrinho`**. **Remove o ícone do cabeçalho** (`<CabecalhoSite>` perde o slot, `<AcessoCarrinho>` é aposentado) — a barra vira o acesso único, sem redundância; carrinho vazio fica sem afordância (igual ao food delivery). **A decidir na execução:** barra full-width em todo tamanho vs. pílula no desktop / full-width no mobile. Não é gaveta — leva à página do carrinho (não contradiz `design.md` §4.5 do NAPO-006). Registrado em 2026-08-19. **Origem:** Gate Visual B do NAPO-006 (bloco I/J), observação do PM.
+
+- [ ] **NAPO-025** Trocar dia de entrega de pedido já pago (cliente e admin)
+  - **Dependências:** NAPO-022, NAPO-007, NAPO-008
+  - **Valor:** Médio · **Esforço:** Médio · **MoSCoW:** Could _(proposto — ajustar)_
+  - **Notas:** desmembrado do NAPO-022 em 2026-08-28 — durante o `/especificar` descobrimos que nem a área do cliente (NAPO-007) nem o admin de pedidos (NAPO-008) existem ainda, e não havia onde expor a troca de dia de um pedido já pago. Escopo original (capturado no spec do NAPO-022 antes do corte, ver `docs/specs/NAPO-022-escolha-fornada-carrinho/spec.md` §7): tanto cliente quanto admin podem trocar o dia de um pedido pago, até o cutoff do novo dia, bloqueado se a produção já começou, troca atômica (libera vaga antiga + reserva vaga nova na mesma transação), auditada, com notificação ao cliente quando o admin faz a troca. Reaproveita a função pura `validarDiaCandidato` criada no NAPO-022. **Origem:** diagnóstico técnico do `/especificar NAPO-022`.
 
 ### R2 — Eventos
 

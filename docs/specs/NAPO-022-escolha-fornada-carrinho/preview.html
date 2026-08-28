@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Escolha de fornada no carrinho (NAPO-022)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — NAPO-022 Escolha de fornada no carrinho ══
+      TELA:               sidebar de /carrinho (card "Entrega")
+      CATÁLOGO USADO:     mesmo shell do NAPO-006 (docs/specs/006-checkout/preview.html) — <Card>, <Button>
+      A ESTENDER:         nenhum
+      NOVO A CRIAR:       <SeletorDiaCarrinho> — chips de data com estado desabilitado (design.md §4.1)
+      ESTADOS COBERTOS:   A) default (2ª opção habilitada) · B) só o derivado cabe (demais desabilitados)
+                          C) aviso — candidato deixou de servir · D) loading (skeleton)
+      DADO DERIVADO:      dia derivado + opções vêm do motor (RN2 NAPO-006 + RN1-RN3 NAPO-022)
+    -->
+
+    <nav class="sticky top-0 z-50 border-b border-borda-forte bg-superficie-alta/95 backdrop-blur">
+      <div class="mx-auto flex max-w-4xl flex-wrap items-center gap-1 px-4 py-2.5 text-xs">
+        <span class="mr-3 font-mono text-[10px] uppercase tracking-[0.18em] text-texto-suave">Revisão NAPO-022</span>
+        <a href="#a" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">A · Default</a>
+        <a href="#b" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">B · Sem opção seguinte</a>
+        <a href="#c" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">C · Aviso (candidato caiu)</a>
+        <a href="#d" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">D · Loading</a>
+      </div>
+    </nav>
+
+    <main class="mx-auto max-w-4xl px-4 py-10 space-y-16">
+      <!-- ═══ A · DEFAULT — dia derivado + 1 opção seguinte habilitada, 1 desabilitada ═══ -->
+      <section id="a">
+        <h2 class="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-texto-suave">A · Default</h2>
+        <aside class="w-full max-w-sm rounded-card border border-borda bg-superficie p-5">
+          <div class="rounded-campo border border-borda-forte bg-superficie-alta p-3.5">
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-texto-suave">Entrega</p>
+            <p class="mt-1 font-bold capitalize">sexta-feira, 12 de abril</p>
+            <p class="mt-1.5 text-xs leading-relaxed text-texto-suave">
+              É a primeira fornada que assa todos os seus sabores.
+            </p>
+
+            <p class="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-texto-suave">
+              Quer esperar mais um pouco?
+            </p>
+            <div class="mt-2.5 flex gap-2 overflow-x-auto pb-1">
+              <button type="button" aria-pressed="true" class="min-w-[5.5rem] shrink-0 rounded-campo bg-amarelo px-3 py-2 text-left text-preto">
+                <span class="block font-mono text-[9px] uppercase tracking-widest opacity-70">padrão</span>
+                <span class="mt-0.5 block text-sm font-extrabold leading-none">12 abr</span>
+              </button>
+              <button type="button" aria-pressed="false" class="min-w-[5.5rem] shrink-0 rounded-campo border border-borda-forte px-3 py-2 text-left text-texto-suave hover:bg-superficie-alta hover:text-branco">
+                <span class="block font-mono text-[9px] uppercase tracking-widest text-texto-suave">seguinte</span>
+                <span class="mt-0.5 block text-sm font-extrabold leading-none text-branco">19 abr</span>
+              </button>
+              <button type="button" aria-pressed="false" aria-disabled="true" disabled class="min-w-[5.5rem] shrink-0 cursor-not-allowed rounded-campo border border-borda px-3 py-2 text-left opacity-40">
+                <span class="block font-mono text-[9px] uppercase tracking-widest text-texto-suave">sem vaga</span>
+                <span class="mt-0.5 block text-sm font-extrabold leading-none text-texto-suave line-through">26 abr</span>
+              </button>
+            </div>
+          </div>
+
+          <dl class="mt-5 space-y-2 text-sm">
+            <div class="flex justify-between"><dt class="text-texto-suave">Subtotal</dt><dd class="font-mono">R$ 129,70</dd></div>
+            <div class="flex justify-between"><dt class="text-texto-suave">Frete</dt><dd class="font-mono text-texto-suave">no próximo passo</dd></div>
+          </dl>
+          <button type="button" class="mt-5 w-full rounded-campo bg-amarelo px-4 py-2.5 font-semibold text-preto">Finalizar pedido</button>
+        </aside>
+        <p class="mt-3 max-w-sm text-xs leading-relaxed text-texto-suave">
+          Chip "padrão" ativo por default (dia derivado, RN1). "19 abr" clicável — troca o dia escolhido.
+          "26 abr" desabilitado — servidor já decidiu que não cabe todo o carrinho lá (RN3).
+        </p>
+      </section>
+
+      <!-- ═══ B · só o derivado cabe ═══ -->
+      <section id="b">
+        <h2 class="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-texto-suave">B · Sem opção seguinte disponível</h2>
+        <aside class="w-full max-w-sm rounded-card border border-borda bg-superficie p-5">
+          <div class="rounded-campo border border-borda-forte bg-superficie-alta p-3.5">
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-texto-suave">Entrega</p>
+            <p class="mt-1 font-bold capitalize">sexta-feira, 12 de abril</p>
+            <p class="mt-1.5 text-xs leading-relaxed text-texto-suave">
+              É a primeira fornada que assa todos os seus sabores.
+            </p>
+            <p class="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-texto-suave">
+              Quer esperar mais um pouco?
+            </p>
+            <div class="mt-2.5 flex gap-2 overflow-x-auto pb-1">
+              <button type="button" aria-pressed="true" class="min-w-[5.5rem] shrink-0 rounded-campo bg-amarelo px-3 py-2 text-left text-preto">
+                <span class="block font-mono text-[9px] uppercase tracking-widest opacity-70">padrão</span>
+                <span class="mt-0.5 block text-sm font-extrabold leading-none">12 abr</span>
+              </button>
+              <button type="button" aria-disabled="true" disabled class="min-w-[5.5rem] shrink-0 cursor-not-allowed rounded-campo border border-borda px-3 py-2 text-left opacity-40">
+                <span class="block font-mono text-[9px] uppercase tracking-widest text-texto-suave">sem vaga</span>
+                <span class="mt-0.5 block text-sm font-extrabold leading-none text-texto-suave line-through">19 abr</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+        <p class="mt-3 max-w-sm text-xs leading-relaxed text-texto-suave">
+          Carrinho com item de giro baixo: nenhuma data seguinte do horizonte tem vaga para todos os itens —
+          só o chip do dia derivado fica clicável (na prática, nem precisaria estar "ativo": já é o único).
+        </p>
+      </section>
+
+      <!-- ═══ C · aviso — candidato caiu ═══ -->
+      <section id="c">
+        <h2 class="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-texto-suave">C · Aviso — candidato deixou de servir</h2>
+        <aside class="w-full max-w-sm rounded-card border border-borda bg-superficie p-5">
+          <div class="rounded-campo border border-borda-forte bg-superficie-alta p-3.5">
+            <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-texto-suave">Entrega</p>
+            <p class="mt-1 font-bold capitalize">sexta-feira, 12 de abril</p>
+          </div>
+
+          <div class="mt-3 rounded-campo border border-amarelo/50 bg-amarelo/5 p-3">
+            <p class="text-xs leading-relaxed text-branco">
+              Esse dia encheu enquanto você decidia — voltamos para <b>sexta-feira, 12 de abril</b>.
+            </p>
+          </div>
+
+          <div class="mt-3 flex gap-2 overflow-x-auto pb-1">
+            <button type="button" aria-pressed="true" class="min-w-[5.5rem] shrink-0 rounded-campo bg-amarelo px-3 py-2 text-left text-preto">
+              <span class="block font-mono text-[9px] uppercase tracking-widest opacity-70">padrão</span>
+              <span class="mt-0.5 block text-sm font-extrabold leading-none">12 abr</span>
+            </button>
+            <button type="button" aria-disabled="true" disabled class="min-w-[5.5rem] shrink-0 cursor-not-allowed rounded-campo border border-borda px-3 py-2 text-left opacity-40">
+              <span class="block font-mono text-[9px] uppercase tracking-widest text-texto-suave">sem vaga</span>
+              <span class="mt-0.5 block text-sm font-extrabold leading-none text-texto-suave line-through">19 abr</span>
+            </button>
+          </div>
+        </aside>
+        <p class="mt-3 max-w-sm text-xs leading-relaxed text-texto-suave">
+          O cliente tinha escolhido "19 abr"; outro cliente esgotou a vaga entre uma revalidação e outra.
+          Card persistente (nunca toast, critério visual 6 do NAPO-006) — o chip volta a marcar o derivado sozinho.
+        </p>
+      </section>
+
+      <!-- ═══ D · loading ═══ -->
+      <section id="d">
+        <h2 class="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-texto-suave">D · Loading</h2>
+        <aside class="w-full max-w-sm rounded-card border border-borda bg-superficie p-5">
+          <div class="h-24 animate-pulse rounded-campo bg-superficie-alta"></div>
+        </aside>
+        <p class="mt-3 max-w-sm text-xs leading-relaxed text-texto-suave">
+          Mesmo skeleton já usado no card "Entrega" hoje — sem novidade visual neste estado.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
