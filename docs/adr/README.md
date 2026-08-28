@@ -96,7 +96,7 @@ A flag complementa o texto livre dos "Pré-requisitos antes de implementar" — 
 
 _(adicionar conforme ADRs forem aceitos, mais recentes no topo)_
 
-_(Sem ADRs ainda.)_
+- [ADR-0001 — Dia de entrega do carrinho passa a admitir escolha validada do cliente](./0001-dia-de-entrega-selecionavel-no-carrinho.md) — Aceito 2026-08-28
 
 <!-- Exemplo:
 - [ADR-0002 — Trocar provider de SMS de Firebase para Twilio](./0002-trocar-provider-sms.md) — Aceito 2026-08-15

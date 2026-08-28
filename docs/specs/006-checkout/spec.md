@@ -42,7 +42,7 @@
 
 - **RN1 — O carrinho é livre; a conta só é exigida para pagar.** Adicionar, remover e mudar quantidade não pedem login. Conta autenticada **e telefone validado** (NAPO-002) são exigidos no clique de "Finalizar pedido", e o carrinho sobrevive ao login. Exigir cadastro para pôr item na sacola é cobrar pedágio de quem o SEO acabou de trazer, antes de a pessoa saber o frete.
 
-- **RN2 — Um pedido, um dia de entrega.** Se os sabores do carrinho têm primeiros dias viáveis diferentes, o pedido inteiro vai para o **dia mais tardio entre eles**, exibido antes do pagamento. Dividir em dois pedidos cobraria dois fretes pela mesma sacola; entregar em dois dias é duas viagens que a rota não comporta.
+- **RN2 — Um pedido, um dia de entrega.** Se os sabores do carrinho têm primeiros dias viáveis diferentes, o pedido inteiro vai, por padrão, para o **dia mais tardio entre eles**, exibido antes do pagamento. Dividir em dois pedidos cobraria dois fretes pela mesma sacola; entregar em dois dias é duas viagens que a rota não comporta. **Revisado por ADR-0001 (2026-08-28, ver `docs/adr/0001-dia-de-entrega-selecionavel-no-carrinho.md`):** o cliente pode propor um dia candidato para o carrinho inteiro; o servidor valida por **interseção de disponibilidade de todos os itens** e ou confirma o pedido nesse dia, ou rejeita o pedido inteiro — nunca remove item ou ajusta o dia silenciosamente. Detalhamento do fluxo de escolha explícita fica a cargo do spec do NAPO-022.
 
 - **RN3 — O total é decidido no servidor.** O cliente envia produtos e quantidades; preço unitário, subtotal, frete e total são recalculados no servidor a cada etapa e na criação da cobrança. Valor que chega pronto do navegador é valor que o cliente escolhe.
 
