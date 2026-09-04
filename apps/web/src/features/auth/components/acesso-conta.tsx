@@ -98,11 +98,8 @@ export function AcessoConta({ className }: { className?: string }) {
           </Link>
         </DropdownMenuItem>
 
-        {/* Aponta para `/conta` porque a listagem de pedidos é o NAPO-007 — é
-            lá que hoje está o aviso. Inventar `/conta/pedidos` agora seria
-            oferecer no menu uma rota que responde 404. */}
         <DropdownMenuItem asChild>
-          <Link href="/conta">
+          <Link href="/conta/pedidos">
             <ReceiptText className="h-4 w-4" /> Meus pedidos
           </Link>
         </DropdownMenuItem>
