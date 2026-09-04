@@ -19,13 +19,31 @@ function totalDaCobranca({ itens, freteCentavos }: EntradaCobranca): number {
  * adaptador, nenhum teste do fluxo roda sem túnel. Ambiente troca por variável,
  * nunca por edição de código.
  */
+interface CobrancaFalsa {
+  valorCentavos: number;
+  referencia: string;
+}
+
+/**
+ * O registro vive em `globalThis`, não no módulo.
+ *
+ * Cada Route Handler do Next é compilado no seu próprio bundle: a instância que
+ * `POST /api/pedidos` criou **não** é a mesma que `GET /api/pedidos/[numero]`
+ * enxerga, e a cobrança gravada em memória de módulo some entre uma rota e
+ * outra — o pedido ficava eternamente "confirmando". `globalThis` é do
+ * processo, e o processo é o mesmo.
+ */
+const registro: Map<string, CobrancaFalsa> = ((
+  globalThis as { __napoCobrancasFalsas?: Map<string, CobrancaFalsa> }
+).__napoCobrancasFalsas ??= new Map());
+
 export class PagamentoFake implements PortaPagamento {
   /**
-   * O valor cobrado fica em memória do processo porque a confirmação compara o
-   * valor pago com o total do pedido (RN10) — um adaptador que devolvesse
-   * qualquer número faria o caminho de divergência ser o único exercitável.
+   * O valor cobrado é guardado porque a confirmação compara o valor pago com o
+   * total do pedido (RN10) — um adaptador que devolvesse qualquer número faria
+   * o caminho de divergência ser o único exercitável.
    */
-  private readonly cobrancas = new Map<string, { valorCentavos: number; referencia: string }>();
+  private readonly cobrancas = registro;
 
   async criarCobranca(entrada: EntradaCobranca): Promise<Cobranca> {
     const preferenciaId = `fake-pref-${entrada.referenciaExterna}`;

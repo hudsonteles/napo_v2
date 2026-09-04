@@ -73,6 +73,27 @@ describe('PagamentoFake', () => {
     expect(urlPagamento).toContain('https://napobsb.com.br/pedido/1042');
   });
 
+  it('a cobrança de uma instância é encontrada por outra', async () => {
+    // Cada Route Handler do Next é um bundle próprio: quem cria a cobrança
+    // (`POST /api/pedidos`) não é a mesma instância que a consulta
+    // (`GET /api/pedidos/[numero]`). Com o registro preso ao módulo, o pedido
+    // ficava eternamente "confirmando".
+    const { PagamentoFake } = await import('./fake');
+    const criador = new PagamentoFake();
+    const consultor = new PagamentoFake();
+
+    const { urlPagamento } = await criador.criarCobranca(COBRANCA);
+    const idPagamento = new URL(urlPagamento).searchParams.get('pagamento_falso') as string;
+
+    expect(await consultor.consultarPagamento(idPagamento)).toMatchObject({
+      status: 'aprovado',
+      valorCentavos: 19970,
+    });
+    expect(await consultor.buscarPagamentoDaReferencia('pedido-1')).toMatchObject({
+      id: idPagamento,
+    });
+  });
+
   it('pagamento que ninguém cobrou não existe', async () => {
     const porta = await carregarPorta('fake');
 
