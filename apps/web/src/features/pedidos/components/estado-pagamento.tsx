@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Check, LoaderCircle } from 'lucide-react';
+import { Card } from '@napo/ui/components/card';
 
 /**
  * O retorno do pagamento (RN8, RN19).
@@ -67,7 +68,7 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
 
   if (pedido.status === 'aguardando_pagamento') {
     return (
-      <div className="rounded-card border border-borda bg-superficie p-6">
+      <Card className="p-6">
         <div className="flex items-center gap-3">
           {!desistiu && <LoaderCircle className="h-5 w-5 animate-spin text-amarelo" />}
           <h1 className="text-lg font-bold">
@@ -82,14 +83,14 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
         <p className="mt-4 font-mono text-xs text-texto-suave">
           Pedido #{pedido.numero} · {reais(pedido.totalCentavos)}
         </p>
-      </div>
+      </Card>
     );
   }
 
   const pago = ['pago', 'em_producao', 'pronto', 'em_rota', 'entregue'].includes(pedido.status);
 
   return (
-    <div className="rounded-card border border-amarelo/30 bg-superficie p-6">
+    <Card className="border-amarelo/30 p-6">
       <div className="flex items-center gap-3">
         {pago && (
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-amarelo">
@@ -128,7 +129,7 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
           <dd className="font-mono font-extrabold">{reais(pedido.totalCentavos)}</dd>
         </div>
       </dl>
-    </div>
+    </Card>
   );
 }
 

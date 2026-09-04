@@ -4,6 +4,7 @@ import { MapPinOff, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { calcularFrete, type FaixaFrete } from '@napo/core';
 import { Button } from '@napo/ui/components/button';
+import { Card } from '@napo/ui/components/card';
 import { cn } from '@napo/ui/lib/cn';
 
 /**
@@ -46,12 +47,12 @@ export function SeletorEndereco({
 }) {
   if (enderecos.length === 0) {
     return (
-      <div className="mt-4 rounded-card border border-borda bg-superficie p-6 text-center">
+      <Card className="mt-4 p-6 text-center">
         <p className="text-sm text-texto-suave">Você ainda não tem endereço cadastrado.</p>
         <Button largura="natural" size="sm" variant="outline" className="mt-4" asChild>
           <Link href="/conta/enderecos">Cadastrar endereço</Link>
         </Button>
-      </div>
+      </Card>
     );
   }
 
@@ -73,6 +74,9 @@ export function SeletorEndereco({
         const selecionado = escolhido === endereco.id;
 
         return (
+          // Markup cru justificado (§4.4.5): <Card> renderiza `div`, e aqui o
+          // elemento precisa ser `label` para que o card inteiro seja alvo de
+          // clique do rádio. Classes visuais são as do <Card>.
           <label
             key={endereco.id}
             className={cn(

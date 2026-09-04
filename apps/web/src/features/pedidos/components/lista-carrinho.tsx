@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@napo/ui/components/button';
+import { Card } from '@napo/ui/components/card';
 import { SeletorQuantidade } from '@napo/ui/components/seletor-quantidade';
 import { cn } from '@napo/ui/lib/cn';
 
@@ -94,6 +95,9 @@ export function ListaCarrinho() {
 
   if (!pronto || (carregando && !validado)) {
     return (
+      // Markup cru justificado: esqueleto de carregamento não é conteúdo, é
+      // reserva de altura na medida do card que vai chegar — <Card> traria
+      // borda e sombra de um cartão que ainda não existe.
       <div className="mt-7 space-y-3" aria-busy>
         <div className="h-[116px] animate-pulse rounded-card bg-superficie-alta" />
         <div className="h-[116px] animate-pulse rounded-card bg-superficie-alta" />
@@ -103,12 +107,12 @@ export function ListaCarrinho() {
 
   if (itens.length === 0) {
     return (
-      <div className="mt-7 rounded-card border border-borda bg-superficie p-10 text-center">
+      <Card className="mt-7 p-10 text-center">
         <p className="text-texto-suave">Seu carrinho está vazio.</p>
         <Button largura="natural" size="sm" className="mt-5" asChild>
           <Link href="/sabores">Ver sabores</Link>
         </Button>
-      </div>
+      </Card>
     );
   }
 
@@ -126,12 +130,9 @@ export function ListaCarrinho() {
           const esgotado = ajuste?.tipo === 'esgotado';
 
           return (
-            <article
+            <Card
               key={item.produtoId}
-              className={cn(
-                'flex gap-4 rounded-card border border-borda bg-superficie p-4',
-                esgotado && 'opacity-60',
-              )}
+              className={cn('flex gap-4 p-4', esgotado && 'opacity-60')}
             >
               <div className="h-20 w-20 shrink-0 rounded-campo bg-superficie-alta" aria-hidden />
               <div className="min-w-0 flex-1">
@@ -174,12 +175,12 @@ export function ListaCarrinho() {
                   {reais(item.precoUnitarioCentavos)} cada
                 </p>
               </div>
-            </article>
+            </Card>
           );
         })}
       </div>
 
-      <aside className="h-fit rounded-card border border-borda bg-superficie p-5">
+      <Card className="h-fit p-5">
         {/* O dia é derivado (RN2) e vem com o motivo — não é seletor. */}
         <div className="rounded-campo border border-borda-forte bg-superficie-alta p-3.5">
           <p className="font-mono text-[10px] uppercase tracking-wider text-texto-suave">Entrega</p>
@@ -223,7 +224,7 @@ export function ListaCarrinho() {
             ? 'Ajuste os itens marcados para seguir.'
             : 'Você entra na conta no próximo passo.'}
         </p>
-      </aside>
+      </Card>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { TriangleAlert, Zap } from 'lucide-react';
 import { calcularFrete, type FaixaFrete } from '@napo/core';
+import { Card } from '@napo/ui/components/card';
 import { toast } from '@napo/ui/components/toaster';
 
 import { useCarrinho } from '@/lib/carrinho/provider';
@@ -165,7 +166,7 @@ export function CheckoutCliente({
     <div className="mt-7 grid gap-8 lg:grid-cols-[1fr_340px]">
       <div className="space-y-8">
         {aviso && (
-          <div className="rounded-card border border-amarelo/50 bg-amarelo/5 p-4">
+          <Card className="border-amarelo/50 bg-amarelo/5 p-4">
             <div className="flex gap-3">
               <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-amarelo" />
               <div className="min-w-0">
@@ -179,7 +180,7 @@ export function CheckoutCliente({
                 </Link>
               </div>
             </div>
-          </div>
+          </Card>
         )}
 
         <section>

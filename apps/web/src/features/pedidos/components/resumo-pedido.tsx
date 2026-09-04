@@ -2,6 +2,7 @@
 
 import { Lock } from 'lucide-react';
 import { Button } from '@napo/ui/components/button';
+import { Card } from '@napo/ui/components/card';
 
 /**
  * A ficha da fornada (Direção A, aprovada no Gate Visual A).
@@ -50,7 +51,8 @@ export function ResumoPedido({
 
   return (
     <aside className="h-fit space-y-4 lg:sticky lg:top-20">
-      <div className="overflow-hidden rounded-card border border-amarelo/30 bg-superficie">
+      {/* `p-0`: o padding é por faixa (canhoto e corpo têm o seu), não do card. */}
+      <Card className="overflow-hidden border-amarelo/30 p-0">
         <div className="serrilha border-b border-dashed border-borda-forte bg-amarelo/5 px-5 py-4">
           <p className="font-mono text-[10px] uppercase tracking-wider text-amarelo">Fornada</p>
           <p className="mt-1.5 text-2xl font-extrabold leading-none tracking-tight">
@@ -107,7 +109,7 @@ export function ResumoPedido({
             </p>
           </div>
         </div>
-      </div>
+      </Card>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-borda bg-preto/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center gap-3">
