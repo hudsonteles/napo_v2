@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { MailCheck } from 'lucide-react';
 
+import Link from 'next/link';
+
 import { Button } from '@napo/ui/components/button';
 import { Input } from '@napo/ui/components/input';
 import { Label } from '@napo/ui/components/label';
@@ -188,7 +190,16 @@ export function FormEntrar({ proximo, erro }: { proximo: string | null; erro: st
         </>
       )}
 
-      <p className="mt-7 text-xs leading-relaxed text-neutral-500">
+      {/* Toda tela precisa de saída: entrar é uma escolha, e quem mudou de ideia
+          não pode depender do botão do navegador para voltar a navegar. */}
+      <Link
+        href="/"
+        className="mt-7 block text-center text-xs text-neutral-500 underline underline-offset-2 transition hover:text-neutral-300"
+      >
+        Voltar ao site
+      </Link>
+
+      <p className="mt-5 text-xs leading-relaxed text-neutral-500">
         Ao continuar você concorda com os{' '}
         <a href="/termos" className="underline underline-offset-2 hover:text-neutral-300">
           Termos de Uso

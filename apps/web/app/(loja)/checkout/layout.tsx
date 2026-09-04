@@ -15,6 +15,7 @@ export const dynamic = 'force-dynamic';
  * cliente, e sem ele não há pedido a fazer.
  */
 export default async function CheckoutLayout({ children }: { children: ReactNode }) {
-  await exigirAcesso('checkout');
+  // O retorno é explícito: quem para aqui para validar o telefone volta para cá.
+  await exigirAcesso('checkout', '/checkout');
   return <>{children}</>;
 }

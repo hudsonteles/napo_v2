@@ -69,7 +69,7 @@ export function BarraFecharPedido() {
         {/* Container estreito: a barra atravessa a tela, mas o conteúdo fica
             junto no centro — informação nas pontas de uma faixa de 1200 px
             obriga a varrer a tela para ligar o valor ao botão. */}
-        <div className="mx-auto flex max-w-md items-center justify-between gap-4 px-4 py-3">
+        <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3">
           <p className="flex items-center gap-3">
             <ShoppingBag className="h-5 w-5 shrink-0 text-amarelo" />
             {/* `whitespace-nowrap` em cada linha: sem isso o flex espreme a
@@ -92,7 +92,7 @@ export function BarraFecharPedido() {
               </p>
             )}
 
-            <Button largura="natural" size="sm" className="shrink-0" asChild>
+            <Button largura="natural" size="sm" className="" asChild>
               <Link href="/carrinho">
                 Fechar pedido <ArrowRight className="h-4 w-4" />
               </Link>

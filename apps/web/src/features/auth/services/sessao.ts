@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 import {
+  caminhoInternoSeguro,
   decidirAcesso,
   ROTA_ENTRAR,
   ROTA_VALIDAR_TELEFONE,
@@ -85,6 +86,13 @@ export async function carregarPerfilDaSessao(): Promise<PerfilSessao | null> {
  */
 export async function exigirAcesso(
   area: AreaProtegida,
+  /**
+   * Para onde voltar depois de resolver a pendência. Sem isso, quem é
+   * interrompido no meio do pagamento para validar o telefone termina o
+   * cadastro e é despejado na área da conta — do lado errado da compra que
+   * estava fazendo.
+   */
+  proximo?: string,
 ): Promise<{ perfil: PerfilSessao; acessoNegado: boolean }> {
   const perfil = await carregarPerfilDaSessao();
   const acesso = decidirAcesso(perfil, area);
@@ -93,12 +101,17 @@ export async function exigirAcesso(
     return { perfil, acessoNegado: false };
   }
 
+  const comRetorno = (rota: string) => {
+    const interno = caminhoInternoSeguro(proximo);
+    return interno ? `${rota}?proximo=${encodeURIComponent(interno)}` : rota;
+  };
+
   if (!perfil || (!acesso.permitido && acesso.motivo === 'sem-sessao')) {
-    redirect(ROTA_ENTRAR);
+    redirect(comRetorno(ROTA_ENTRAR));
   }
 
   if (!acesso.permitido && acesso.motivo === 'telefone-pendente') {
-    redirect(ROTA_VALIDAR_TELEFONE);
+    redirect(comRetorno(ROTA_VALIDAR_TELEFONE));
   }
 
   return { perfil, acessoNegado: true };

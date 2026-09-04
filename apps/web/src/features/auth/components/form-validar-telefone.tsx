@@ -6,6 +6,8 @@ import { CircleAlert } from 'lucide-react';
 
 import Link from 'next/link';
 
+import { caminhoInternoSeguro } from '@/features/auth/destino';
+
 import { Button } from '@napo/ui/components/button';
 import { Checkbox } from '@napo/ui/components/checkbox';
 import { Input } from '@napo/ui/components/input';
@@ -53,9 +55,12 @@ async function enviarJson(
 export function FormValidarTelefone({
   nomeInicial,
   telefoneInicial,
+  proximo,
 }: {
   nomeInicial: string;
   telefoneInicial: string;
+  /** Para onde voltar: quem chegou aqui no meio de uma compra volta para ela. */
+  proximo?: string | null;
 }) {
   const router = useRouter();
 
@@ -116,7 +121,10 @@ export function FormValidarTelefone({
     }
 
     toast.success('WhatsApp confirmado.');
-    router.replace(corpo.data?.destino ?? '/conta');
+
+    // O destino pedido vence o padrão por papel: validar o telefone foi um
+    // desvio no caminho de quem estava fechando pedido, não o objetivo dele.
+    router.replace(caminhoInternoSeguro(proximo) ?? corpo.data?.destino ?? '/conta');
   }
 
   if (passo === 'codigo') {

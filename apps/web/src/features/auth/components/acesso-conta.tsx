@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CircleUserRound } from 'lucide-react';
+import { CircleUserRound, LogOut, MapPin, ReceiptText, UserRound } from 'lucide-react';
+import Link from 'next/link';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@napo/ui/components/dropdown-menu';
 import { cn } from '@napo/ui/lib/cn';
 
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -18,6 +27,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
  * para quem está logado, e trocar meio segundo depois, é pior que esperar.
  */
 export function AcessoConta({ className }: { className?: string }) {
+  const [email, setEmail] = useState<string | null>(null);
   const [autenticado, setAutenticado] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -25,12 +35,16 @@ export function AcessoConta({ className }: { className?: string }) {
     let vivo = true;
 
     supabase.auth.getUser().then(({ data }) => {
-      if (vivo) setAutenticado(data.user !== null);
+      if (!vivo) return;
+      setAutenticado(data.user !== null);
+      setEmail(data.user?.email ?? null);
     });
 
     // Entrar ou sair em outra aba muda o cabeçalho desta também.
     const { data: assinatura } = supabase.auth.onAuthStateChange((_evento, sessao) => {
-      if (vivo) setAutenticado(sessao?.user !== undefined && sessao?.user !== null);
+      if (!vivo) return;
+      setAutenticado(Boolean(sessao?.user));
+      setEmail(sessao?.user?.email ?? null);
     });
 
     return () => {
@@ -45,7 +59,7 @@ export function AcessoConta({ className }: { className?: string }) {
 
   if (!autenticado) {
     return (
-      <a
+      <Link
         href="/entrar"
         className={cn(
           'rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco',
@@ -53,20 +67,58 @@ export function AcessoConta({ className }: { className?: string }) {
         )}
       >
         Entrar
-      </a>
+      </Link>
     );
   }
 
   return (
-    <a
-      href="/conta"
-      aria-label="Minha conta"
-      className={cn(
-        'flex h-11 w-11 items-center justify-center rounded-campo text-texto-suave transition hover:bg-superficie-alta hover:text-branco',
-        className,
-      )}
-    >
-      <CircleUserRound className="h-5 w-5" />
-    </a>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label="Minha conta"
+        className={cn(
+          'flex h-11 w-11 items-center justify-center rounded-campo text-texto-suave transition hover:bg-superficie-alta hover:text-branco data-[state=open]:bg-superficie-alta data-[state=open]:text-branco',
+          className,
+        )}
+      >
+        <CircleUserRound className="h-5 w-5" />
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end">
+        {email && <DropdownMenuLabel>{email}</DropdownMenuLabel>}
+
+        <DropdownMenuItem asChild>
+          <Link href="/conta">
+            <UserRound className="h-4 w-4" /> Meu perfil
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild>
+          <Link href="/conta/enderecos">
+            <MapPin className="h-4 w-4" /> Endereços
+          </Link>
+        </DropdownMenuItem>
+
+        {/* Aponta para `/conta` porque a listagem de pedidos é o NAPO-007 — é
+            lá que hoje está o aviso. Inventar `/conta/pedidos` agora seria
+            oferecer no menu uma rota que responde 404. */}
+        <DropdownMenuItem asChild>
+          <Link href="/conta">
+            <ReceiptText className="h-4 w-4" /> Meus pedidos
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
+
+        {/* Sair é POST: por GET, qualquer prefetch do navegador derrubaria a
+            sessão sem ninguém ter clicado. */}
+        <DropdownMenuItem asChild>
+          <form action="/api/auth/sair" method="post">
+            <button type="submit" className="flex w-full items-center gap-3 text-left">
+              <LogOut className="h-4 w-4" /> Sair
+            </button>
+          </form>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
