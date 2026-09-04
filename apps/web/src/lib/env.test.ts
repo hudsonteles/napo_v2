@@ -63,3 +63,48 @@ describe('getServerEnv — provedor de WhatsApp (T45)', () => {
     expect(() => getServerEnv()).toThrowError(/OTP_PEPPER/);
   });
 });
+
+async function carregarPagamento(extra: Record<string, string | undefined>) {
+  vi.resetModules();
+  process.env = { ...original, ...BASE, ...extra } as NodeJS.ProcessEnv;
+  const modulo = await import('./env');
+  return modulo.getPagamentoEnv;
+}
+
+describe('getPagamentoEnv — gateway por variável', () => {
+  beforeEach(() => vi.resetModules());
+  afterEach(() => {
+    process.env = { ...original };
+  });
+
+  it('sem variável nenhuma, o gateway é o falso', async () => {
+    const getPagamentoEnv = await carregarPagamento({ PAGAMENTO_PROVIDER: undefined });
+    expect(getPagamentoEnv().PAGAMENTO_PROVIDER).toBe('fake');
+  });
+
+  it('falha nomeando as credenciais ausentes quando o gateway é o Mercado Pago', async () => {
+    const getPagamentoEnv = await carregarPagamento({
+      PAGAMENTO_PROVIDER: 'mercado_pago',
+      MP_ACCESS_TOKEN: undefined,
+      MP_WEBHOOK_SECRET: undefined,
+    });
+
+    expect(() => getPagamentoEnv()).toThrowError(/MP_ACCESS_TOKEN/);
+    expect(() => getPagamentoEnv()).toThrowError(/MP_WEBHOOK_SECRET/);
+  });
+
+  it('o adaptador falso não exige credencial de pagamento', async () => {
+    const getPagamentoEnv = await carregarPagamento({
+      PAGAMENTO_PROVIDER: 'fake',
+      MP_ACCESS_TOKEN: undefined,
+    });
+
+    expect(() => getPagamentoEnv()).not.toThrow();
+  });
+
+  it('as credenciais de pagamento não entram no escopo de servidor geral', async () => {
+    // Se entrassem, o SSG do catálogo passaria a exigir token de gateway.
+    const getServerEnv = await carregarEnv({ MP_ACCESS_TOKEN: undefined });
+    expect(() => getServerEnv()).not.toThrow();
+  });
+});

@@ -44,7 +44,7 @@ Arquivos: `supabase/migrations/0014_pedidos_funcoes.sql` · Testes (pgTAP): **T3
 Arquivos: `apps/web/src/features/disponibilidade/services/snapshot.ts`, `apps/web/app/api/disponibilidade/reserva/route.ts` · Testes: T9, T33, T34 pelo caminho da aplicação · Depende: C · Est: 40min · Agente: inline · `[x]`
 
 ### Bloco E — Porta de pagamento
-Arquivos: `apps/web/src/lib/pagamentos/{porta,fake,mercado-pago,assinatura}.ts`, `apps/web/src/lib/env.ts` · Testes: T25, T27, T30 · Depende: — · Paralelo: A, B · Est: 60min · Agente: `general-purpose` + persona `security-auditor` · `[ ]`
+Arquivos: `apps/web/src/lib/pagamentos/{porta,fake,mercado-pago,assinatura}.ts`, `apps/web/src/lib/env.ts` · Testes: T25, T27, T30 · Depende: — · Paralelo: A, B · Est: 60min · Agente: inline (ver Decisões) · `[x]`
 
 ### Bloco F — Estado do carrinho no navegador
 Arquivos: `apps/web/src/lib/carrinho/{provider.tsx,armazenamento.ts}` · Testes: T1, T40 · Depende: A · Paralelo: C, E · Est: 40min · Agente: inline · `[ ]`
@@ -112,3 +112,8 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco B — `pedidos_total_confere` e `pedidos_pago_tem_pagamento` como `CHECK`.** Total divergente e pedido pago sem prova de pagamento passam a ser impossíveis, não improváveis — mesmo critério da RN2 do NAPO-003.
 - **Bloco D — o snapshot lê `pedidos` com os itens pendurados, não `pedido_itens` com `!inner`.** `status` é coluna da raiz: o filtro fica onde `vagas_ocupadas` o faz, e a lista de status vira uma constante única no arquivo.
 - **Bloco D — a rota do NAPO-004 devolve a primeira reserva, não o array.** `reservar_carrinho` responde a lista do carrinho; preservar a forma de uma reserva mantém o contrato publicado do NAPO-004 intacto.
+- **Bloco E — executado inline e sequencial, não em subagente paralelo.** Worktree único: dois agentes commitando e rodando `build` ao mesmo tempo disputam o índice do git e o cache do Next (`AGENTS.md` §2.12). O paralelismo A‖B‖E do plano fica declarado como impossível aqui.
+- **Bloco E — `mercadopago@3`, não `^2` como o design registrou.** É a linha estável do SDK oficial; a superfície usada (`Preference.create`, `Payment.get`) é a mesma.
+- **Bloco E — a verificação de assinatura é código nosso.** O SDK não expõe o manifesto da notificação; o HMAC mora em `assinatura.ts` e é testável sem rede.
+- **Bloco E — `portaDePagamento()` devolve instância única.** O adaptador falso guarda em memória o valor cobrado, porque a RN10 compara valor; uma instância por chamada faria todo pagamento local ser "não encontrado".
+- **Bloco E — `.env.example` atualizado junto, fora do Mapa por uma linha.** A mensagem de erro do `env.ts` manda o dev para esse arquivo: variável nova sem entrada lá é variável que ninguém descobre.
