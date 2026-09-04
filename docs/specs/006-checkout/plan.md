@@ -41,7 +41,7 @@ Arquivos: `supabase/migrations/0014_pedidos_funcoes.sql` · Testes (pgTAP): **T3
 > `vagas_ocupadas` é compartilhada com o motor do NAPO-004: T33/T34 verdes **antes** de qualquer outro código (`design.md` §8).
 
 ### Bloco D — Snapshot e rota de reserva
-Arquivos: `apps/web/src/features/disponibilidade/services/snapshot.ts`, `apps/web/app/api/disponibilidade/reserva/route.ts` · Testes: T9, T33, T34 pelo caminho da aplicação · Depende: C · Est: 40min · Agente: inline · `[~]`
+Arquivos: `apps/web/src/features/disponibilidade/services/snapshot.ts`, `apps/web/app/api/disponibilidade/reserva/route.ts` · Testes: T9, T33, T34 pelo caminho da aplicação · Depende: C · Est: 40min · Agente: inline · `[x]`
 
 ### Bloco E — Porta de pagamento
 Arquivos: `apps/web/src/lib/pagamentos/{porta,fake,mercado-pago,assinatura}.ts`, `apps/web/src/lib/env.ts` · Testes: T25, T27, T30 · Depende: — · Paralelo: A, B · Est: 60min · Agente: `general-purpose` + persona `security-auditor` · `[ ]`
@@ -110,3 +110,5 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco C — `entregue` continua ocupando vaga; `estornado` devolve.** A pizza entregue saiu daquela fornada e não volta; o estorno é o único estado terminal que libera.
 - **Bloco C — `reservar_carrinho` recebe `p_minutos` em vez de ler `config_operacao`.** Mantém a função sem regra de negócio, no mesmo contrato do `p_limite` do 0005: quem decide o prazo é o servidor.
 - **Bloco B — `pedidos_total_confere` e `pedidos_pago_tem_pagamento` como `CHECK`.** Total divergente e pedido pago sem prova de pagamento passam a ser impossíveis, não improváveis — mesmo critério da RN2 do NAPO-003.
+- **Bloco D — o snapshot lê `pedidos` com os itens pendurados, não `pedido_itens` com `!inner`.** `status` é coluna da raiz: o filtro fica onde `vagas_ocupadas` o faz, e a lista de status vira uma constante única no arquivo.
+- **Bloco D — a rota do NAPO-004 devolve a primeira reserva, não o array.** `reservar_carrinho` responde a lista do carrinho; preservar a forma de uma reserva mantém o contrato publicado do NAPO-004 intacto.

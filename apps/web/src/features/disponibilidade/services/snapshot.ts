@@ -5,6 +5,15 @@ import type { DiaSemana, Produto, Snapshot } from '@napo/core';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 /**
+ * Espelha o `in` de `vagas_ocupadas` (migration 0014). Divergir daqui faz a
+ * vitrine oferecer a vaga que o checkout recusa — ou o contrário.
+ *
+ * `aguardando_pagamento` fica de fora de propósito: a vaga dele já está contada
+ * pela reserva que o sustenta (RN7).
+ */
+const STATUS_QUE_OCUPAM_VAGA = ['pago', 'em_producao', 'pronto', 'em_rota', 'entregue'] as const;
+
+/**
  * Monta o snapshot que alimenta o núcleo puro.
  *
  * O catálogo ainda não existe (`produtos` chega em NAPO-003), então a lista de
@@ -14,7 +23,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 export async function carregarSnapshot(produtos: Produto[], agora = new Date()): Promise<Snapshot> {
   const supabase = createSupabaseAdminClient();
 
-  const [config, diasEntrega, diasProducao, excecoes, lotes, producao, reservas] =
+  const [config, diasEntrega, diasProducao, excecoes, lotes, producao, reservas, pedidos] =
     await Promise.all([
       supabase.from('config_operacao').select('*').limit(1).single(),
       supabase.from('dias_semana_entrega').select('*'),
@@ -27,6 +36,12 @@ export async function carregarSnapshot(produtos: Produto[], agora = new Date()):
         .select('dia_entrega, produto_id, quantidade')
         .eq('status', 'ativa')
         .gt('expira_em', agora.toISOString()),
+      // O filtro fica na raiz porque `status` é coluna de `pedidos`: os itens
+      // vêm pendurados, sem `!inner` e sem uma segunda ida ao banco.
+      supabase
+        .from('pedidos')
+        .select('dia_entrega, pedido_itens(produto_id, quantidade)')
+        .in('status', [...STATUS_QUE_OCUPAM_VAGA]),
     ]);
 
   if (config.error) throw config.error;
@@ -67,11 +82,22 @@ export async function carregarSnapshot(produtos: Produto[], agora = new Date()):
       produtoId: p.produto_id,
       quantidade: p.quantidade,
     })),
-    consumos: (reservas.data ?? []).map((r) => ({
-      diaEntrega: r.dia_entrega,
-      produtoId: r.produto_id,
-      quantidade: r.quantidade,
-    })),
+    // Reserva viva e pedido ativo ocupam a mesma vaga (RN12). O núcleo soma a
+    // lista inteira; o que decide o que entra aqui é a consulta.
+    consumos: [
+      ...(reservas.data ?? []).map((r) => ({
+        diaEntrega: r.dia_entrega,
+        produtoId: r.produto_id,
+        quantidade: r.quantidade,
+      })),
+      ...(pedidos.data ?? []).flatMap((p) =>
+        p.pedido_itens.map((i) => ({
+          diaEntrega: p.dia_entrega,
+          produtoId: i.produto_id,
+          quantidade: i.quantidade,
+        })),
+      ),
+    ],
   };
 }
 

@@ -50,19 +50,22 @@ export async function POST(request: Request) {
     );
   }
 
-  // O limite sai do núcleo e é somado às reservas vivas, que a RPC já conta:
-  // é o total tolerado para o dia, não o que sobra.
+  // O limite sai do núcleo e é somado às vagas já ocupadas, que a RPC reconta
+  // sob lock: é o total tolerado para o dia, não o que sobra.
   const disponivel = dia.produtos.find((p) => p.produtoId === produtoId)?.disponivel ?? 0;
   const ocupadas = snapshot.consumos
     .filter((c) => c.diaEntrega === diaEntrega && c.produtoId === produtoId)
     .reduce((total, c) => total + c.quantidade, 0);
 
-  const { data, error } = await createSupabaseAdminClient().rpc('reservar_capacidade', {
+  // Uma reserva de um item só, pela mesma função do carrinho: duas funções
+  // tomando o mesmo advisory lock por caminhos diferentes é regra duplicada
+  // (design.md §5 decisão 3).
+  const { data, error } = await createSupabaseAdminClient().rpc('reservar_carrinho', {
     p_dia: diaEntrega,
-    p_produto: produtoId,
-    p_quantidade: quantidade,
+    p_itens: [{ produto_id: produtoId, quantidade }],
     p_profile: user.id,
-    p_limite: disponivel + ocupadas,
+    p_limites: [{ produto_id: produtoId, limite: disponivel + ocupadas }],
+    p_minutos: snapshot.config.reservaMinutos,
   });
 
   if (error) {
@@ -74,5 +77,8 @@ export async function POST(request: Request) {
     );
   }
 
-  return NextResponse.json({ success: true, data });
+  // `reservar_carrinho` devolve a lista do carrinho; aqui o carrinho tem um item.
+  const [reserva] = (data ?? []) as unknown[];
+
+  return NextResponse.json({ success: true, data: reserva });
 }
