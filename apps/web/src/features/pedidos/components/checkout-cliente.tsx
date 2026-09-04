@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Zap } from 'lucide-react';
+import Link from 'next/link';
+import { TriangleAlert, Zap } from 'lucide-react';
 import { calcularFrete, type FaixaFrete } from '@napo/core';
 import { toast } from '@napo/ui/components/toaster';
 
@@ -53,6 +54,11 @@ export function CheckoutCliente({
       null,
   );
   const [processando, setProcessando] = useState(false);
+  /**
+   * Bloqueio que exige ação do cliente fica em card, nunca em toast (critério
+   * visual 6): toast some sozinho, e quem não viu pagaria o que não conferiu.
+   */
+  const [aviso, setAviso] = useState<{ titulo: string; texto: string } | null>(null);
 
   useEffect(() => {
     if (!pronto || itens.length === 0) return;
@@ -117,6 +123,7 @@ export function CheckoutCliente({
     if (!endereco || !validado) return;
 
     setProcessando(true);
+    setAviso(null);
 
     try {
       const resposta = await fetch('/api/pedidos', {
@@ -141,7 +148,12 @@ export function CheckoutCliente({
         return;
       }
 
-      toast.error(mensagemDeFalha(corpo?.error?.motivo, validado.dia?.data ?? null));
+      const motivo = corpo?.error?.motivo;
+      const permanente = AVISOS_PERMANENTES[motivo];
+
+      if (permanente) setAviso(permanente);
+      else toast.error(mensagemDeFalha(motivo));
+
       setProcessando(false);
     } catch {
       toast.error('Não conseguimos abrir o pagamento. Seu carrinho continua aqui.');
@@ -152,6 +164,24 @@ export function CheckoutCliente({
   return (
     <div className="mt-7 grid gap-8 lg:grid-cols-[1fr_340px]">
       <div className="space-y-8">
+        {aviso && (
+          <div className="rounded-card border border-amarelo/50 bg-amarelo/5 p-4">
+            <div className="flex gap-3">
+              <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-amarelo" />
+              <div className="min-w-0">
+                <p className="font-semibold">{aviso.titulo}</p>
+                <p className="mt-1 text-sm leading-relaxed text-texto-suave">{aviso.texto}</p>
+                <Link
+                  href="/carrinho"
+                  className="mt-3 inline-block font-mono text-xs text-amarelo underline underline-offset-2"
+                >
+                  voltar ao carrinho
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
         <section>
           <h2 className="flex items-center gap-2.5 text-lg font-bold">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-amarelo font-mono text-xs font-bold text-preto">
@@ -239,14 +269,22 @@ function decidirBloqueio({
   return null;
 }
 
-function mensagemDeFalha(motivo: string | undefined, dia: string | null): string {
+/** Bloqueios que exigem reconfirmação: card que permanece, nunca toast. */
+const AVISOS_PERMANENTES: Record<string, { titulo: string; texto: string }> = {
+  sem_vaga: {
+    titulo: 'Esta fornada encheu enquanto você decidia',
+    texto:
+      'A vaga foi para outro pedido. Volte ao carrinho para ver a próxima fornada que assa todos os seus sabores.',
+  },
+  preco_mudou: {
+    titulo: 'O preço de um item mudou',
+    texto:
+      'Um sabor do seu carrinho mudou de preço desde que você o adicionou. Confira o valor no carrinho antes de pagar.',
+  },
+};
+
+function mensagemDeFalha(motivo: string | undefined): string {
   switch (motivo) {
-    case 'sem_vaga':
-      return dia
-        ? 'Esta fornada encheu enquanto você decidia. Volte ao carrinho para ver a próxima com todos os seus sabores.'
-        : 'Esta fornada encheu enquanto você decidia.';
-    case 'preco_mudou':
-      return 'O preço de um item mudou desde que você montou o carrinho. Confira no carrinho antes de pagar.';
     case 'fora_de_area':
       return 'Ainda não entregamos neste endereço.';
     case 'gateway_indisponivel':

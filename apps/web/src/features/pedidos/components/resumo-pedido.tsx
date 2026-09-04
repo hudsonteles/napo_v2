@@ -91,16 +91,72 @@ export function ResumoPedido({
             </p>
           )}
 
-          <Button className="mt-4" disabled={processando || bloqueio !== null} onClick={onPagar}>
-            <Lock className="h-4 w-4" />
-            {processando ? 'Abrindo pagamento…' : total === null ? 'Pagar' : `Pagar ${reais(total)}`}
-          </Button>
-
-          <p className="mt-2.5 text-center text-[11px] leading-relaxed text-texto-suave">
-            {bloqueio ?? `Sua vaga na fornada fica reservada por ${minutosDeReserva} minutos.`}
-          </p>
+          {/* Abaixo de lg o botão vive na barra fixa do rodapé (design §4.6):
+              total que precisa de rolagem para ser visto é total que não foi
+              lido. Duas instâncias, um só handler. */}
+          <div className="hidden lg:block">
+            <BotaoPagar
+              className="mt-4"
+              processando={processando}
+              bloqueio={bloqueio}
+              total={total}
+              onPagar={onPagar}
+            />
+            <p className="mt-2.5 text-center text-[11px] leading-relaxed text-texto-suave">
+              {bloqueio ?? `Sua vaga na fornada fica reservada por ${minutosDeReserva} minutos.`}
+            </p>
+          </div>
         </div>
       </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-borda bg-preto/95 px-4 py-3 backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-6xl items-center gap-3">
+          <div className="min-w-0">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-texto-suave">Total</p>
+            <p className="font-mono text-lg font-extrabold leading-tight">
+              {total === null ? '—' : reais(total)}
+            </p>
+          </div>
+          <BotaoPagar
+            className="flex-1"
+            processando={processando}
+            bloqueio={bloqueio}
+            total={total}
+            onPagar={onPagar}
+            compacto
+          />
+        </div>
+      </div>
+
+      {/* Espaço para a barra fixa não cobrir o fim do conteúdo. */}
+      <div className="h-20 lg:hidden" aria-hidden />
     </aside>
+  );
+}
+
+function BotaoPagar({
+  processando,
+  bloqueio,
+  total,
+  onPagar,
+  className,
+  compacto = false,
+}: {
+  processando: boolean;
+  bloqueio: string | null;
+  total: number | null;
+  onPagar: () => void;
+  className?: string;
+  compacto?: boolean;
+}) {
+  return (
+    <Button className={className} disabled={processando || bloqueio !== null} onClick={onPagar}>
+      <Lock className="h-4 w-4" />
+      {processando
+        ? 'Abrindo pagamento…'
+        : compacto || total === null
+          ? 'Pagar'
+          : `Pagar ${reais(total)}`}
+    </Button>
   );
 }
