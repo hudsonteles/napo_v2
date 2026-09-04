@@ -50,7 +50,7 @@ Arquivos: `apps/web/src/lib/pagamentos/{porta,fake,mercado-pago,assinatura}.ts`,
 Arquivos: `apps/web/src/lib/carrinho/{provider.tsx,armazenamento.ts}` · Testes: T1, T40 · Depende: A · Paralelo: C, E · Est: 40min · Agente: inline · `[x]`
 
 ### Bloco G — Criação de pedido
-Arquivos: `apps/web/src/features/pedidos/{schema.ts,index.ts}`, `.../services/{pedidos-repo,criar-pedido}.ts`, `apps/web/app/api/pedidos/route.ts`, `apps/web/app/api/carrinho/validar/route.ts` · Testes: T3, T5, T12, T13, T14, T18, T19, T20, T21, T36, T37 · Depende: A, C, E · Est: 90min · Agente: `general-purpose` · `[ ]`
+Arquivos: `apps/web/src/features/pedidos/{schema.ts,index.ts}`, `.../services/{pedidos-repo,criar-pedido}.ts`, `apps/web/app/api/pedidos/route.ts`, `apps/web/app/api/carrinho/validar/route.ts` · Testes: T3, T5, T12, T13, T14, T18, T19, T20, T21, T36, T37 · Depende: A, C, E · Est: 90min · Agente: inline · `[x]`
 
 ### Bloco H — Webhook, confirmação e ciclo de vida
 Arquivos: `.../services/confirmar-pagamento.ts`, `apps/web/app/api/webhook/mp/route.ts`, `apps/web/app/api/pedidos/[numero]/route.ts`, `.../[numero]/cancelar/route.ts`, `apps/web/app/api/manutencao/pedidos-parados/route.ts` · Testes: T6, T7, T8, T16, T26, T27, T28, T29, T30, T35, T38, T39 · Depende: C, E, G · Est: 90min · Agente: `general-purpose` + persona `security-auditor` · `[ ]`
@@ -119,3 +119,7 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco E — `.env.example` atualizado junto, fora do Mapa por uma linha.** A mensagem de erro do `env.ts` manda o dev para esse arquivo: variável nova sem entrada lá é variável que ninguém descobre.
 - **Bloco F — T1 fica dividido: persistência em `armazenamento.test.ts`, contador no Gate Visual B.** A suíte do app roda em Node, sem jsdom nem testing-library, e o projeto inteiro valida UI por gate visual (NAPO-002/003/005). Montar infra de teste de componente aqui é escopo que a spec não pediu.
 - **Bloco F — `definirQuantidade` mapeia em vez de remover e reinserir.** Trocar a quantidade não pode fazer a linha pular para o fim da lista debaixo do dedo de quem clicou.
+- **Bloco G — as fontes do pedido chegam injetadas pela rota.** Catálogo, disponibilidade e endereços são features distintas e feature não importa de feature (ARCHITECTURE §3.2); a camada `app` é a única que pode compor as três.
+- **Bloco G — o item carrega `precoVistoCentavos`, e só ele.** `conferirPrecos` precisa do preço que o cliente viu para a RN3 ter os dois lados; o schema é `.strict()`, então total, frete, distância, dia e forma de pagamento são recusados, não ignorados (T13, T21).
+- **Bloco G — a compensação do gateway libera todas as reservas do carrinho.** `pedidos.reserva_id` guarda uma só; um carrinho de três sabores tem três linhas, e deixar duas vivas prenderia vaga por trinta minutos por erro de terceiro (T37).
+- **Bloco G — `T12` (canal e atividade fiscal) fica por conta dos defaults do 0013.** O insert não cita as colunas: valor default no banco é mais difícil de esquecer que argumento em código.
