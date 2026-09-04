@@ -153,8 +153,12 @@ select throws_ok(
 -- ── T24 — equipe lê tudo, escreve nada (RN17) ──────────────────────────────
 set local request.jwt.claims = '{"sub":"60000000-0000-0000-0000-00000000000a","role":"authenticated"}';
 
+-- Conta só as fixtures deste arquivo. `count(*)` da tabela inteira passa em
+-- banco recém-criado e quebra em qualquer banco de desenvolvimento com pedido
+-- real — o que se prova aqui é que a equipe enxerga pedido de OUTRO dono, não
+-- quantas linhas existem no mundo.
 select is(
-  (select count(*)::int from public.pedidos),
+  (select count(*)::int from public.pedidos where id::text like '60ed0000-%'),
   3,
   'T24 — atendente lê todos os pedidos para operar'
 );
@@ -170,7 +174,7 @@ select throws_ok(
 set local request.jwt.claims = '{"sub":"60000000-0000-0000-0000-00000000000b","role":"authenticated"}';
 
 select is(
-  (select count(*)::int from public.pedidos),
+  (select count(*)::int from public.pedidos where id::text like '60ed0000-%'),
   3,
   'T24 — gerente lê todos os pedidos'
 );

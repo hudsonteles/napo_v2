@@ -56,10 +56,10 @@ Arquivos: `apps/web/src/features/pedidos/{schema.ts,index.ts}`, `.../services/{p
 Arquivos: `.../services/confirmar-pagamento.ts`, `apps/web/app/api/webhook/mp/route.ts`, `apps/web/app/api/pedidos/[numero]/route.ts`, `.../[numero]/cancelar/route.ts`, `apps/web/app/api/manutencao/pedidos-parados/route.ts` · Testes: T6, T7, T8, T16, T26, T27, T28, T29, T30, T35, T38, T39 · Depende: C, E, G · Est: 90min · Agente: inline · `[x]`
 
 ### Bloco I — UI do carrinho e cabeçalho
-Arquivos: `packages/ui/src/patterns/{acesso-carrinho.tsx,cabecalho-site.tsx}`, `apps/web/src/features/catalogo/components/estado-disponibilidade.tsx`, `apps/web/app/(loja)/layout.tsx`, `apps/web/app/(loja)/carrinho/page.tsx`, `apps/web/src/features/pedidos/components/lista-carrinho.tsx` · Testes: T41 + critérios visuais 2,3,6,7 · Depende: F · Est: 75min · Agente: inline (mapa de tradução: `design.md` §4.4) · `[~]` código pronto, aguardando Gate Visual B junto com J
+Arquivos: `packages/ui/src/patterns/{acesso-carrinho.tsx,cabecalho-site.tsx}`, `apps/web/src/features/catalogo/components/estado-disponibilidade.tsx`, `apps/web/app/(loja)/layout.tsx`, `apps/web/app/(loja)/carrinho/page.tsx`, `apps/web/src/features/pedidos/components/lista-carrinho.tsx` · Testes: T41 + critérios visuais 2,3,6,7 · Depende: F · Est: 75min · Agente: inline (mapa de tradução: `design.md` §4.4) · `[x]`
 
 ### Bloco J — UI do checkout e do pedido
-Arquivos: `apps/web/app/(loja)/checkout/page.tsx`, `apps/web/app/(loja)/pedido/[numero]/page.tsx`, `.../components/{resumo-pedido,seletor-endereco,estado-pagamento}.tsx`, `apps/web/middleware.ts` · Testes: T31 + critérios visuais 1,4,5,8,9,10 · Depende: G, H, I · Est: 90min · Agente: inline (mapa de tradução: `design.md` §4.4) · `[~]` código pronto, aguardando aprovação do Gate Visual B
+Arquivos: `apps/web/app/(loja)/checkout/page.tsx`, `apps/web/app/(loja)/pedido/[numero]/page.tsx`, `.../components/{resumo-pedido,seletor-endereco,estado-pagamento}.tsx`, `apps/web/middleware.ts` · Testes: T31 + critérios visuais 1,4,5,8,9,10 · Depende: G, H, I · Est: 90min · Agente: inline (mapa de tradução: `design.md` §4.4) · `[x]`
 
 ---
 
@@ -158,3 +158,8 @@ Ajustes pedidos pelo PM na aplicação real. Os que tocam NAPO-002/003 estão aq
 | Sem atalho de fechamento na vitrine | Melhoria pedida | Barra fixa com subtotal rotulado "sem frete" |
 
 **Pendente de decisão do PM:** listagem de pedidos no menu aponta para `/conta` — a área de pedidos é o NAPO-007.
+
+- **Gate Visual B aprovado pelo PM em 2026-09-04**, na aplicação real, depois de duas rodadas de ajuste (achados na tabela acima).
+- **Testes pgTAP contavam a tabela inteira.** `count(*) from pedidos` passa em banco recém-criado e quebra em banco de desenvolvimento com pedido real; as asserções passaram a contar só as próprias fixtures, e as datas foram para 2030 — o teste não pode disputar o calendário com quem está usando o app.
+
+**Concluído em:** 2026-09-04

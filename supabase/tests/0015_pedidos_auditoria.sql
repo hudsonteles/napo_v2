@@ -14,7 +14,7 @@ insert into public.profiles (id, nome, email, role)
 values ('80000000-0000-0000-0000-000000000001', 'G Cliente', 'g-cliente@napo.test', 'cliente');
 
 \set produto '''dddddddd-0000-0000-0000-000000000002'''
-\set dia     '''2026-09-25'''
+\set dia     '''2030-09-27'''
 \set pedido  '''80ed0000-0000-0000-0000-000000000001'''
 
 insert into public.pedidos

@@ -34,13 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-- [ ] **NAPO-006** Carrinho e checkout com Mercado Pago
-  - **Spec:** [`docs/specs/006-checkout/`](docs/specs/006-checkout/) — aprovada em 2026-08-19
-  - **Iniciado em:** 2026-08-19
-  - **Dependências:** NAPO-002, NAPO-003, NAPO-004, NAPO-005 — todas concluídas
-  - **Bloqueia:** NAPO-007
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **Notas:** Pix, crédito e débito. **Pagamento online obrigatório no site** — um no-show não custa a viagem, custa uma vaga de 30. Snapshot de preço, custo e endereço no pedido (editar cadastro não pode reescrever histórico). Cancelamento devolve estoque; estorno é manual no painel MP. Spec §7.
+_Fila vazia — o NAPO-006 fechou em 2026-09-04. Próximo candidato: repriorizar de 🟡 Próximos._
 
 ---
 
@@ -48,7 +42,7 @@ _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
 
-_Fila vazia — repriorizar do Backlog ao concluir NAPO-006. Candidatos naturais: NAPO-009 (LGPD, Must independente) e NAPO-021 (provisionar ambientes)._
+_Fila vazia. Candidatos naturais agora que o canal de venda existe: **NAPO-009** (LGPD, Must independente de tudo), **NAPO-021** (provisionar ambientes — quanto mais specs acumulam, maior a surpresa) e **NAPO-007** (área do cliente, destravado pelo NAPO-006)._
 
 ---
 
@@ -187,6 +181,18 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 ## ✅ Concluídos
 
 _Histórico — adicionar mais recentes NO TOPO._
+
+- [x] **NAPO-006** Carrinho e checkout com Mercado Pago · concluído 2026-09-04 · [`docs/specs/006-checkout/`](docs/specs/006-checkout/)
+  - Carrinho **anônimo** no navegador (RN1): adicionar não pede login e não reserva vaga — quem reserva é o clique em pagar, por 30 minutos. Seis sacolas abandonadas não podem esgotar a fornada de quem ia pagar.
+  - **A ordem do checkout é a decisão:** revalida → reserva → grava pedido → cria cobrança. A reserva vem antes da cobrança porque vaga vendida duas vezes é pior que cobrança não criada; a preferência vem por último porque é o único passo irreversível fora do nosso banco. Gateway fora do ar libera a reserva e expira o pedido **na mesma requisição** — indisponibilidade de terceiro não prende o gargalo do negócio por meia hora.
+  - **O webhook não confia em nada do corpo além do id.** Confere a assinatura (HMAC do manifesto, comparação em tempo constante), busca o pagamento na API do Mercado Pago e compara o valor com o total do pedido. Idempotência é do banco, por índice único parcial em `mp_payment_id`: duas notificações simultâneas viram violação de constraint, não dois consumos de capacidade.
+  - **Dinheiro que entrou não é recusado (RN11):** dia inviável nasce `pago` com veredito gravado e alerta, para a casa resolver com uma ligação. A viabilidade é avaliada **abatendo a reserva do próprio pedido** — sem isso o cliente disputaria a vaga contra si mesmo.
+  - `vagas_ocupadas` reescrita para somar reserva viva **e** pedido ativo (RN12): é a função que a vitrine lê, então errar aqui quebraria o site inteiro, não só o checkout — coberta por pgTAP antes de qualquer código de aplicação.
+  - Gateway atrás de `PortaPagamento` (três métodos): `PAGAMENTO_PROVIDER=fake` fecha o fluxo inteiro sem túnel, e trocar de gateway vira escrever um adaptador. Ambiente troca por variável, nunca por edição de código.
+  - **Ficha da fornada** como topo do resumo (direção A do Gate Visual A): o que o cliente compra é uma vaga numa fornada de um dia, não "3 pizzas" — é a leitura literal do gargalo declarado na arquitetura.
+  - 400 testes Vitest + 120 pgTAP. Migration `0015` acrescentou auditoria à confirmação (RN21), aprovada fora do Mapa no checkpoint pós-H.
+  - **Achados do Gate Visual B corrigiram NAPO-002 e NAPO-003 também:** checkout abria sem telefone validado, o retorno se perdia nos desvios (validar telefone, cadastrar endereço), telas sem saída, `ring-offset` desenhando risco escuro na borda de todo botão amarelo, e `cursor: default` do reset do Tailwind v4. Regra nova em `ARCHITECTURE.md` §2.2.3: nenhuma tela exibe erro padrão de HTML ou de terceiro. Tabela completa em `plan.md`.
+  - **Não foi exercitado com o Mercado Pago real** — exige túnel público e credenciais de teste (`ARCHITECTURE.md` §6.1). É pré-requisito do NAPO-021, não deste item.
 
 - [x] **NAPO-005** Endereços e frete por faixa de distância · concluído 2026-08-18 · [`docs/specs/005-enderecos-frete/`](docs/specs/005-enderecos-frete/)
   - Cadastro de endereço em **duas etapas**: texto primeiro, confirmação da posição depois, com pin fixo no centro e o mapa se movendo embaixo. A página única aprovada no Gate Visual A foi superada em execução (`drift.md`): apresentado como elemento opcional entre nove campos, o mapa não é usado — e pin no meio da quadra não gera reclamação, gera **viagem perdida numa rota de dez paradas**.

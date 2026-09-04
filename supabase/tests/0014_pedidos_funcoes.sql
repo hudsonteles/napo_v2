@@ -23,7 +23,7 @@ values ('70000000-0000-0000-0000-000000000001', 'F Cliente', 'f-cliente@napo.tes
 -- Produto real do catálogo (0011) — pedido_itens tem FK para produtos.
 \set produto '''dddddddd-0000-0000-0000-000000000002'''
 \set outro   '''dddddddd-0000-0000-0000-000000000001'''
-\set dia     '''2026-09-04'''
+\set dia     '''2030-09-06'''
 
 -- ═════════════════════════════════════════════════════════════════════════════
 -- T33 — vagas_ocupadas conta reserva viva E pedido ativo (RN12)
@@ -49,32 +49,32 @@ select is(public.vagas_ocupadas(:dia, :produto), 5,
 select is(public.vagas_ocupadas(:dia, :outro), 0,
   'T33 — a contagem é por produto: outro sabor não é afetado');
 
-select is(public.vagas_ocupadas('2026-09-11', :produto), 0,
+select is(public.vagas_ocupadas('2030-09-13', :produto), 0,
   'T33 — a contagem é por dia: outra fornada não é afetada');
 
 -- ═════════════════════════════════════════════════════════════════════════════
 -- T34 — vagas_ocupadas ignora o que não ocupa (RN12, RN13)
 -- ═════════════════════════════════════════════════════════════════════════════
 insert into public.reservas (profile_id, dia_entrega, produto_id, quantidade, expira_em, status)
-values ('70000000-0000-0000-0000-000000000001', '2026-09-18', :produto, 4, now() - interval '1 min', 'ativa');
+values ('70000000-0000-0000-0000-000000000001', '2030-09-20', :produto, 4, now() - interval '1 min', 'ativa');
 
-select is(public.vagas_ocupadas('2026-09-18', :produto), 0,
+select is(public.vagas_ocupadas('2030-09-20', :produto), 0,
   'T34 — reserva vencida não ocupa (invisível sem job de limpeza)');
 
 insert into public.pedidos
   (id, profile_id, status, dia_entrega, endereco_snapshot, subtotal_centavos, frete_centavos, total_centavos, expira_em)
 values
   ('70ed0000-0000-0000-0000-000000000002', '70000000-0000-0000-0000-000000000001', 'expirado',
-   '2026-09-18', '{}'::jsonb, 3990, 600, 4590, now() - interval '1 min'),
+   '2030-09-20', '{}'::jsonb, 3990, 600, 4590, now() - interval '1 min'),
   ('70ed0000-0000-0000-0000-000000000003', '70000000-0000-0000-0000-000000000001', 'cancelado',
-   '2026-09-18', '{}'::jsonb, 3990, 600, 4590, now() - interval '1 min');
+   '2030-09-20', '{}'::jsonb, 3990, 600, 4590, now() - interval '1 min');
 
 insert into public.pedido_itens (pedido_id, produto_id, nome_snapshot, quantidade, preco_unitario_snapshot)
 values
   ('70ed0000-0000-0000-0000-000000000002', :produto, 'Calabresa', 5, 3990),
   ('70ed0000-0000-0000-0000-000000000003', :produto, 'Calabresa', 7, 3990);
 
-select is(public.vagas_ocupadas('2026-09-18', :produto), 0,
+select is(public.vagas_ocupadas('2030-09-20', :produto), 0,
   'T34 — pedido expirado e cancelado não ocupam vaga');
 
 -- Pedido aguardando pagamento também não conta: quem segura a vaga dele é a
@@ -83,25 +83,25 @@ insert into public.pedidos
   (id, profile_id, status, dia_entrega, endereco_snapshot, subtotal_centavos, frete_centavos, total_centavos, expira_em)
 values
   ('70ed0000-0000-0000-0000-000000000004', '70000000-0000-0000-0000-000000000001', 'aguardando_pagamento',
-   '2026-09-18', '{}'::jsonb, 3990, 600, 4590, now() + interval '30 min');
+   '2030-09-20', '{}'::jsonb, 3990, 600, 4590, now() + interval '30 min');
 
 insert into public.pedido_itens (pedido_id, produto_id, nome_snapshot, quantidade, preco_unitario_snapshot)
 values ('70ed0000-0000-0000-0000-000000000004', :produto, 'Calabresa', 9, 3990);
 
-select is(public.vagas_ocupadas('2026-09-18', :produto), 0,
+select is(public.vagas_ocupadas('2030-09-20', :produto), 0,
   'T34 — pedido aguardando pagamento não conta: quem segura a vaga é a reserva dele');
 
 -- Estados que ocupam de verdade (a pizza existe ou vai existir).
 update public.pedidos set status = 'em_producao' where id = '70ed0000-0000-0000-0000-000000000004';
-select is(public.vagas_ocupadas('2026-09-18', :produto), 9,
+select is(public.vagas_ocupadas('2030-09-20', :produto), 9,
   'T34 — em_producao ocupa vaga');
 
 update public.pedidos set status = 'entregue' where id = '70ed0000-0000-0000-0000-000000000004';
-select is(public.vagas_ocupadas('2026-09-18', :produto), 9,
+select is(public.vagas_ocupadas('2030-09-20', :produto), 9,
   'T34 — entregue ocupa: a pizza saiu daquela fornada');
 
 update public.pedidos set status = 'estornado' where id = '70ed0000-0000-0000-0000-000000000004';
-select is(public.vagas_ocupadas('2026-09-18', :produto), 0,
+select is(public.vagas_ocupadas('2030-09-20', :produto), 0,
   'T34 — estornado devolve a vaga');
 
 -- ═════════════════════════════════════════════════════════════════════════════
@@ -122,7 +122,7 @@ select ok(
 -- Dia limpo, teto de 10 por produto.
 select is(
   jsonb_array_length(public.reservar_carrinho(
-    '2026-09-25',
+    '2030-09-27',
     '[{"produto_id":"dddddddd-0000-0000-0000-000000000002","quantidade":2},
       {"produto_id":"dddddddd-0000-0000-0000-000000000001","quantidade":1}]'::jsonb,
     '70000000-0000-0000-0000-000000000001',
@@ -134,13 +134,13 @@ select is(
   'reservar_carrinho cria uma reserva por item e devolve as duas'
 );
 
-select is(public.vagas_ocupadas('2026-09-25', :produto), 2,
+select is(public.vagas_ocupadas('2030-09-27', :produto), 2,
   'reservar_carrinho ocupa a vaga do primeiro item');
 
 -- T36 — se um item não cabe, NADA é reservado.
 select throws_ok(
   $$select public.reservar_carrinho(
-      '2026-09-25',
+      '2030-09-27',
       '[{"produto_id":"dddddddd-0000-0000-0000-000000000002","quantidade":1},
         {"produto_id":"dddddddd-0000-0000-0000-000000000001","quantidade":99}]'::jsonb,
       '70000000-0000-0000-0000-000000000001',
@@ -152,7 +152,7 @@ select throws_ok(
   'T36 — item que não cabe derruba o carrinho inteiro'
 );
 
-select is(public.vagas_ocupadas('2026-09-25', :produto), 2,
+select is(public.vagas_ocupadas('2030-09-27', :produto), 2,
   'T36 — a recusa não deixou reserva parcial do item que cabia'
 );
 
@@ -220,7 +220,7 @@ insert into public.pedidos
 select '70ed0000-0000-0000-0000-000000000006', '70000000-0000-0000-0000-000000000001', 'aguardando_pagamento',
        '2026-10-09', '{}'::jsonb, 3990, 600, 4590, now() - interval '1 min', r.id
 from public.reservas r
-where r.dia_entrega = '2026-09-25' and r.produto_id = :produto
+where r.dia_entrega = '2030-09-27' and r.produto_id = :produto
 limit 1;
 
 select is(public.expirar_pedidos(), 1,
@@ -232,7 +232,7 @@ select is(
   'T15/RN13 — o pedido vencido fica expirado'
 );
 
-select is(public.vagas_ocupadas('2026-09-25', :produto), 0,
+select is(public.vagas_ocupadas('2030-09-27', :produto), 0,
   'T15/RN13 — expirar libera a reserva e a vaga volta para a fila');
 
 select * from finish();
