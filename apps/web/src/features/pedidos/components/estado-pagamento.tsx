@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Check, LoaderCircle } from 'lucide-react';
+import { ArrowRight, Check, Flame, LoaderCircle, ReceiptText } from 'lucide-react';
+import Link from 'next/link';
+import { Button } from '@napo/ui/components/button';
 import { Card } from '@napo/ui/components/card';
 
 import { useCarrinho } from '@/lib/carrinho/provider';
@@ -101,6 +103,8 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
         <p className="mt-4 font-mono text-xs text-texto-suave">
           Pedido #{pedido.numero} · {reais(pedido.totalCentavos)}
         </p>
+
+        <SaidasDoPedido />
       </Card>
     );
   }
@@ -147,7 +151,67 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
           <dd className="font-mono font-extrabold">{reais(pedido.totalCentavos)}</dd>
         </div>
       </dl>
+
+      <SaidasDoPedido />
+
+      {pago && <ConviteEventos />}
     </Card>
+  );
+}
+
+/**
+ * Toda tela precisa de saída, e a de pedido fechado precisa das **úteis**.
+ *
+ * "Como aquecer" vem primeiro de propósito: quem acabou de comprar congelada
+ * vai precisar dessa informação antes de precisar de qualquer outra, e é ela
+ * que decide se a pizza chega boa à mesa — a compra seguinte depende disso mais
+ * do que de qualquer botão de vitrine.
+ */
+function SaidasDoPedido() {
+  return (
+    <div className="mt-6 flex flex-wrap gap-2 border-t border-borda pt-5">
+      <Button largura="natural" size="sm" variant="outline" asChild>
+        <Link href="/como-aquecer">
+          <Flame className="h-4 w-4" /> Como aquecer
+        </Link>
+      </Button>
+      <Button largura="natural" size="sm" variant="outline" asChild>
+        <Link href="/conta/pedidos">
+          <ReceiptText className="h-4 w-4" /> Meus pedidos
+        </Link>
+      </Button>
+      <Button largura="natural" size="sm" variant="ghost" asChild>
+        <Link href="/sabores">
+          Ver as pizzas <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Button>
+    </div>
+  );
+}
+
+/**
+ * O cross-sell da casa, e não uma promoção genérica.
+ *
+ * Quem acabou de comprar é o lead mais qualificado que existe para evento — o
+ * ticket é ordens de grandeza maior que o da congelada, e a porta de entrada
+ * (`/eventos`) já existe desde o NAPO-003. Aparece só depois de confirmado:
+ * oferecer outra coisa a quem ainda espera a confirmação é ruído em cima de
+ * ansiedade.
+ */
+function ConviteEventos() {
+  return (
+    <Link
+      href="/eventos"
+      className="mt-4 flex items-center gap-3 rounded-campo border border-borda bg-superficie-alta p-4 transition hover:border-amarelo/40"
+    >
+      <span className="min-w-0 flex-1">
+        <span className="block text-sm font-semibold">Vai receber gente em casa?</span>
+        <span className="mt-0.5 block text-xs leading-relaxed text-texto-suave">
+          A Napo leva o forno de pedra e assa na hora, de 10 a 100 pessoas.
+        </span>
+      </span>
+      <ArrowRight className="h-4 w-4 shrink-0 text-amarelo" />
+    </Link>
   );
 }
 
