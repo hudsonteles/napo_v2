@@ -65,8 +65,17 @@ export class PagamentoMercadoPago implements PortaPagamento {
 
   async consultarPagamento(idPagamento: string): Promise<PagamentoConsultado | null> {
     const pagamento = await new Payment(this.cliente).get({ id: idPagamento });
-    if (!pagamento?.id) return null;
+    return pagamento?.id ? this.traduzir(pagamento) : null;
+  }
 
+  private traduzir(pagamento: {
+    id?: number | string;
+    status?: string;
+    transaction_amount?: number;
+    payment_method_id?: string;
+    payment_type_id?: string;
+    external_reference?: string;
+  }): PagamentoConsultado {
     return {
       id: String(pagamento.id),
       status: STATUS[pagamento.status ?? ''] ?? 'pendente',
@@ -76,6 +85,17 @@ export class PagamentoMercadoPago implements PortaPagamento {
       forma: pagamento.payment_method_id ?? pagamento.payment_type_id ?? 'desconhecida',
       referenciaExterna: pagamento.external_reference ?? null,
     };
+  }
+
+  async buscarPagamentoDaReferencia(
+    referenciaExterna: string,
+  ): Promise<PagamentoConsultado | null> {
+    const resposta = await new Payment(this.cliente).search({
+      options: { external_reference: referenciaExterna },
+    });
+
+    const encontrado = resposta?.results?.[0];
+    return encontrado?.id ? this.traduzir(encontrado) : null;
   }
 
   verificarAssinatura(notificacao: NotificacaoAssinada): boolean {

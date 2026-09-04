@@ -52,6 +52,12 @@ export interface PortaPagamento {
   criarCobranca(entrada: EntradaCobranca): Promise<Cobranca>;
   /** `null` quando o gateway não conhece o pagamento. */
   consultarPagamento(idPagamento: string): Promise<PagamentoConsultado | null>;
+  /**
+   * O pagamento de um pedido, procurado pela referência externa. É o caminho da
+   * RN19: quando a notificação nunca chega, o id do pagamento não existe do
+   * nosso lado — só o do pedido.
+   */
+  buscarPagamentoDaReferencia(referenciaExterna: string): Promise<PagamentoConsultado | null>;
   verificarAssinatura(notificacao: NotificacaoAssinada): boolean;
 }
 

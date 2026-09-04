@@ -15,7 +15,15 @@ export type {
   PrecoDeProduto,
   ResultadoCriacao,
 } from './services/criar-pedido';
+export { processarNotificacao, reconciliarPedido } from './services/confirmar-pagamento';
+export type {
+  DependenciasDaConfirmacao,
+  RespostaDaConfirmacao,
+  ResultadoDaConfirmacao,
+} from './services/confirmar-pagamento';
+export { dependenciasDaConfirmacao } from './services/dependencias';
+export type { FerramentasDeViabilidade } from './services/dependencias';
 export { repositorioDePedidos } from './services/pedidos-repo';
-export type { RepositorioDePedidos } from './services/pedidos-repo';
+export type { EventoDePagamento, PedidoLido, RepositorioDePedidos } from './services/pedidos-repo';
 export { esquemaCriarPedido, esquemaValidarCarrinho } from './schema';
 export type { EntradaCriarPedido, EntradaValidarCarrinho } from './schema';

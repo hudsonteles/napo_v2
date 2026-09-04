@@ -55,6 +55,14 @@ export class PagamentoFake implements PortaPagamento {
     };
   }
 
+  async buscarPagamentoDaReferencia(referenciaExterna: string): Promise<PagamentoConsultado | null> {
+    const encontrado = [...this.cobrancas.entries()].find(
+      ([, cobranca]) => cobranca.referencia === referenciaExterna,
+    );
+
+    return encontrado ? this.consultarPagamento(encontrado[0]) : null;
+  }
+
   /**
    * Não há segredo para assinar em desenvolvimento. Quem impede isso de valer em
    * produção é `PAGAMENTO_PROVIDER`, validado no boot.

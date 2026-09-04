@@ -60,6 +60,14 @@ function repositorio(parcial: Partial<RepositorioDePedidos> = {}): RepositorioDe
     gravarPedido: async () => ({ id: 'pedido-1', numero: 1042 }),
     registrarPreferencia: async () => {},
     desfazerPedido: async () => {},
+    lerPedido: async () => null,
+    lerPedidoPorNumero: async () => null,
+    confirmarPagamento: async () => true,
+    marcarEstornado: async () => {},
+    cancelarPedido: async () => true,
+    registrarEvento: async () => {},
+    pedidosVencidos: async () => [],
+    expirarPedidos: async () => 0,
     ...parcial,
   };
 }
@@ -70,6 +78,7 @@ function pagamento(criarCobranca = vi.fn().mockResolvedValue(COBRANCA_OK)) {
   return {
     criarCobranca,
     consultarPagamento: vi.fn(),
+    buscarPagamentoDaReferencia: vi.fn(),
     verificarAssinatura: vi.fn(),
   };
 }
