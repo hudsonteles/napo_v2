@@ -1,12 +1,8 @@
 import type { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-
 import { carregarConfigDeArea, listarEnderecos } from '@/features/enderecos';
 import { CheckoutCliente } from '@/features/pedidos/components/checkout-cliente';
 import type { EnderecoDoCheckout } from '@/features/pedidos/components/seletor-endereco';
-import { carregarPerfilDaSessao } from '@/features/auth';
 import { repositorioDePedidos } from '@/features/pedidos';
-import { ROTA_ENTRAR } from '@/features/auth/destino';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,9 +19,6 @@ export const metadata: Metadata = {
  * a camada `app` é a única que pode juntar as duas (ARCHITECTURE §3.2).
  */
 export default async function CheckoutPage() {
-  const perfil = await carregarPerfilDaSessao();
-  if (!perfil) redirect(`${ROTA_ENTRAR}?proximo=/checkout`);
-
   const [enderecos, config, minutos] = await Promise.all([
     listarEnderecos(),
     carregarConfigDeArea(),

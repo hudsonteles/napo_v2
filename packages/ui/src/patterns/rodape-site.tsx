@@ -20,10 +20,10 @@ export function RodapeSite() {
           <div className="space-y-3">
             <p className="text-xs font-medium tracking-widest text-texto-suave uppercase">Produto</p>
             <a href="/sabores" className="block text-texto-suave transition hover:text-branco">
-              Sabores
+              Pizzas
             </a>
             <a href="/como-aquecer" className="block text-texto-suave transition hover:text-branco">
-              Como aquecer
+              Dúvidas
             </a>
             <a href="/eventos" className="block text-texto-suave transition hover:text-branco">
               Eventos

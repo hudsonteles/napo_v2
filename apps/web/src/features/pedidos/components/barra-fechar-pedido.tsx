@@ -22,17 +22,23 @@ export function BarraFecharPedido() {
   if (!pronto || quantidadeTotal === 0) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-borda bg-preto/95 px-4 py-3 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl items-center gap-4">
-        <p className="flex min-w-0 items-center gap-2 text-sm">
+    // Ilha do tamanho do conteúdo, centralizada acima do rodapé. Uma faixa de
+    // ponta a ponta pesa como barra de sistema e rouba a atenção do produto —
+    // que é o que a pessoa veio ver.
+    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-4">
+      <div className="pointer-events-auto flex items-center gap-4 rounded-card border border-borda-forte bg-preto/95 py-2.5 pl-4 pr-2.5 shadow-2xl shadow-black/50 backdrop-blur">
+        <p className="flex items-center gap-2.5">
           <ShoppingBag className="h-4 w-4 shrink-0 text-amarelo" />
-          <span className="font-mono">
-            {quantidadeTotal} {quantidadeTotal === 1 ? 'pizza' : 'pizzas'}
+          {/* Duas linhas: o número é o dado, "na sacola" é o rótulo dele. */}
+          <span className="leading-tight">
+            <span className="block font-mono text-sm font-bold">
+              {quantidadeTotal} {quantidadeTotal === 1 ? 'pizza' : 'pizzas'}
+            </span>
+            <span className="block text-[11px] text-texto-suave">na sacola</span>
           </span>
-          <span className="hidden text-texto-suave sm:inline">na sacola</span>
         </p>
 
-        <Button largura="natural" size="sm" className="ml-auto" asChild>
+        <Button largura="natural" size="sm" asChild>
           <Link href="/carrinho">
             Fechar pedido <ArrowRight className="h-4 w-4" />
           </Link>

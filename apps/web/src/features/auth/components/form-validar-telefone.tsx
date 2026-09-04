@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CircleAlert } from 'lucide-react';
 
+import Link from 'next/link';
+
 import { Button } from '@napo/ui/components/button';
 import { Checkbox } from '@napo/ui/components/checkbox';
 import { Input } from '@napo/ui/components/input';
@@ -276,6 +278,17 @@ export function FormValidarTelefone({
           Você recebe um código de 6 dígitos. Não cobramos nada por isso.
         </p>
       </form>
+
+      {/* Saída para o site, não para a área logada: sem telefone validado não há
+          área logada a voltar. Continuar navegando e comprar depois é um
+          caminho legítimo — beco sem saída faz a pessoa fechar a aba, e aí a
+          conta fica pela metade e ninguém consegue avisar. */}
+      <Link
+        href="/"
+        className="mt-6 block text-center text-xs text-neutral-500 underline underline-offset-2 transition hover:text-neutral-300"
+      >
+        Deixar para depois e voltar ao site
+      </Link>
     </AuthCard>
   );
 }

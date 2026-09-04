@@ -28,7 +28,7 @@ export function CabecalhoSite({
             href="/sabores"
             className="rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco"
           >
-            Sabores
+            Pizzas
           </a>
           <a
             href="/eventos"
@@ -40,10 +40,12 @@ export function CabecalhoSite({
             href="/como-aquecer"
             className="hidden rounded-campo px-3 py-2 text-sm text-texto-suave transition hover:bg-superficie-alta hover:text-branco sm:block"
           >
-            Como aquecer
+            Dúvidas
           </a>
-          {acessoConta}
+          {/* Sacola antes da conta: uma é a ação que fecha a venda, a outra é
+              cadastro. O que a pessoa mais clica fica mais perto do polegar. */}
           {acessoCarrinho}
+          {acessoConta}
         </nav>
       </div>
     </header>

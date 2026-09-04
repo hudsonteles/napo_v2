@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
 import { carregarPerfilDaSessao } from '@/features/auth';
-import { ROTA_ENTRAR } from '@/features/auth/destino';
 import { repositorioDePedidos } from '@/features/pedidos';
 import { EstadoPagamento } from '@/features/pedidos/components/estado-pagamento';
 
@@ -21,15 +20,15 @@ export const metadata: Metadata = {
  * informação, não autorização: quem confirma é o webhook (RN8).
  */
 export default async function PedidoPage({ params }: { params: Promise<{ numero: string }> }) {
+  // Sessão e telefone já foram conferidos no layout do segmento; o perfil é
+  // lido aqui só para saber de quem é o pedido.
   const perfil = await carregarPerfilDaSessao();
   const { numero } = await params;
-
-  if (!perfil) redirect(`${ROTA_ENTRAR}?proximo=/pedido/${numero}`);
 
   const pedido = await repositorioDePedidos().lerPedidoPorNumero(Number(numero));
 
   // Pedido de outra pessoa responde igual a pedido inexistente.
-  if (!pedido || pedido.profileId !== perfil.id) notFound();
+  if (!pedido || pedido.profileId !== perfil?.id) notFound();
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-10">
