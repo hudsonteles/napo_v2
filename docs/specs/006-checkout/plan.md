@@ -138,3 +138,23 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco J — `pedido` entrou em `AREA_POR_SEGMENTO` (`destino.ts`), e não em `middleware.ts` direto.** O matcher já cobre a rota; quem decide o que exige sessão é o mapa de áreas, e duplicar a regra no middleware a faria existir em dois lugares. `/carrinho` fica fora, porque a sacola é anônima (RN1).
 - **Bloco J — o frete de cada card é calculado no navegador, com as faixas vindas do servidor.** Mesmo padrão do `<CardEndereco>` do NAPO-005: uma requisição por endereço listado só para exibir preço seria N chamadas para mostrar o que uma decisão pura resolve.
 - **Bloco J — critérios visuais 6 e 8 estavam faltando na primeira passada.** O resumo não virava barra fixa em 375 px e a divergência de preço saía como toast; ambos são bloqueio que exige reconfirmação, e toast some sozinho. Corrigidos antes de levar o Gate Visual B ao PM.
+
+## Achados do Gate Visual B (NAPO-006)
+
+Ajustes pedidos pelo PM na aplicação real. Os que tocam NAPO-002/003 estão aqui porque foram descobertos aqui.
+
+| Achado | Natureza | Resolução |
+|---|---|---|
+| Checkout abria sem telefone validado | **Bug — regra furada (RN1, RN5)** | As páginas conferiam só a sessão; guarda passou para o layout do segmento, com `exigirAcesso` |
+| Validar telefone vindo do checkout despejava na conta | **Bug de fluxo** | `exigirAcesso` passou a levar o destino de retorno até a conclusão do OTP |
+| `/entrar` e `/validar-telefone` sem saída | Bug de fluxo | "Voltar ao site" nas duas |
+| Linha escura na borda dos botões amarelos | **Bug do catálogo** | `ring-offset` desenha faixa sólida de cor fixa; trocado por `outline` em `<Button>` e `<Checkbox>` |
+| Erro nativo do navegador na validação do e-mail | Regra nova | `noValidate` + validação própria; regra registrada em `ARCHITECTURE.md` §2.2.3 |
+| Login com Google devolvia JSON do GoTrue | Bug de configuração | Provedor por `env(...)` + `scripts/supabase.mjs`; botão condicionado a `NEXT_PUBLIC_AUTH_GOOGLE` |
+| Sem mãozinha nos botões | Bug do reset | Tailwind v4 normaliza `button` para `cursor: default`; restaurado na camada base |
+| Carrinho sem foto e mostrando peso | Bug de dados | Rota de validação passou a devolver foto e medidas; "30 cm · serve 2" no lugar de "550 g" |
+| Sem código fixo em desenvolvimento | Atrito de teste | `WHATSAPP_PROVIDER=fake` passa a usar `123456` — a mesma chave decide canal e código |
+| Sem acesso à conta no cabeçalho | Lacuna conhecida (era 💡 no ROADMAP) | `<AcessoConta>` como ilha cliente + `<DropdownMenu>` novo no catálogo |
+| Sem atalho de fechamento na vitrine | Melhoria pedida | Barra fixa com subtotal rotulado "sem frete" |
+
+**Pendente de decisão do PM:** listagem de pedidos no menu aponta para `/conta` — a área de pedidos é o NAPO-007.
