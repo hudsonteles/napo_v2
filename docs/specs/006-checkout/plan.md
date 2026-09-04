@@ -47,7 +47,7 @@ Arquivos: `apps/web/src/features/disponibilidade/services/snapshot.ts`, `apps/we
 Arquivos: `apps/web/src/lib/pagamentos/{porta,fake,mercado-pago,assinatura}.ts`, `apps/web/src/lib/env.ts` · Testes: T25, T27, T30 · Depende: — · Paralelo: A, B · Est: 60min · Agente: inline (ver Decisões) · `[x]`
 
 ### Bloco F — Estado do carrinho no navegador
-Arquivos: `apps/web/src/lib/carrinho/{provider.tsx,armazenamento.ts}` · Testes: T1, T40 · Depende: A · Paralelo: C, E · Est: 40min · Agente: inline · `[ ]`
+Arquivos: `apps/web/src/lib/carrinho/{provider.tsx,armazenamento.ts}` · Testes: T1, T40 · Depende: A · Paralelo: C, E · Est: 40min · Agente: inline · `[x]`
 
 ### Bloco G — Criação de pedido
 Arquivos: `apps/web/src/features/pedidos/{schema.ts,index.ts}`, `.../services/{pedidos-repo,criar-pedido}.ts`, `apps/web/app/api/pedidos/route.ts`, `apps/web/app/api/carrinho/validar/route.ts` · Testes: T3, T5, T12, T13, T14, T18, T19, T20, T21, T36, T37 · Depende: A, C, E · Est: 90min · Agente: `general-purpose` · `[ ]`
@@ -117,3 +117,5 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco E — a verificação de assinatura é código nosso.** O SDK não expõe o manifesto da notificação; o HMAC mora em `assinatura.ts` e é testável sem rede.
 - **Bloco E — `portaDePagamento()` devolve instância única.** O adaptador falso guarda em memória o valor cobrado, porque a RN10 compara valor; uma instância por chamada faria todo pagamento local ser "não encontrado".
 - **Bloco E — `.env.example` atualizado junto, fora do Mapa por uma linha.** A mensagem de erro do `env.ts` manda o dev para esse arquivo: variável nova sem entrada lá é variável que ninguém descobre.
+- **Bloco F — T1 fica dividido: persistência em `armazenamento.test.ts`, contador no Gate Visual B.** A suíte do app roda em Node, sem jsdom nem testing-library, e o projeto inteiro valida UI por gate visual (NAPO-002/003/005). Montar infra de teste de componente aqui é escopo que a spec não pediu.
+- **Bloco F — `definirQuantidade` mapeia em vez de remover e reinserir.** Trocar a quantidade não pode fazer a linha pular para o fim da lista debaixo do dedo de quem clicou.
