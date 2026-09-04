@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+import { caminhoInternoSeguro } from '@/lib/navegacao';
 import { Info, LoaderCircle } from 'lucide-react';
 
 import type { Coordenada } from '@napo/core';
@@ -101,9 +103,12 @@ const VAZIO: Campos = {
 export function FormularioEndereco({
   endereco,
   config,
+  proximo,
 }: {
   endereco?: Endereco;
   config: ConfigDeExibicao;
+  /** Para onde voltar depois de salvar. Sem isso, o checkout perde a pessoa. */
+  proximo?: string | null;
 }) {
   const router = useRouter();
   const [salvando, iniciarSalvamento] = useTransition();
@@ -277,7 +282,9 @@ export function FormularioEndereco({
           ? 'Endereço salvo.'
           : 'Endereço salvo — ainda não entregamos nessa região, mas guardamos ele.',
       );
-      router.push('/conta/enderecos');
+      // Quem veio do checkout volta ao checkout: cadastrar endereço foi um
+      // desvio no meio de uma compra, não o objetivo da visita.
+      router.push(caminhoInternoSeguro(proximo) ?? '/conta/enderecos');
       router.refresh();
     });
   }

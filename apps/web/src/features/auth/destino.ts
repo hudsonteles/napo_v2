@@ -1,5 +1,11 @@
 import type { Database } from '@napo/db';
 
+import { caminhoInternoSeguro } from '@/lib/navegacao';
+
+// Reexportado para os consumidores que já o importavam daqui (middleware,
+// telas de auth); a implementação mora em `lib` porque três features a usam.
+export { caminhoInternoSeguro };
+
 export type Papel = Database['public']['Enums']['user_role'];
 
 export interface PerfilSessao {
@@ -53,13 +59,6 @@ export function destinoPorPapel(papel: Papel): string {
  * phishing. A barra invertida entra na recusa porque parte dos navegadores a
  * normaliza para barra antes de resolver a URL.
  */
-export function caminhoInternoSeguro(proximo: string | null | undefined): string | null {
-  if (!proximo) return null;
-  if (!proximo.startsWith('/')) return null;
-  if (proximo.startsWith('//')) return null;
-  if (proximo.includes('\\')) return null;
-  return proximo;
-}
 
 export function resolverDestino({
   papel,

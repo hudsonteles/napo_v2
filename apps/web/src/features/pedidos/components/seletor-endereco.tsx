@@ -50,7 +50,7 @@ export function SeletorEndereco({
       <Card className="mt-4 p-6 text-center">
         <p className="text-sm text-texto-suave">Você ainda não tem endereço cadastrado.</p>
         <Button largura="natural" size="sm" variant="outline" className="mt-4" asChild>
-          <Link href="/conta/enderecos">Cadastrar endereço</Link>
+          <Link href="/conta/enderecos/novo?proximo=%2Fcheckout">Cadastrar endereço</Link>
         </Button>
       </Card>
     );
@@ -137,8 +137,10 @@ export function SeletorEndereco({
         );
       })}
 
+      {/* Direto ao formulário e com o caminho de volta: cadastrar endereço aqui
+          é um desvio no meio da compra, e a pessoa precisa voltar para ela. */}
       <Button variant="outline" size="sm" asChild>
-        <Link href="/conta/enderecos">
+        <Link href="/conta/enderecos/novo?proximo=%2Fcheckout">
           <Plus className="h-4 w-4" /> Cadastrar novo endereço
         </Link>
       </Button>
