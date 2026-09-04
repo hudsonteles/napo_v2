@@ -34,6 +34,10 @@ const AREA_POR_SEGMENTO: Record<string, AreaProtegida> = {
   conta: 'conta',
   admin: 'admin',
   checkout: 'checkout',
+  // O retorno do pagamento mostra número, dia e total de um pedido: é área da
+  // conta, ainda que a URL não comece por `/conta` (NAPO-006). `/carrinho` fica
+  // de fora de propósito — a sacola é anônima (RN1).
+  pedido: 'conta',
 };
 
 const PAPEIS_DE_EQUIPE: readonly Papel[] = ['atendente', 'cozinha', 'gerente', 'admin'];

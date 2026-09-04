@@ -59,7 +59,7 @@ Arquivos: `.../services/confirmar-pagamento.ts`, `apps/web/app/api/webhook/mp/ro
 Arquivos: `packages/ui/src/patterns/{acesso-carrinho.tsx,cabecalho-site.tsx}`, `apps/web/src/features/catalogo/components/estado-disponibilidade.tsx`, `apps/web/app/(loja)/layout.tsx`, `apps/web/app/(loja)/carrinho/page.tsx`, `apps/web/src/features/pedidos/components/lista-carrinho.tsx` · Testes: T41 + critérios visuais 2,3,6,7 · Depende: F · Est: 75min · Agente: inline (mapa de tradução: `design.md` §4.4) · `[~]` código pronto, aguardando Gate Visual B junto com J
 
 ### Bloco J — UI do checkout e do pedido
-Arquivos: `apps/web/app/(loja)/checkout/page.tsx`, `apps/web/app/(loja)/pedido/[numero]/page.tsx`, `.../components/{resumo-pedido,seletor-endereco,estado-pagamento}.tsx`, `apps/web/middleware.ts` · Testes: T31 + critérios visuais 1,4,5,8,9,10 · Depende: G, H, I · Est: 90min · Agente: `general-purpose` (mapa de tradução: `design.md` §4.4) · `[ ]`
+Arquivos: `apps/web/app/(loja)/checkout/page.tsx`, `apps/web/app/(loja)/pedido/[numero]/page.tsx`, `.../components/{resumo-pedido,seletor-endereco,estado-pagamento}.tsx`, `apps/web/middleware.ts` · Testes: T31 + critérios visuais 1,4,5,8,9,10 · Depende: G, H, I · Est: 90min · Agente: inline (mapa de tradução: `design.md` §4.4) · `[~]` código pronto, aguardando aprovação do Gate Visual B
 
 ---
 
@@ -134,3 +134,6 @@ Só se tornam bloqueantes se o modo aprovado for `com checkpoints`.
 - **Bloco I — `<ProvedorCarrinho>` mora no layout raiz, não no `(loja)`.** O botão "Adicionar" vive na vitrine estática e a sacola vive na loja: dois provedores dariam dois carrinhos, e o contador do cabeçalho mentiria em metade das páginas.
 - **Bloco I — o acesso ao carrinho entra no `<CabecalhoSite>` como slot.** Um pattern de `packages/ui` não pode conhecer o estado de uma feature do app; o slot recebe a ilha cliente e o cabeçalho continua servindo às páginas sem carrinho.
 - **Bloco I — `app/(site)/layout.tsx` foi tocado (fora do Mapa).** É de lá que o cliente adiciona item; sem o slot no site, o contador só apareceria depois de ele já estar no carrinho.
+- **Bloco J — `checkout-cliente.tsx` não estava no Mapa.** O checkout inteiro é uma ilha: carrinho no navegador, endereço mudando o total ao vivo. Sem esse orquestrador, `resumo-pedido` e `seletor-endereco` teriam de conversar pela página, que é Server Component.
+- **Bloco J — `pedido` entrou em `AREA_POR_SEGMENTO` (`destino.ts`), e não em `middleware.ts` direto.** O matcher já cobre a rota; quem decide o que exige sessão é o mapa de áreas, e duplicar a regra no middleware a faria existir em dois lugares. `/carrinho` fica fora, porque a sacola é anônima (RN1).
+- **Bloco J — o frete de cada card é calculado no navegador, com as faixas vindas do servidor.** Mesmo padrão do `<CardEndereco>` do NAPO-005: uma requisição por endereço listado só para exibir preço seria N chamadas para mostrar o que uma decisão pura resolve.

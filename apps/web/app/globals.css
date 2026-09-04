@@ -21,3 +21,16 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Recorte de canhoto da ficha da fornada (Direção A do Gate Visual A). O que
+   separa comprar uma vaga numa fornada de comprar congelada de supermercado é
+   justamente esta leitura de ficha — por isso o recorte é produto, não enfeite
+   do preview. */
+.serrilha {
+  -webkit-mask-image: radial-gradient(circle at 0 50%, transparent 7px, #000 7.5px),
+    radial-gradient(circle at 100% 50%, transparent 7px, #000 7.5px);
+  -webkit-mask-composite: source-in;
+  mask-image: radial-gradient(circle at 0 50%, transparent 7px, #000 7.5px),
+    radial-gradient(circle at 100% 50%, transparent 7px, #000 7.5px);
+  mask-composite: intersect;
+}
