@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { CabecalhoSite } from '@napo/ui/patterns/cabecalho-site';
 import { RodapeSite } from '@napo/ui/patterns/rodape-site';
 
+import { AcessoCarrinhoAoVivo } from '@/features/pedidos/components/acesso-carrinho-ao-vivo';
 import { publicEnv } from '@/lib/env';
 
 /**
@@ -38,7 +39,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdRestaurant) }}
       />
-      <CabecalhoSite />
+      {/* Ilha cliente sobre página estática, como a disponibilidade ao vivo do
+          NAPO-003: quem adiciona item está aqui, e o contador precisa reagir. */}
+      <CabecalhoSite acessoCarrinho={<AcessoCarrinhoAoVivo />} />
       {children}
       <RodapeSite />
     </>

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@napo/ui/components/toaster';
 
+import { ProvedorCarrinho } from '@/lib/carrinho/provider';
 import { publicEnv } from '@/lib/env';
 
 import './globals.css';
@@ -42,8 +43,12 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR" className={inter.variable}>
+      {/* O carrinho envolve o app inteiro, e não cada grupo de rota: o botão
+          "Adicionar" vive na vitrine estática e a sacola vive na loja — dois
+          provedores dariam dois carrinhos, e o contador do cabeçalho mentiria
+          na metade das páginas (RN1). */}
       <body className="min-h-dvh bg-preto font-sans text-branco antialiased">
-        {children}
+        <ProvedorCarrinho>{children}</ProvedorCarrinho>
         <Toaster />
       </body>
     </html>

@@ -1,9 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { WifiOff } from 'lucide-react';
 import { Button } from '@napo/ui/components/button';
 import { SeletorQuantidade } from '@napo/ui/components/seletor-quantidade';
+import { toast } from '@napo/ui/components/toaster';
 import { cn } from '@napo/ui/lib/cn';
+
+import { useCarrinho } from '@/lib/carrinho/provider';
 
 import { estadoDoProduto, formatarDiaMes } from '../disponibilidade-view';
 import { useDisponibilidade } from './disponibilidade-provider';
@@ -14,10 +18,13 @@ import { useDisponibilidade } from './disponibilidade-provider';
  * com rota para a próxima fornada, e indeterminado (motor fora do ar — não
  * afirma disponibilidade que não confirmou, RN6/T21). Enquanto carrega, o
  * skeleton reserva a altura final desde o primeiro paint — o preço não pula
- * quando o dado chega (RN11/T20). O CTA de compra nasce inativo (canal é NAPO-006).
+ * quando o dado chega (RN11/T20). O CTA ficou inativo até o NAPO-006 abrir o
+ * canal de compra; a partir dele, adiciona ao carrinho sem pedir conta (RN1).
  */
 export function EstadoDisponibilidade({ produtoId }: { produtoId: string }) {
   const { estado, trocarFornada } = useDisponibilidade();
+  const { adicionar } = useCarrinho();
+  const [quantidade, setQuantidade] = useState(1);
 
   if (estado.status === 'carregando') {
     return <div className="mt-5 h-[70px] animate-pulse rounded-campo bg-superficie-alta" aria-hidden />;
@@ -64,11 +71,21 @@ export function EstadoDisponibilidade({ produtoId }: { produtoId: string }) {
     );
   }
 
+  const aoAdicionar = () => {
+    adicionar(produtoId, Math.min(quantidade, st.quantidade));
+    // Confirmação passageira: o contador do cabeçalho é a prova permanente.
+    toast.success('Adicionado ao carrinho', { description: 'Confira a sacola quando quiser.' });
+  };
+
   return (
     <div className="mt-5">
       <div className="flex items-center gap-2">
-        <SeletorQuantidade valor={1} max={st.quantidade} disabled />
-        <Button disabled size="sm" className="flex-1 bg-superficie-alta font-semibold text-neutral-500">
+        <SeletorQuantidade
+          valor={quantidade}
+          max={st.quantidade}
+          onChange={setQuantidade}
+        />
+        <Button size="sm" className="flex-1" onClick={aoAdicionar}>
           Adicionar
         </Button>
       </div>

@@ -1,4 +1,4 @@
-import { ShoppingBag } from 'lucide-react';
+import type { ReactNode } from 'react';
 
 import { Marca } from '../components/marca';
 
@@ -6,10 +6,14 @@ import { Marca } from '../components/marca';
  * Cabeçalho compartilhado por todas as rotas de `(site)`. Estrutura aprovada no
  * Gate Visual A. Usa `<a>` e não `next/link` porque `packages/ui` não depende do
  * Next (ARCHITECTURE §3.2); num site SSG servido do CDN a navegação de página
- * inteira é aceitável. O carrinho nasce desabilitado — o canal de compra abre no
- * NAPO-006 (RN da tela: CTA presente e honesto sobre o canal ainda não aberto).
+ * inteira é aceitável.
+ *
+ * O acesso ao carrinho entra como **slot** (NAPO-006): quem conta os itens é uma
+ * ilha cliente do app, e um pattern do catálogo não pode conhecer o estado de
+ * uma feature. Sem o slot, o cabeçalho continua servindo às páginas estáticas
+ * que não têm carrinho.
  */
-export function CabecalhoSite() {
+export function CabecalhoSite({ acessoCarrinho }: { acessoCarrinho?: ReactNode } = {}) {
   return (
     <header className="sticky top-0 z-50 border-b border-borda bg-preto/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
@@ -35,15 +39,7 @@ export function CabecalhoSite() {
           >
             Como aquecer
           </a>
-          <button
-            disabled
-            title="O carrinho abre com o pedido online, em breve"
-            className="ml-1 flex cursor-not-allowed items-center gap-2 rounded-campo bg-superficie-alta px-4 py-2 text-sm font-semibold text-neutral-500"
-          >
-            <ShoppingBag className="h-4 w-4" />
-            <span className="hidden sm:inline">Carrinho</span>
-            <span className="rounded-full bg-borda px-1.5 text-[11px]">0</span>
-          </button>
+          {acessoCarrinho}
         </nav>
       </div>
     </header>
