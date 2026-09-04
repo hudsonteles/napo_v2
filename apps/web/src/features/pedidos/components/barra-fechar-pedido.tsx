@@ -22,28 +22,32 @@ export function BarraFecharPedido() {
   if (!pronto || quantidadeTotal === 0) return null;
 
   return (
-    // Ilha do tamanho do conteúdo, centralizada acima do rodapé. Uma faixa de
-    // ponta a ponta pesa como barra de sistema e rouba a atenção do produto —
-    // que é o que a pessoa veio ver.
-    <div className="pointer-events-none fixed inset-x-0 bottom-4 z-40 flex justify-center px-4">
-      <div className="pointer-events-auto flex items-center gap-4 rounded-card border border-borda-forte bg-preto/95 py-2.5 pl-4 pr-2.5 shadow-2xl shadow-black/50 backdrop-blur">
-        <p className="flex items-center gap-2.5">
-          <ShoppingBag className="h-4 w-4 shrink-0 text-amarelo" />
-          {/* Duas linhas: o número é o dado, "na sacola" é o rótulo dele. */}
-          <span className="leading-tight">
-            <span className="block font-mono text-sm font-bold">
-              {quantidadeTotal} {quantidadeTotal === 1 ? 'pizza' : 'pizzas'}
+    <>
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-borda-forte bg-preto/95 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-3 sm:px-8">
+          <p className="flex items-center gap-3">
+            <ShoppingBag className="h-5 w-5 shrink-0 text-amarelo" />
+            {/* `whitespace-nowrap` em cada linha: sem isso o flex espreme a
+                coluna e "3 pizzas" quebra de novo, virando quatro linhas. */}
+            <span className="leading-tight whitespace-nowrap">
+              <span className="block font-mono text-base font-bold">
+                {quantidadeTotal} {quantidadeTotal === 1 ? 'pizza' : 'pizzas'}
+              </span>
+              <span className="block text-xs text-texto-suave">na sacola</span>
             </span>
-            <span className="block text-[11px] text-texto-suave">na sacola</span>
-          </span>
-        </p>
+          </p>
 
-        <Button largura="natural" size="sm" asChild>
-          <Link href="/carrinho">
-            Fechar pedido <ArrowRight className="h-4 w-4" />
-          </Link>
-        </Button>
+          <Button largura="natural" className="shrink-0 px-6" asChild>
+            <Link href="/carrinho">
+              Fechar pedido <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
       </div>
-    </div>
+
+      {/* A barra é fixa e cobriria o fim da página; este espaçador devolve o
+          espaço para o rodapé continuar alcançável. */}
+      <div className="h-[76px]" aria-hidden />
+    </>
   );
 }
