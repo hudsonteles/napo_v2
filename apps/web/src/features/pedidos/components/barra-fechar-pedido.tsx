@@ -66,7 +66,10 @@ export function BarraFecharPedido() {
   return (
     <>
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-borda-forte bg-preto/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-8">
+        {/* Container estreito: a barra atravessa a tela, mas o conteúdo fica
+            junto no centro — informação nas pontas de uma faixa de 1200 px
+            obriga a varrer a tela para ligar o valor ao botão. */}
+        <div className="mx-auto flex max-w-md items-center justify-between gap-4 px-4 py-3">
           <p className="flex items-center gap-3">
             <ShoppingBag className="h-5 w-5 shrink-0 text-amarelo" />
             {/* `whitespace-nowrap` em cada linha: sem isso o flex espreme a

@@ -5,7 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
 
 const botaoVariantes = cva(
-  'inline-flex items-center justify-center gap-3 whitespace-nowrap rounded-campo font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amarelo/40 focus-visible:ring-offset-2 focus-visible:ring-offset-superficie disabled:cursor-not-allowed',
+  'inline-flex items-center justify-center gap-3 whitespace-nowrap rounded-campo font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amarelo disabled:cursor-not-allowed',
   {
     variants: {
       // O NAPO-002 nasceu só com formulário de auth, onde botão é sempre `w-full`.
