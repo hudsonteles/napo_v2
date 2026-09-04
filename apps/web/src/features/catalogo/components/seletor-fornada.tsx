@@ -34,7 +34,7 @@ export function SeletorFornada() {
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <p className="font-mono text-xs tracking-[0.25em] text-texto-suave uppercase">Entregar em</p>
       </div>
-      <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
+      <div className="rolagem-horizontal mt-4 flex gap-3 overflow-x-auto pb-2">
         {estado.dias.map((dia, i) => {
           const ativo = dia.data === estado.dataAtiva;
           return (

@@ -10,6 +10,48 @@
  */
 @source '../../../packages/ui/src';
 
+/*
+ * O Tailwind v4 passou a normalizar `button` para `cursor: default`, seguindo o
+ * padrão do user-agent. No projeto isso deixou toda ação clicável sem a mãozinha
+ * — inclusive as fornadas do seletor de data, onde o cursor é o único sinal de
+ * que o card é botão. Restaurar aqui, na base, evita repetir `cursor-pointer` em
+ * cada componente e esquecer no próximo.
+ */
+@layer base {
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+/*
+ * Rolagem horizontal com a régua do projeto. A barra nativa clara sobre painel
+ * escuro é a única superfície do site que não passa pelos tokens — e some por
+ * completo em alguns sistemas, levando junto o aviso de que há mais fornadas à
+ * direita. Fina e discreta, mas visível.
+ */
+.rolagem-horizontal {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-borda-forte) transparent;
+}
+
+.rolagem-horizontal::-webkit-scrollbar {
+  height: 6px;
+}
+
+.rolagem-horizontal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rolagem-horizontal::-webkit-scrollbar-thumb {
+  background: var(--color-borda-forte);
+  border-radius: 999px;
+}
+
+.rolagem-horizontal::-webkit-scrollbar-thumb:hover {
+  background: var(--color-texto-suave);
+}
+
 /* Arquitetura §7.1: movimento sempre respeita a preferência do sistema. */
 @media (prefers-reduced-motion: reduce) {
   *,

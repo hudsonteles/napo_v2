@@ -15,7 +15,7 @@ export const dynamic = 'force-static';
 export const revalidate = 3600;
 
 const REGUA = [
-  { eixo: 'massa', mercado: 'Massa crua na embalagem', napo: 'Fermentação longa, de véspera' },
+  { eixo: 'massa', mercado: 'Massa crua na embalagem', napo: 'Longa fermentação' },
   { eixo: 'forno', mercado: 'Você assa em casa, do zero', napo: 'Assada na pedra, no forno italiano' },
   {
     eixo: 'em casa',
