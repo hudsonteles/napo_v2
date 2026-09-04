@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@napo/ui/components/button';
@@ -25,6 +26,9 @@ interface ItemValidado {
   quantidade: number;
   precoUnitarioCentavos: number;
   disponivel: number;
+  fotoUrl: string | null;
+  diametroCm: number | null;
+  porcoes: number | null;
 }
 
 interface Ajuste {
@@ -44,6 +48,16 @@ interface CarrinhoValidado {
 
 const reais = (centavos: number) =>
   (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+/** Tamanho antes de peso: quem compra decide por quantas pessoas comem, não por gramas. */
+function medidas(item: ItemValidado): string {
+  const partes = [
+    item.diametroCm !== null ? `${item.diametroCm} cm` : null,
+    item.porcoes !== null ? `serve ${item.porcoes}` : null,
+  ].filter(Boolean);
+
+  return partes.join(' · ');
+}
 
 function diaPorExtenso(data: string) {
   // `data` é `YYYY-MM-DD`; o `T12:00` evita o recuo de um dia por fuso.
@@ -95,12 +109,22 @@ export function ListaCarrinho() {
 
   if (!pronto || (carregando && !validado)) {
     return (
-      // Markup cru justificado: esqueleto de carregamento não é conteúdo, é
-      // reserva de altura na medida do card que vai chegar — <Card> traria
-      // borda e sombra de um cartão que ainda não existe.
       <div className="mt-7 space-y-3" aria-busy>
-        <div className="h-[116px] animate-pulse rounded-card bg-superficie-alta" />
-        <div className="h-[116px] animate-pulse rounded-card bg-superficie-alta" />
+        {[0, 1].map((linha) => (
+          // O esqueleto tem a forma do card que vai chegar — foto, duas linhas de
+          // texto e o preço à direita. Um retângulo cinza inteiro anuncia
+          // "carregando"; este anuncia *o que* está carregando, e a tela não
+          // salta quando o conteúdo entra.
+          <Card key={linha} className="flex gap-4 p-4">
+            <div className="h-20 w-20 shrink-0 animate-pulse rounded-campo bg-superficie-alta" />
+            <div className="flex-1 space-y-2.5 py-1">
+              <div className="h-4 w-40 animate-pulse rounded bg-superficie-alta" />
+              <div className="h-3 w-24 animate-pulse rounded bg-superficie-alta" />
+              <div className="h-11 w-32 animate-pulse rounded-campo bg-superficie-alta" />
+            </div>
+            <div className="h-4 w-20 animate-pulse rounded bg-superficie-alta" />
+          </Card>
+        ))}
       </div>
     );
   }
@@ -116,6 +140,7 @@ export function ListaCarrinho() {
     );
   }
 
+  const podeAvancar = Boolean(validado && !validado.bloqueado && validado.dia);
   const ajustePor = new Map((validado?.ajustes ?? []).map((ajuste) => [ajuste.produtoId, ajuste]));
   const subtotal = (validado?.itens ?? []).reduce(
     (total, item) => total + item.precoUnitarioCentavos * item.quantidade,
@@ -134,10 +159,21 @@ export function ListaCarrinho() {
               key={item.produtoId}
               className={cn('flex gap-4 p-4', esgotado && 'opacity-60')}
             >
-              <div className="h-20 w-20 shrink-0 rounded-campo bg-superficie-alta" aria-hidden />
+              {item.fotoUrl ? (
+                <Image
+                  src={item.fotoUrl}
+                  alt={item.nome}
+                  width={80}
+                  height={80}
+                  className="h-20 w-20 shrink-0 rounded-campo object-cover"
+                />
+              ) : (
+                // Produto sem ensaio ainda (NAPO-020) mantém a proporção.
+                <div className="h-20 w-20 shrink-0 rounded-campo bg-superficie-alta" aria-hidden />
+              )}
               <div className="min-w-0 flex-1">
                 <h2 className="font-semibold">{item.nome}</h2>
-                <p className="mt-0.5 font-mono text-xs text-texto-suave">550 g</p>
+                <p className="mt-0.5 font-mono text-xs text-texto-suave">{medidas(item)}</p>
 
                 <div className="mt-3 flex items-center gap-3">
                   <SeletorQuantidade
@@ -207,17 +243,17 @@ export function ListaCarrinho() {
           </div>
         </dl>
 
-        <Button className="mt-5" disabled={validado?.bloqueado || !validado?.dia} asChild={!validado?.bloqueado && !!validado?.dia}>
-          {!validado?.bloqueado && validado?.dia ? (
+        {podeAvancar ? (
+          <Button className="mt-5" asChild>
             <Link href="/checkout">
               Finalizar pedido <ArrowRight className="h-4 w-4" />
             </Link>
-          ) : (
-            <>
-              Finalizar pedido <ArrowRight className="h-4 w-4" />
-            </>
-          )}
-        </Button>
+          </Button>
+        ) : (
+          <Button className="mt-5" disabled>
+            Finalizar pedido <ArrowRight className="h-4 w-4" />
+          </Button>
+        )}
 
         <p className="mt-2.5 text-center text-[11px] leading-relaxed text-texto-suave">
           {validado?.bloqueado

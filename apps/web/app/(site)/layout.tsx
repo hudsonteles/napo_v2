@@ -2,7 +2,9 @@ import type { ReactNode } from 'react';
 import { CabecalhoSite } from '@napo/ui/patterns/cabecalho-site';
 import { RodapeSite } from '@napo/ui/patterns/rodape-site';
 
+import { AcessoConta } from '@/features/auth/components/acesso-conta';
 import { AcessoCarrinhoAoVivo } from '@/features/pedidos/components/acesso-carrinho-ao-vivo';
+import { BarraFecharPedido } from '@/features/pedidos/components/barra-fechar-pedido';
 import { publicEnv } from '@/lib/env';
 
 /**
@@ -41,9 +43,12 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       />
       {/* Ilha cliente sobre página estática, como a disponibilidade ao vivo do
           NAPO-003: quem adiciona item está aqui, e o contador precisa reagir. */}
-      <CabecalhoSite acessoCarrinho={<AcessoCarrinhoAoVivo />} />
+      <CabecalhoSite acessoConta={<AcessoConta />} acessoCarrinho={<AcessoCarrinhoAoVivo />} />
       {children}
       <RodapeSite />
+      {/* Atalho de fechamento só aparece com item na sacola — ilha cliente, o
+          site segue estático. */}
+      <BarraFecharPedido />
     </>
   );
 }

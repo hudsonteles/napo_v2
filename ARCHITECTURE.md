@@ -52,6 +52,24 @@ O gargalo é o **forno, não o mercado**: a cozinha opera a 47% da capacidade (3
 - **Tokens visuais:** **`packages/ui/src/tokens.css`** — fonte única que o agente espelha ao gerar `preview.*` na FASE 3.5 do `/especificar`.
 - **Identidade:** preto, branco e amarelo. Referência de storytelling: Apple. Interface premium, nunca template genérico.
 
+#### 2.2.3 Mensagens de erro são nossas (regra inviolável)
+
+**Nenhuma tela do sistema exibe mensagem padrão do navegador ou do provedor.** Isso
+inclui a bolha de validação nativa de formulário (`required`, `type="email"`,
+`pattern`), `alert()`/`confirm()`, e a página de erro em JSON de qualquer serviço
+externo.
+
+- Todo `<form>` leva `noValidate`; a validação roda no nosso código e a mensagem
+  aparece no lugar previsto pelo design, com a nossa voz e em português.
+- Caminho que depende de configuração externa (login social, gateway) só é
+  **oferecido** quando a configuração existe naquele ambiente. Botão que leva a
+  erro de terceiro é caminho quebrado — pior que caminho a menos.
+
+**Motivo:** a bolha nativa é a única superfície do produto que não passa por
+design nem por revisão de texto, muda de aparência a cada navegador e fala em
+inglês em boa parte dos sistemas. Registrada no Gate Visual B do NAPO-006, quando
+a validação do e-mail no login apareceu em caixa cinza do navegador.
+
 #### 2.2.2 Marca e identidade visual (regra inviolável)
 
 **A Napo tem identidade visual própria e ela é obrigatória em toda superfície do produto.** Nenhuma tela, e-mail ou documento gerado pode inventar marca, usar iniciais em caixa colorida, texto simulando logotipo ou ícone genérico de biblioteca no lugar do logotipo.

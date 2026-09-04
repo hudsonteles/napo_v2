@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { CabecalhoSite } from '@napo/ui/patterns/cabecalho-site';
 import { RodapeSite } from '@napo/ui/patterns/rodape-site';
 
+import { AcessoConta } from '@/features/auth/components/acesso-conta';
 import { AcessoCarrinhoAoVivo } from '@/features/pedidos/components/acesso-carrinho-ao-vivo';
 
 /**
@@ -14,7 +15,7 @@ import { AcessoCarrinhoAoVivo } from '@/features/pedidos/components/acesso-carri
 export default function LojaLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <CabecalhoSite acessoCarrinho={<AcessoCarrinhoAoVivo />} />
+      <CabecalhoSite acessoConta={<AcessoConta />} acessoCarrinho={<AcessoCarrinhoAoVivo />} />
       {children}
       <RodapeSite />
     </>

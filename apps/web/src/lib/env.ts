@@ -23,6 +23,14 @@ const publicSchema = z.object({
   // Maps JS para o ajuste do pin (NAPO-005 RN6). Pública de propósito — quem a
   // protege é a restrição por referrer, não o segredo.
   NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: z.string().min(1),
+  // O login com Google só existe na tela quando o provedor está configurado no
+  // Supabase daquele ambiente. Sem isso o botão manda a pessoa para uma página
+  // de erro em JSON do GoTrue — um caminho quebrado é pior que um caminho a
+  // menos. Local nasce `false`; staging e produção ligam quando o OAuth existir.
+  NEXT_PUBLIC_AUTH_GOOGLE: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((valor) => valor === 'true'),
 });
 
 const publicParsed = publicSchema.safeParse({
@@ -30,6 +38,7 @@ const publicParsed = publicSchema.safeParse({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY,
+  NEXT_PUBLIC_AUTH_GOOGLE: process.env.NEXT_PUBLIC_AUTH_GOOGLE,
 });
 
 if (!publicParsed.success) {

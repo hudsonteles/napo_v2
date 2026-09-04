@@ -61,10 +61,22 @@ export async function POST(request: Request) {
 
   const ajustado = aplicarTetos(precificados);
 
+  // A vitrine do NAPO-003 já resolve foto e medidas; o carrinho mostra o mesmo
+  // produto e não pode mostrar um quadrado cinza no lugar da pizza.
+  const comApresentacao = ajustado.itens.map((item) => {
+    const doCatalogoItem = doCatalogo.get(item.produtoId);
+    return {
+      ...item,
+      fotoUrl: doCatalogoItem?.fotoUrl ?? null,
+      diametroCm: doCatalogoItem?.produto.diametroCm ?? null,
+      porcoes: doCatalogoItem?.produto.porcoes ?? null,
+    };
+  });
+
   return NextResponse.json({
     success: true,
     data: {
-      itens: ajustado.itens,
+      itens: comApresentacao,
       ajustes: ajustado.ajustes,
       // Produto que saiu do catálogo também trava o avanço: seguir calado
       // cobraria por uma sacola diferente da que a pessoa montou.

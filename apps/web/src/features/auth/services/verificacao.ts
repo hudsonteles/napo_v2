@@ -22,6 +22,23 @@ import * as repo from './verificacao-repo';
 const JANELA_TETO_HORAS = 24;
 
 /**
+ * Com o canal falso, o código é fixo (`123456`).
+ *
+ * A mesma variável que decide o canal decide o código: `WHATSAPP_PROVIDER=meta`
+ * sorteia, `fake` não. Isso mantém o par ambiente/comportamento em **uma**
+ * chave, em vez de criar um segundo interruptor que alguém pode ligar em
+ * produção por engano. Continua passando pelo HMAC, pelo teto e pela expiração
+ * — o que muda é só o sorteio.
+ */
+const CODIGO_DE_DESENVOLVIMENTO = 123456;
+
+function sorteioDoAmbiente(): (limite: number) => number {
+  return getServerEnv().WHATSAPP_PROVIDER === 'fake'
+    ? () => CODIGO_DE_DESENVOLVIMENTO
+    : (limite) => randomInt(limite);
+}
+
+/**
  * HMAC-SHA256 com pepper fora do banco (design §5). O telefone entra no material
  * para que o mesmo código emitido a duas pessoas não produza o mesmo hash — um
  * dump não vira tabela de equivalência entre linhas.
@@ -92,7 +109,7 @@ export async function emitirCodigo({
   // que não é dela.
   await repo.atualizarNome(perfilId, nome);
 
-  const codigo = gerarCodigo((limite) => randomInt(limite));
+  const codigo = gerarCodigo(sorteioDoAmbiente());
   const expiraEm = expiracaoDe(agora);
 
   const desafio = await repo.gravarDesafio({

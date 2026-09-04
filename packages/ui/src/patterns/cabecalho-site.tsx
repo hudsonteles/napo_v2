@@ -8,12 +8,15 @@ import { Marca } from '../components/marca';
  * Next (ARCHITECTURE §3.2); num site SSG servido do CDN a navegação de página
  * inteira é aceitável.
  *
- * O acesso ao carrinho entra como **slot** (NAPO-006): quem conta os itens é uma
- * ilha cliente do app, e um pattern do catálogo não pode conhecer o estado de
- * uma feature. Sem o slot, o cabeçalho continua servindo às páginas estáticas
- * que não têm carrinho.
+ * Carrinho e conta entram como **slots** (NAPO-006): quem conta os itens e quem
+ * sabe da sessão são ilhas cliente do app, e um pattern do catálogo não pode
+ * conhecer o estado de uma feature. Sem os slots, o cabeçalho continua servindo
+ * às páginas que não têm nem carrinho nem sessão.
  */
-export function CabecalhoSite({ acessoCarrinho }: { acessoCarrinho?: ReactNode } = {}) {
+export function CabecalhoSite({
+  acessoCarrinho,
+  acessoConta,
+}: { acessoCarrinho?: ReactNode; acessoConta?: ReactNode } = {}) {
   return (
     <header className="sticky top-0 z-50 border-b border-borda bg-preto/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
@@ -39,6 +42,7 @@ export function CabecalhoSite({ acessoCarrinho }: { acessoCarrinho?: ReactNode }
           >
             Como aquecer
           </a>
+          {acessoConta}
           {acessoCarrinho}
         </nav>
       </div>

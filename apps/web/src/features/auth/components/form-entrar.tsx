@@ -29,6 +29,14 @@ function urlDeRetorno(proximo: string | null): string {
   return callback.toString();
 }
 
+/** Formato suficiente para pegar erro de digitação; quem valida de verdade é o link que chega. */
+function validarEmail(valor: string): string | null {
+  const limpo = valor.trim();
+  if (limpo.length === 0) return 'Informe seu e-mail para receber o link.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(limpo)) return 'Este e-mail parece incompleto.';
+  return null;
+}
+
 function contagem(segundos: number): string {
   return `${Math.floor(segundos / 60)}:${String(segundos % 60).padStart(2, '0')}`;
 }
@@ -52,6 +60,15 @@ export function FormEntrar({ proximo, erro }: { proximo: string | null; erro: st
   }, [restam]);
 
   async function enviarLink(destinatario: string) {
+    // Validação nossa, com a nossa voz: a bolha nativa do navegador é a única
+    // superfície do site que não passa por design nem por revisão de texto, e
+    // fala em inglês em metade dos sistemas.
+    const invalido = validarEmail(destinatario);
+    if (invalido) {
+      setErroEmail(invalido);
+      return;
+    }
+
     setCarregando(true);
     setErroEmail(null);
 
@@ -122,6 +139,9 @@ export function FormEntrar({ proximo, erro }: { proximo: string | null; erro: st
     >
       <form
         className="space-y-4"
+        // Sem a validação do navegador: a mensagem de erro é nossa (RN de UI —
+        // nenhuma tela do sistema exibe erro padrão de HTML).
+        noValidate
         onSubmit={(evento) => {
           evento.preventDefault();
           void enviarLink(email);
@@ -152,17 +172,21 @@ export function FormEntrar({ proximo, erro }: { proximo: string | null; erro: st
         </Button>
       </form>
 
-      {/* Markup cru declarado em design.md §4.4.4: divisor sem estado nem lógica. */}
-      <div className="my-6 flex items-center gap-4">
-        <span className="h-px flex-1 bg-borda" />
-        <span className="text-xs uppercase tracking-widest text-neutral-500">ou</span>
-        <span className="h-px flex-1 bg-borda" />
-      </div>
+      {publicEnv.NEXT_PUBLIC_AUTH_GOOGLE && (
+        <>
+          {/* Markup cru declarado em design.md §4.4.4: divisor sem estado nem lógica. */}
+          <div className="my-6 flex items-center gap-4">
+            <span className="h-px flex-1 bg-borda" />
+            <span className="text-xs uppercase tracking-widest text-neutral-500">ou</span>
+            <span className="h-px flex-1 bg-borda" />
+          </div>
 
-      <Button variant="outline" disabled={carregando} onClick={() => void entrarComGoogle()}>
-        <IconeGoogle />
-        Entrar com Google
-      </Button>
+          <Button variant="outline" disabled={carregando} onClick={() => void entrarComGoogle()}>
+            <IconeGoogle />
+            Entrar com Google
+          </Button>
+        </>
+      )}
 
       <p className="mt-7 text-xs leading-relaxed text-neutral-500">
         Ao continuar você concorda com os{' '}
