@@ -237,11 +237,17 @@ skip_nonce_check = false
 # Para exercitar o Google localmente: preencha as duas variáveis no ambiente,
 # troque `enabled` para true e rode `pnpm db:start` de novo.
 [auth.external.google]
-enabled = false
-client_id = ""
-secret = ""
+# As credenciais vêm do ambiente, nunca do arquivo: `config.toml` é versionado e
+# `client secret` no repositório é segredo publicado. Preencha as duas variáveis
+# em `supabase/.env` (ver `.env.example`) antes de subir o stack.
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
 # Obrigatório para login com Google no ambiente local.
 skip_nonce_check = true
+# Para onde o Google devolve: é esta URL que precisa estar cadastrada como
+# "URI de redirecionamento autorizado" no console do Google Cloud.
+redirect_uri = "http://127.0.0.1:54421/auth/v1/callback"
 
 # Use Firebase Auth as a third-party provider alongside Supabase Auth.
 [auth.third_party.firebase]
