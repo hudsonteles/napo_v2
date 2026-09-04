@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, LoaderCircle } from 'lucide-react';
 import { Card } from '@napo/ui/components/card';
 
+import { useCarrinho } from '@/lib/carrinho/provider';
+
 /**
  * O retorno do pagamento (RN8, RN19).
  *
@@ -14,6 +16,9 @@ import { Card } from '@napo/ui/components/card';
  */
 
 const ESPERAS_MS = [2_000, 3_000, 5_000, 8_000, 13_000, 21_000];
+
+/** Estados em que o dinheiro entrou: a sacola virou pedido. */
+const PAGOS = ['pago', 'em_producao', 'pronto', 'em_rota', 'entregue'];
 
 export interface PedidoNaTela {
   numero: number;
@@ -37,6 +42,19 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
   const [pedido, setPedido] = useState(inicial);
   const [desistiu, setDesistiu] = useState(false);
   const tentativa = useRef(0);
+  const { limpar } = useCarrinho();
+
+  /**
+   * A sacola só é esvaziada quando o pagamento confirma — nunca ao criar o
+   * pedido. Cobrança não paga expira em 30 minutos, e a microcopy da RN13
+   * promete que "seus itens continuam no carrinho": limpar antes transformaria
+   * uma desistência no meio do gateway em carrinho perdido.
+   */
+  useEffect(() => {
+    if (PAGOS.includes(pedido.status)) limpar();
+    // `limpar` muda a cada render do provider; o gatilho é o status.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pedido.status]);
 
   useEffect(() => {
     if (pedido.status !== 'aguardando_pagamento') return;
@@ -87,7 +105,7 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
     );
   }
 
-  const pago = ['pago', 'em_producao', 'pronto', 'em_rota', 'entregue'].includes(pedido.status);
+  const pago = PAGOS.includes(pedido.status);
 
   return (
     <Card className="border-amarelo/30 p-6">
