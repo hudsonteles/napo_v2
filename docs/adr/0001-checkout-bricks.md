@@ -107,15 +107,26 @@ online; os demais instrumentos não alteram `ARCHITECTURE.md` §2.1.
   sozinho meios de pagamento novos.
 - A porta `PortaPagamento` do NAPO-006 prova seu valor: a troca é escrever um
   adaptador, não reescrever o checkout.
+- **Abre o caminho para pagamento em um toque no nosso site**, que o Checkout Pro nunca
+  ofereceu. O Payment Brick exibe cartões salvos vinculados a um `customer_id` da nossa
+  conta (`GET /v1/customers/{customer_id}/cards`, só cartões dentro da validade),
+  atrelados à conta Napo que o cliente já tem desde o NAPO-002 — sem exigir que ele
+  tenha conta no Mercado Pago. **Pizza congelada é compra recorrente**, então o segundo
+  pedido em diante é onde isso paga. Fica fora do escopo desta decisão e do NAPO-025;
+  registrado em 💡 no ROADMAP porque depende de consentimento versionado (NAPO-009).
 
 ### Negativas / trade-offs aceitos
 
 - **O Brick é componente do Mercado Pago.** Aceita customização (cores, tipografia,
   raio), mas não fica 100% na identidade Napo como o resto do site. É o preço de não
   manter formulário de cartão próprio.
-- **Pagamento em um toque com cartão salvo do Mercado Pago deixa de vir de graça.** No
-  Checkout Pro o cliente logado paga com cartão salvo; com o Payment Brick isso vira o
-  Wallet Brick, se e quando fizer sentido. **Risco de conversão a monitorar.**
+- **A carteira Mercado Pago deixa de ser fluida.** No Checkout Pro, o cliente com conta
+  no MP paga com cartão salvo ou saldo sem esforço, porque já está na página deles. Com
+  o Payment Brick a opção continua existindo (basta passar `preferenceId` na
+  inicialização), mas quem a escolhe **é redirecionado para o Mercado Pago** e volta
+  pelas `back_urls`. A troca é boa no agregado — hoje *todos* são redirecionados;
+  depois, só quem escolhe essa forma — mas para esse subconjunto de clientes a
+  experiência piora. **Risco de conversão a monitorar.**
 - **Retrabalho no NAPO-006:** `criarCobranca()` muda de forma, o `PagamentoFake` muda
   junto, e a tela de checkout ganha o Brick — o que **dispara Gate Visual A**.
 - Nova dependência de frontend (`@mercadopago/sdk-react`) e nova variável pública
