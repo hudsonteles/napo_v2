@@ -2,7 +2,7 @@
 
 ---
 
-**Status:** Proposto
+**Status:** Aceito
 **Data:** 2026-09-05
 **Decisor(es):** Hudson (PM)
 **Disparado por:** Requisito de produto levantado durante o `/especificar` do NAPO-023 — o cliente não deve sair do site para pagar. Detalhado em `docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md` §3.2.
@@ -169,4 +169,4 @@ online; os demais instrumentos não alteram `ARCHITECTURE.md` §2.1.
 
 ## Aprovação
 
-- [ ] Revisado por: Hudson · em ____-__-__
+- [x] Revisado por: Hudson · em 2026-09-05

@@ -39,7 +39,8 @@ O gargalo é o **forno, não o mercado**: a cozinha opera a 47% da capacidade (3
 - **Backend & Database:** Supabase — PostgreSQL, Auth, Storage
 - **Serviços de Infra:** Vercel · domínio `napobsb.com.br` (DNS no Registro.br)
 - **Autenticação:** Supabase Auth (Magic Link + Google) com RBAC por `role` + gate obrigatório de telefone via WhatsApp
-- **Pagamento:** Mercado Pago Checkout Pro (conta PJ) — Pix, crédito, débito
+- **Pagamento (online):** Mercado Pago **Checkout Bricks** (Payment Brick, conta PJ) — Pix, crédito, débito, conta Mercado Pago. Renderizado no nosso domínio: o cliente não sai do site. Decidido em [ADR-0001](docs/adr/0001-checkout-bricks.md).
+- **Pagamento (presencial):** Mercado Pago **Point Integration API** — o valor sai do sistema para a maquininha e o cliente escolhe a forma no aparelho
 - **E-mail transacional:** Resend, `pedido@napobsb.com.br`
 - **Monitoramento de erros:** Sentry
 
@@ -282,7 +283,8 @@ Tudo persistido em `timestamptz` **UTC**. **Toda** decisão de data de negócio 
 | Magic Link           | ✅ funciona (inbox fake)  | —                                                   |
 | Google OAuth         | ⚠️ exige credencial real  | configurar ou testar só em staging                  |
 | OTP WhatsApp (Meta)  | ❌ API externa            | **mock obrigatório** — decisão da spec NAPO-002     |
-| Webhook Mercado Pago | ❌ precisa de URL pública | túnel (ngrok/`supabase functions serve`) ou staging |
+| Webhook Mercado Pago | ❌ precisa de URL pública | túnel (ngrok/`supabase functions serve`) ou staging. **Dois tópicos:** `payment` (Bricks, Pix, link) e `point_integration_wh`/`orders` (maquininha) |
+| Maquininha Point     | ❌ aparelho físico        | exige aparelho pareado à conta; o adaptador é mockado em teste (NAPO-027) |
 
 - **Regra de Ouro:** o código NUNCA é alterado manualmente para mudar de ambiente — só via env vars.
 - **Toda alteração de banco via migration versionada.** Sem exceção.

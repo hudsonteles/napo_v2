@@ -48,7 +48,7 @@ _**Reescopado em 2026-09-05** conforme [`docs/superpowers/specs/2026-09-05-espin
 
 - [ ] **NAPO-025** Espinha de cobrança: cobrança como entidade e pagamento no site sem sair dele
   - **Dependências:** NAPO-006
-  - **ADR pré-requisito:** ADR-0001-checkout-bricks (Status: Proposto)
+  - **ADR pré-requisito:** [ADR-0001-checkout-bricks](docs/adr/0001-checkout-bricks.md) (Status: Aceito)
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
   - **Notas:** desenho completo em [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md). **Absorve o NAPO-023.** Cria `cobranca` como entidade de primeira classe — um pedido tem 0..n cobranças e `situacao_pagamento` é **derivada**, nunca um campo que alguém esquece de atualizar. Cinco instrumentos atrás da porta que o NAPO-006 já criou: `online` (Checkout Bricks, no nosso domínio), `pix_qr`, `link`, `dinheiro` e `point` (este entra no NAPO-027). Dinheiro é ofertado **sem destaque** — atrito deliberado, decisão do PM. Aqui também acontece o que era o NAPO-023: credenciais de teste, túnel, assinatura HMAC real, aprovado/recusado/pendente e idempotência sob notificação duplicada. **Dispara Gate Visual A** — a tela de checkout ganha o Brick.
 
