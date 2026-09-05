@@ -34,7 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_Fila vazia — o NAPO-006 fechou em 2026-09-04. Próximo candidato: repriorizar de 🟡 Próximos._
+_Fila vazia — o NAPO-006 fechou em 2026-09-04. O próximo a entrar é o topo de 🟡 Próximos: **NAPO-007**._
 
 ---
 
@@ -42,7 +42,22 @@ _Fila vazia — o NAPO-006 fechou em 2026-09-04. Próximo candidato: repriorizar
 
 _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em Andamento" ao iniciar._
 
-_Fila vazia. Candidatos naturais agora que o canal de venda existe: **NAPO-009** (LGPD, Must independente de tudo), **NAPO-021** (provisionar ambientes — quanto mais specs acumulam, maior a surpresa) e **NAPO-007** (área do cliente, destravado pelo NAPO-006)._
+_Ordem definida pelo PM em 2026-09-04: validar telas, fluxos e pagamento **no ambiente de desenvolvimento** antes de provisionar qualquer ambiente. Por isso o NAPO-021 (deploy) foi para o fim do Backlog._
+
+- [ ] **NAPO-007** Área do cliente: meu perfil, endereços e meus pedidos
+  - **Dependências:** NAPO-006
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **Notas:** três áreas numa spec só (decisão do PM, 2026-09-04), nesta ordem: **1. Meu Perfil · 2. Endereços · 3. Meus Pedidos**. Compartilham casca, navegação e RLS por dono — separar em três itens reescreveria a mesma casca três vezes. Padrão de listagem do projeto: cards + busca + combobox de filtro + combobox de ordenação, com persistência ao navegar entre card e lista. **Absorve a ideia "porta de entrada para a conta no site público"** (registrada em 2026-08-18, saiu de 💡 nesta data): cabeçalho anônimo → "Entrar"; autenticado → nome ou "Minha conta". Isso arrasta leitura de sessão para uma superfície hoje 100% estática — o SSG do `(site)` é decisão de custo declarada em `ARCHITECTURE.md` §4.5, então a spec precisa dizer **como** o cabeçalho lê sessão sem derrubar o SSG.
+
+- [ ] **NAPO-022** Meus chamados: abertura, anexos e acompanhamento pelo cliente
+  - **Dependências:** NAPO-007
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Should
+  - **Notas:** canal do cliente para abrir uma demanda (a partir de um pedido ou avulsa), **acompanhar** o andamento e **cancelar** o próprio chamado. Anexo é **manual** — o cliente sobe imagem ou PDF pequeno (decisão do PM, 2026-09-04); captura automática da tela foi descartada por exigir permissão do navegador, quebrar com imagem de outro domínio e poder capturar dado pessoal sem o cliente perceber. Primeiro uso de **Supabase Storage** no projeto (já previsto em `ARCHITECTURE.md` §2.1, não exige ADR): pede política de bucket por dono, teto de tamanho e de quantidade, validação de tipo real (não por extensão) e atenção à cota do free tier (§4.5). Aviso de resposta fica **só na tela** (badge de não-lido) — e-mail dependeria do SMTP que ainda não existe. O ciclo de vida do chamado nasce aqui e é consumido pelo NAPO-024.
+
+- [ ] **NAPO-023** Pagamento fim a fim com Mercado Pago real (ambiente de desenvolvimento)
+  - **Dependências:** NAPO-006
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **Notas:** o NAPO-006 fechou com `PAGAMENTO_PROVIDER=fake` — o fluxo **nunca tocou o Mercado Pago de verdade**. Aqui o caminho completo é exercitado em dev: credenciais de teste, túnel público para o webhook, assinatura HMAC real, pagamento aprovado/recusado/pendente, liberação de reserva quando o gateway falha e idempotência sob notificação duplicada. Era nota do NAPO-006 apontando para o NAPO-021; virou item próprio em 2026-09-04, quando o PM decidiu validar o pagamento em desenvolvimento antes de provisionar ambiente.
 
 ---
 
@@ -51,11 +66,6 @@ _Fila vazia. Candidatos naturais agora que o canal de venda existe: **NAPO-009**
 _Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informações._
 
 ### Fecham o R1
-
-- [ ] **NAPO-007** Área do cliente (pedidos e endereços)
-  - **Dependências:** NAPO-006
-  - **Valor:** Médio · **Esforço:** Baixo · **MoSCoW:** Must
-  - **Notas:** padrão de listagem do projeto: cards + busca + combobox de filtro + combobox de ordenação, com persistência ao navegar entre card e lista.
 
 - [ ] **NAPO-008** Admin: pedidos, insumos/BOM, estoque, entregadores, custos e painel econômico
   - **Dependências:** NAPO-002, NAPO-004
@@ -71,8 +81,14 @@ _Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informa
   - **Dependências:** NAPO-001
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **⚠️ Conferir antes de publicar (do NAPO-003, 2026-08-17):** (a) a separação real de bancada entre doce e salgado, que sustenta o precaucional de avelã estar só nos doces; (b) a Banana declara leite em "contém" e a Massa Doce, que é a base dela, declara só glúten — uma das duas está errada.
+  - **⬇️ Movido para o fim da fila (2026-09-04):** decisão do PM — validar telas, fluxos e o pagamento real no ambiente de desenvolvimento antes de provisionar homologação e produção. Continua sendo o último passo do R1, não um item opcional.
   - **Notas:** desmembrado do NAPO-001 em 2026-08-10 por decisão de focar em desenvolvimento primeiro. Cria os dois projetos Supabase online (staging e prod — **2 ativos cabem no free tier**), conecta a Vercel, aponta o DNS de `napobsb.com.br` no Registro.br e roda o primeiro `db:push` de verdade. Dois pontos de atenção conhecidos: projeto free **pausa após ~7 dias sem atividade** (o CI tocando o banco a cada PR resolve), e produção no free não tem PITR — vira Pro (~US$ 25/mês) antes de faturar. **Quanto mais specs acumularem antes deste item, maior a superfície de surpresa de ambiente** (`docs/specs/001-fundacao/design.md` §8).
 
+- [ ] **NAPO-024** Mesa de atendimento: tratativa de chamados no admin
+  - **Dependências:** NAPO-022
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Should
+  - **⬇️ Movido de 🟡 Próximos para 🔵 Backlog (2026-09-05):** decisão do PM. Depende do NAPO-022, que segue em Próximos — o lado do admin só faz sentido depois que o cliente tiver como abrir chamado.
+  - **Notas:** o outro lado do NAPO-022 — a casa vê a fila, assume o chamado, conversa com o cliente, anexa resposta e **fecha com uma solução**. Item próprio e fora do NAPO-008 (decisão do PM, 2026-09-04): o admin é economia e operação, suporte é outro domínio, e o NAPO-008 já é o item mais caro do backlog. A spec precisa definir estados, quem pode assumir, o que conta como "resolvido" e se o cliente confirma o fechamento. Como o NAPO-021 é o último item da fila, nenhum chamado fica órfão em produção nesse intervalo.
 ### R2 — Eventos
 
 - [ ] **NAPO-010** Módulo de eventos (preparação)
@@ -150,8 +166,6 @@ Ainda abertas, para as fases seguintes:
 - [ ] **Copy do site derivada de configuração, não cravada no código** — o site do NAPO-003 escreve à mão o que hoje é premissa de dado único: o **dia de entrega** ("Brasília, às sextas", rótulo "esta sexta" no seletor de fornada), as **faixas de frete** (R$6/R$10/R$14, grátis >R$150) e os **valores de evento** (R$99→R$64,90/pessoa, garçom R$250). O motor de entrega já é config-driven (`dias_semana_entrega`, NAPO-004), mas os textos não derivam dela. Quando o frete (NAPO-005) e a gestão no admin (NAPO-008) existirem, essas superfícies do site devem **ler** a config em vez de repetir números — senão ligar um segundo dia de entrega ou reajustar frete exige editar copy. Registrado em 2026-08-17. **Origem:** Gate Visual B do NAPO-003 (PM perguntou como escalar dias de entrega e tornar frete/evento gerenciáveis).
 - [ ] **Indicador de precificação de frete no admin** (combustível + parâmetros) — um assistente que sugere o frete por faixa a partir de custo real: preço do combustível ÷ consumo + desgaste por km, distância **rodoviária** ×2, dividido pela **densidade da rota** (entregas por viagem — referência NAPO-005: R$ 9,60/entrega em rota de 10), mais parcela do entregador e margem alvo; com **alerta quando a faixa cobra abaixo do custo** (o mesmo erro que a fórmula `km×2÷qtd` rejeitada cometia). Encaixa no **"simulador de viabilidade de frete"** já previsto nas notas do NAPO-008. Registrado em 2026-08-17. **Origem:** Gate Visual B do NAPO-003.
 
-- [ ] **Porta de entrada para a conta no site público** — não existe nenhuma referência a `/entrar` ou `/conta` em qualquer superfície do site: quem entra pela home não tem como chegar ao login, e quem já está logado não tem como voltar para a área do cliente. O NAPO-002 entregou as telas de auth e o NAPO-003 entregou o site; ligar os dois não coube em nenhuma das duas specs e passou no meio. Precisa decidir o comportamento do cabeçalho para os dois estados (anônimo → "Entrar"; autenticado → nome ou "Minha conta"), o que arrasta leitura de sessão para uma superfície hoje 100% estática — e o SSG do `(site)` é decisão de custo declarada em `ARCHITECTURE.md` §4.5, não detalhe. Candidato natural a nascer junto do **NAPO-007**, que é quem dá dono ao cabeçalho da área do cliente. Registrado em 2026-08-18. **Origem:** Gate Visual B do NAPO-005 — o PM logou e não achou caminho de volta.
-
 - [ ] **Ranking das "mais pedidas" derivado de venda real** — hoje `ranking_mais_pedidas` é preenchido à mão na migration de catálogo (1 Calabresa · 2 Peito de Peru com Gorgonzola · 3 Frango c/ Catupiry). O PM pediu que a home ordenasse pelo que mais vende, mas não existe pedido no banco até o NAPO-006 — e um ranking cravado envelhece calado: quando a preferência mudar, a home continua afirmando um fato que deixou de ser verdade. Quando houver histórico de venda, derivar de uma janela móvel (ex.: 90 dias) com o valor manual como override do admin (NAPO-008). Registrado em 2026-08-17. **Origem:** bloco C do NAPO-003. **Depende de NAPO-006.**
 
 ## ⏸️ Bloqueados (Aguardando externo)
@@ -192,7 +206,7 @@ _Histórico — adicionar mais recentes NO TOPO._
   - **Ficha da fornada** como topo do resumo (direção A do Gate Visual A): o que o cliente compra é uma vaga numa fornada de um dia, não "3 pizzas" — é a leitura literal do gargalo declarado na arquitetura.
   - 400 testes Vitest + 120 pgTAP. Migration `0015` acrescentou auditoria à confirmação (RN21), aprovada fora do Mapa no checkpoint pós-H.
   - **Achados do Gate Visual B corrigiram NAPO-002 e NAPO-003 também:** checkout abria sem telefone validado, o retorno se perdia nos desvios (validar telefone, cadastrar endereço), telas sem saída, `ring-offset` desenhando risco escuro na borda de todo botão amarelo, e `cursor: default` do reset do Tailwind v4. Regra nova em `ARCHITECTURE.md` §2.2.3: nenhuma tela exibe erro padrão de HTML ou de terceiro. Tabela completa em `plan.md`.
-  - **Não foi exercitado com o Mercado Pago real** — exige túnel público e credenciais de teste (`ARCHITECTURE.md` §6.1). É pré-requisito do NAPO-021, não deste item.
+  - **Não foi exercitado com o Mercado Pago real** — exige túnel público e credenciais de teste (`ARCHITECTURE.md` §6.1). Virou o **NAPO-023** em 2026-09-04 (antes era tratado como pré-requisito do NAPO-021).
 
 - [x] **NAPO-005** Endereços e frete por faixa de distância · concluído 2026-08-18 · [`docs/specs/005-enderecos-frete/`](docs/specs/005-enderecos-frete/)
   - Cadastro de endereço em **duas etapas**: texto primeiro, confirmação da posição depois, com pin fixo no centro e o mapa se movendo embaixo. A página única aprovada no Gate Visual A foi superada em execução (`drift.md`): apresentado como elemento opcional entre nove campos, o mapa não é usado — e pin no meio da quadra não gera reclamação, gera **viagem perdida numa rota de dez paradas**.
