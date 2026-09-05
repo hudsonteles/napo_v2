@@ -34,7 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_Fila vazia — o NAPO-006 fechou em 2026-09-04. O próximo a entrar é o topo de 🟡 Próximos: **NAPO-007**._
+_Fila vazia — o NAPO-006 fechou em 2026-09-04. O próximo a entrar é o topo de 🟡 Próximos: **NAPO-025**._
 
 ---
 
@@ -44,20 +44,28 @@ _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em An
 
 _Ordem definida pelo PM em 2026-09-04: validar telas, fluxos e pagamento **no ambiente de desenvolvimento** antes de provisionar qualquer ambiente. Por isso o NAPO-021 (deploy) foi para o fim do Backlog._
 
+_**Reescopado em 2026-09-05** conforme [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md) §9. O NAPO-023 foi absorvido pelo NAPO-025 e cinco itens novos (025–029) entraram: a venda deixa de existir só no site e passa a nascer também no balcão, na rua e no WhatsApp, com cobrança na maquininha. O NAPO-022 saiu de Próximos para o Backlog._
+
+- [ ] **NAPO-025** Espinha de cobrança: cobrança como entidade e pagamento no site sem sair dele
+  - **Dependências:** NAPO-006
+  - **ADR pré-requisito:** ADR-0001-checkout-bricks (Status: Proposto)
+  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
+  - **Notas:** desenho completo em [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md). **Absorve o NAPO-023.** Cria `cobranca` como entidade de primeira classe — um pedido tem 0..n cobranças e `situacao_pagamento` é **derivada**, nunca um campo que alguém esquece de atualizar. Cinco instrumentos atrás da porta que o NAPO-006 já criou: `online` (Checkout Bricks, no nosso domínio), `pix_qr`, `link`, `dinheiro` e `point` (este entra no NAPO-027). Dinheiro é ofertado **sem destaque** — atrito deliberado, decisão do PM. Aqui também acontece o que era o NAPO-023: credenciais de teste, túnel, assinatura HMAC real, aprovado/recusado/pendente e idempotência sob notificação duplicada. **Dispara Gate Visual A** — a tela de checkout ganha o Brick.
+
 - [ ] **NAPO-007** Área do cliente: meu perfil, endereços e meus pedidos
   - **Dependências:** NAPO-006
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **Notas:** três áreas numa spec só (decisão do PM, 2026-09-04), nesta ordem: **1. Meu Perfil · 2. Endereços · 3. Meus Pedidos**. Compartilham casca, navegação e RLS por dono — separar em três itens reescreveria a mesma casca três vezes. Padrão de listagem do projeto: cards + busca + combobox de filtro + combobox de ordenação, com persistência ao navegar entre card e lista. **Absorve a ideia "porta de entrada para a conta no site público"** (registrada em 2026-08-18, saiu de 💡 nesta data): cabeçalho anônimo → "Entrar"; autenticado → nome ou "Minha conta". Isso arrasta leitura de sessão para uma superfície hoje 100% estática — o SSG do `(site)` é decisão de custo declarada em `ARCHITECTURE.md` §4.5, então a spec precisa dizer **como** o cabeçalho lê sessão sem derrubar o SSG.
 
-- [ ] **NAPO-022** Meus chamados: abertura, anexos e acompanhamento pelo cliente
-  - **Dependências:** NAPO-007
-  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Should
-  - **Notas:** canal do cliente para abrir uma demanda (a partir de um pedido ou avulsa), **acompanhar** o andamento e **cancelar** o próprio chamado. Anexo é **manual** — o cliente sobe imagem ou PDF pequeno (decisão do PM, 2026-09-04); captura automática da tela foi descartada por exigir permissão do navegador, quebrar com imagem de outro domínio e poder capturar dado pessoal sem o cliente perceber. Primeiro uso de **Supabase Storage** no projeto (já previsto em `ARCHITECTURE.md` §2.1, não exige ADR): pede política de bucket por dono, teto de tamanho e de quantidade, validação de tipo real (não por extensão) e atenção à cota do free tier (§4.5). Aviso de resposta fica **só na tela** (badge de não-lido) — e-mail dependeria do SMTP que ainda não existe. O ciclo de vida do chamado nasce aqui e é consumido pelo NAPO-024.
-
-- [ ] **NAPO-023** Pagamento fim a fim com Mercado Pago real (ambiente de desenvolvimento)
-  - **Dependências:** NAPO-006
+- [ ] **NAPO-026** Registrar venda no admin: quem vende, o que sai, para quem
+  - **Dependências:** NAPO-025
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
-  - **Notas:** o NAPO-006 fechou com `PAGAMENTO_PROVIDER=fake` — o fluxo **nunca tocou o Mercado Pago de verdade**. Aqui o caminho completo é exercitado em dev: credenciais de teste, túnel público para o webhook, assinatura HMAC real, pagamento aprovado/recusado/pendente, liberação de reserva quando o gateway falha e idempotência sob notificação duplicada. Era nota do NAPO-006 apontando para o NAPO-021; virou item próprio em 2026-09-04, quando o PM decidiu validar o pagamento em desenvolvimento antes de provisionar ambiente.
+  - **Notas:** a fatia mínima desmembrada do NAPO-008 ([`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md) §9). Sem um lugar onde a venda é registrada, a cobrança na maquininha não tem pedido a que se ligar — e esse lugar estava enterrado no item mais caro do backlog, junto de BOM, estoque, custos e painel. Aqui entram as origens `balcao`, `whatsapp` e `carga`, e os momentos `no_ato`, `na_entrega` e `a_combinar`. Venda de congelada do catálogo passa pelo motor de disponibilidade (NAPO-004) como qualquer outra: balcão que vende vaga de forno sem avisar o site faz o site mentir.
+
+- [ ] **NAPO-027** Cobrança na maquininha: Point, frota e vínculo com o operador
+  - **Dependências:** NAPO-026
+  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
+  - **Notas:** o item que resolve a dor central — hoje ninguém dá baixa e um sócio reconstrói a verdade depois pelo WhatsApp. O valor vai do sistema para a maquininha, o cliente escolhe débito/crédito/Pix **no aparelho**, e o webhook confirma sozinho: a baixa vira subproduto do ato de cobrar. **Cobrança aprovada no `point` é prova de entrega** — o aparelho estava na porta do cliente; isso **não vale para `link`**, que só prova que alguém pagou. Inclui **cadastro de frota** ([`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md) §8): maquininha nunca é excluída, só muda de situação; `device_id` (envia a cobrança) e `POI_ID` (volta no relatório) são guardados como par; o vínculo aparelho↔operador é **datado**, porque conciliar venda de três semanas atrás exige saber quem estava com o aparelho naquele dia. Tópico de webhook é `point_integration_wh` (ou `orders`), **não** `payment`.
 
 ---
 
@@ -67,8 +75,11 @@ _Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informa
 
 ### Fecham o R1
 
-- [ ] **NAPO-008** Admin: pedidos, insumos/BOM, estoque, entregadores, custos e painel econômico
-  - **Dependências:** NAPO-002, NAPO-004
+_O escopo do R1 cresceu em 2026-09-05: vender deixou de ser só o site. Ver [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md)._
+
+- [ ] **NAPO-008** Admin: insumos/BOM, estoque, entregadores, custos e painel econômico
+  - **Dependências:** NAPO-002, NAPO-004, NAPO-028
+  - **✂️ Quebrado em 2026-09-05:** "registrar venda" saiu para o **NAPO-026** (a maquininha precisava de um pedido a que se ligar, e isso estava enterrado no item mais caro do backlog) e a **taxa por transação passa a vir pronta do NAPO-028** — não é mais preciso modelar tabela de taxa por bandeira e parcelamento.
   - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
   - **Notas:** provavelmente vira mais de uma spec. Inclui BOM de dois níveis (sub-receita de massa), ajuste de estoque **com motivo + auditoria** (sem isso o saldo projetado descola do real em semanas e o checkout passa a mentir), imposto e taxa de cartão na margem, fechamento de comissão por entregador, ponto de equilíbrio × ocupação de capacidade lado a lado, simulador de viabilidade de frete e segregação de receita por atividade fiscal. Spec §4, §12.
 
@@ -84,11 +95,27 @@ _Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informa
   - **⬇️ Movido para o fim da fila (2026-09-04):** decisão do PM — validar telas, fluxos e o pagamento real no ambiente de desenvolvimento antes de provisionar homologação e produção. Continua sendo o último passo do R1, não um item opcional.
   - **Notas:** desmembrado do NAPO-001 em 2026-08-10 por decisão de focar em desenvolvimento primeiro. Cria os dois projetos Supabase online (staging e prod — **2 ativos cabem no free tier**), conecta a Vercel, aponta o DNS de `napobsb.com.br` no Registro.br e roda o primeiro `db:push` de verdade. Dois pontos de atenção conhecidos: projeto free **pausa após ~7 dias sem atividade** (o CI tocando o banco a cada PR resolve), e produção no free não tem PITR — vira Pro (~US$ 25/mês) antes de faturar. **Quanto mais specs acumularem antes deste item, maior a superfície de surpresa de ambiente** (`docs/specs/001-fundacao/design.md` §8).
 
+- [ ] **NAPO-022** Meus chamados: abertura, anexos e acompanhamento pelo cliente
+  - **Dependências:** NAPO-007
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Should
+  - **⬇️ Movido de 🟡 Próximos para 🔵 Backlog (2026-09-05):** a fila de Próximos passou a ser a espinha de cobrança. Suporte ao cliente continua Should e volta assim que a espinha fechar.
+  - **Notas:** canal do cliente para abrir uma demanda (a partir de um pedido ou avulsa), **acompanhar** o andamento e **cancelar** o próprio chamado. Anexo é **manual** — o cliente sobe imagem ou PDF pequeno (decisão do PM, 2026-09-04); captura automática da tela foi descartada por exigir permissão do navegador, quebrar com imagem de outro domínio e poder capturar dado pessoal sem o cliente perceber. Primeiro uso de **Supabase Storage** no projeto (já previsto em `ARCHITECTURE.md` §2.1, não exige ADR): pede política de bucket por dono, teto de tamanho e de quantidade, validação de tipo real (não por extensão) e atenção à cota do free tier (§4.5). Aviso de resposta fica **só na tela** (badge de não-lido) — e-mail dependeria do SMTP que ainda não existe. O ciclo de vida do chamado nasce aqui e é consumido pelo NAPO-024.
+
 - [ ] **NAPO-024** Mesa de atendimento: tratativa de chamados no admin
   - **Dependências:** NAPO-022
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Should
   - **⬇️ Movido de 🟡 Próximos para 🔵 Backlog (2026-09-05):** decisão do PM. Depende do NAPO-022, que segue em Próximos — o lado do admin só faz sentido depois que o cliente tiver como abrir chamado.
   - **Notas:** o outro lado do NAPO-022 — a casa vê a fila, assume o chamado, conversa com o cliente, anexa resposta e **fecha com uma solução**. Item próprio e fora do NAPO-008 (decisão do PM, 2026-09-04): o admin é economia e operação, suporte é outro domínio, e o NAPO-008 já é o item mais caro do backlog. A spec precisa definir estados, quem pode assumir, o que conta como "resolvido" e se o cliente confirma o fechamento. Como o NAPO-021 é o último item da fila, nenhum chamado fica órfão em produção nesse intervalo.
+- [ ] **NAPO-028** Conciliação por relatório: o dinheiro que não passou pelo sistema
+  - **Dependências:** NAPO-025
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **Notas:** o **anel 2** de [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md) §6. Não dá para forçar o fluxo — regra que atrapalha na porta do cliente é regra que o entregador burla, e aí se perde o dado *e* a venda. Mas todo pagamento que escapa do sistema **passa pelo Mercado Pago**, e isso é legível. Spike de 2026-09-05 sobre o relatório real da conta (45 linhas) provou: venda avulsa na maquininha aparece com `POI_ID` e `POS_ID` em **12/12** das linhas; Pix direto na chave aparece (só valor e horário, o casamento mais fraco); e o `APPLICATION_ID` separa o que passou pelo sistema do que não passou por **comparação de string, não heurística**. **A taxa vem pronta** — `FEE_AMOUNT` por transação, com bandeira, parcelas e modo de entrada. **Latência é de relatório, não de webhook:** venda avulsa não notifica. Entrega a caixa de entrada de **dinheiro sem venda registrada**, que hoje evapora. Absorve a ideia "Conciliação de pagamentos" (💡 desde 2026-08-10).
+
+- [ ] **NAPO-029** Carga de rua: consignação com o vendedor
+  - **Dependências:** NAPO-026
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Should
+  - **Notas:** hoje o vendedor sai com ~30 pizzas e o sistema registra só "saíram 30"; o que não vende volta ao estoque, sem saber quem comprou o quê. A carga sai como movimento de estoque, cada venda debita **da carga** (não do estoque principal) e o retorno reentra. **Separado da espinha de propósito:** carga é problema de *estoque* ("essa pizza saiu de onde?"), a espinha é de *pagamento* ("esse dinheiro entrou?"). A tela do vendedor é uma só e usa as duas — a separação é sobre quem é dono de qual regra. O vendedor pode cobrar antes deste item existir: a venda dele debita do estoque principal, o que já é melhor que hoje.
+
 ### R2 — Eventos
 
 - [ ] **NAPO-010** Módulo de eventos (preparação)
@@ -139,7 +166,7 @@ _Capturadas mas não avaliadas. Promover para Backlog após análise de valor/es
 Adiadas no R1 **com o dado já capturado** (ligam depois sem migração):
 
 - [ ] **Etiqueta de lote/validade para impressão** — rotulagem; o dado de lote já é gravado no R1. Registrado em 2026-08-10.
-- [ ] **Contagem cíclica de inventário e registro de perdas** — ajuste manual com motivo cobre o R1. Registrado em 2026-08-10.
+- [ ] **Contagem cíclica de inventário e registro de perdas** — ajuste manual com motivo cobre o R1. Registrado em 2026-08-10. **Subiu de importância em 2026-09-05:** deixou de ser higiene e virou metade do sistema de controle — dinheiro vivo não deixa rastro no Mercado Pago, então divergência de estoque é a única rede que pega pizza que saiu sem venda registrada (ver design da espinha de cobrança §6.2).
 - [ ] **Capacidade por etapa-gargalo (modelo completo)** — Theory of Constraints por etapa (massa/fermentação, montagem, forno, congelamento); além de limitar venda, **diagnostica onde investir**. Adiado por falta de números medidos; a tabela de etapas já nasce no schema. Gatilho: quando houver medição real ou quando o segundo forno entrar em discussão. Registrado em 2026-08-10.
 - [ ] **Roteirização automática do dia de entrega** — ~10 entregas/dia se organizam à mão. Gatilho: passar de ~25 entregas/dia. Registrado em 2026-08-10.
 
@@ -149,12 +176,11 @@ Ainda abertas, para as fases seguintes:
 - [ ] **Promoções, cupons e descontos** — não existe nada disso no R1: a única regra promocional é frete grátis acima de R$ 150 (NAPO-005). A definir o que "promoção" significa para a Napo — cupom de desconto, desconto por quantidade, combo, ou **preço menor em fornada distante para encher o forno ocioso** (a que mais conversa com o gargalo do negócio). Mexe em preço, checkout, margem e painel econômico ao mesmo tempo. Registrado em 2026-08-13. **Origem:** Gate Visual A do NAPO-003.
 
 - [ ] **Migração dos dados atuais** (clientes, receitas, estoque) — precisa acontecer antes do go-live do R1. Registrado em 2026-08-10.
-- [ ] **Conciliação de pagamentos** (Mercado Pago + Stone + repasses). Registrado em 2026-08-10.
 - [ ] **Sinal/depósito e política de cancelamento de eventos** — o registro de decisões trata pagamento só no contexto de delivery. Registrado em 2026-08-10.
 - [ ] **Conflito de agenda em eventos:** equipe e **equipamento** duplo-alocados. Registrado em 2026-08-10.
 - [ ] **Cadastro de custo de equipe e deslocamento** — pré-requisito da precificação assistida de eventos (NAPO-010). Registrado em 2026-08-10.
 - [ ] **Como um lead de evento entra no pipeline antes do bot existir** — hoje não há porta de entrada. Registrado em 2026-08-10.
-- [ ] **Histórico de calote/no-show por cliente** — paraquedas para revisitar caso a caso a regra de pagamento na entrega do bot (NAPO-015). Registrado em 2026-08-10.
+- [ ] **Histórico de calote/no-show por cliente** — paraquedas para revisitar caso a caso a regra de pagamento na entrega do bot (NAPO-015). Registrado em 2026-08-10. **Reposicionado em 2026-09-05:** pagamento na entrega é o canal dominante e ~99% pagam, então **não haverá trava** (design da espinha §4.1). A espinha grava a evidência (quem escolheu, quem honrou, quem sumiu) — esta ideia deixa de ser feature e vira a decisão de política que se toma depois, com número real na mão.
 - [ ] **Resiliência offline e degradação do KDS** — o PDV resolve por fila offline-first, o KDS ainda não tem estratégia. Registrado em 2026-08-10.
 - [ ] **Migrar o Supabase CLI para 2.x e o Postgres local para 17** — o repositório fixa CLI 1.x e `major_version = 15`, que já não são o padrão de projetos novos do Supabase. A troca é barata enquanto não existe produção e cara depois que houver dado real. Gatilho observado: um volume Docker criado por uma CLI 2.x recusou subir na 1.x (`database files are incompatible with server`) e derrubou o ambiente local inteiro — enquanto as máquinas de dev tiverem CLIs diferentes, quem clonar perde o stack. Registrado em 2026-08-10. **Origem:** conserto do merge travado de NAPO-001, com duas máquinas em CLIs divergentes. **Exige revisão de spec NAPO-001 antes de promover** — mexe em `supabase/config.toml`, no `package.json` e no CI.
 
@@ -248,7 +274,10 @@ _Histórico — adicionar mais recentes NO TOPO._
 
 _Itens descartados. IDs permanecem reservados (não reciclar)._
 
-_(Sem itens cancelados. Duas propostas foram rejeitadas antes de virar item de backlog e estão documentadas em `docs/roadmap-napo-decisoes.md`: a fórmula de frete `km × 2 ÷ qtd` — cobrava R$ 38,40 numa pizza a 12 km — e virar integradora homologada de iFood/99food.)_
+- [x] **NAPO-023** Pagamento fim a fim com Mercado Pago real (ambiente de desenvolvimento) · **absorvido pelo NAPO-025** em 2026-09-05
+  - Nasceu em 2026-09-04 para exercitar o caminho real do Mercado Pago, que o NAPO-006 fechou com `PAGAMENTO_PROVIDER=fake`. Ao especificá-lo, o PM levantou que o cliente **não deve sair do site para pagar** — e o Checkout Pro só existe em redirect desde que o modal foi descontinuado ([ADR-0001](docs/adr/0001-checkout-bricks.md)). Exercitar o Checkout Pro para trocá-lo em seguida seria pagar a integração duas vezes, então o escopo inteiro passou para o NAPO-025, agora sobre Checkout Bricks. **ID reservado, não reciclar.**
+
+_(Nenhum outro item cancelado. Duas propostas foram rejeitadas antes de virar item de backlog e estão documentadas em `docs/roadmap-napo-decisoes.md`: a fórmula de frete `km × 2 ÷ qtd` — cobrava R$ 38,40 numa pizza a 12 km — e virar integradora homologada de iFood/99food.)_
 
 ---
 
