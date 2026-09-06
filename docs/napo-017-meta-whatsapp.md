@@ -5,6 +5,12 @@
 
 ---
 
+> ⚠️ **Reescopado em 2026-09-06 pelo [ADR-0002](adr/0002-otp-whatsgw.md).** O OTP passou para o
+> WhatsGW, então **este roteiro deixou de ser caminho crítico**: o login não depende mais dele.
+> Ele continua válido para o **bot de vendas (NAPO-015)** e a **comunicação em massa (NAPO-016)**,
+> que seguem na API oficial — e aí a pergunta abaixo muda de alvo: não é mais sobre template de
+> autenticação, e sim sobre templates de utilidade e marketing. Faça quando houver folga.
+
 ## A pergunta que este roteiro existe para responder
 
 **A Napo consegue enviar um template de categoria `AUTHENTICATION` pelo WhatsApp?**

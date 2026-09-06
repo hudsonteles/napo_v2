@@ -78,8 +78,9 @@ _O escopo do R1 cresceu em 2026-09-05: vender deixou de ser só o site. Ver [`do
   - **Notas:** a tela atual é funcional e genérica demais para o perfil premium do cliente. Aparece cedo na jornada, muitas vezes antes de a pessoa ter visto qualquer produto, e hoje só informa uma ausência — não vende nem conta nada. **Cabe como spec lite** (uma tela, sem RN nova), mas o **Gate Visual A precisa trazer mais de uma direção**: o valor está na escolha entre caminhos (convite à vitrine? sabor em destaque? a fornada da semana?), não num mockup único. **Origem:** PM durante a validação do NAPO-025.
 
 - [ ] **NAPO-017** Verificação da empresa na Meta (WhatsApp Business API)
-  - **Dependências:** — · **Bloqueia:** NAPO-002 em produção e, por consequência, o NAPO-021
-  - **Valor:** Alto · **Esforço:** Baixo (é processo, não código) · **MoSCoW:** Must
+  - **Dependências:** — · **Bloqueia:** NAPO-015 e NAPO-016 (bot e marketing na API oficial)
+  - **Valor:** Médio · **Esforço:** Baixo (é processo, não código) · **MoSCoW:** Should
+  - **⬇️ Reescopado em 2026-09-06 por [ADR-0002](docs/adr/0002-otp-whatsgw.md):** **deixou de bloquear o login e o NAPO-021.** O OTP passou para o WhatsGW, que não exige verificação de empresa. Este item continua valendo só para o bot e o marketing, que seguem na API oficial — e passa de Must para Should, de Alto para Médio.
   - **Roteiro:** [`docs/napo-017-meta-whatsapp.md`](docs/napo-017-meta-whatsapp.md) — passo a passo do processo. O **passo 3** (app + número de teste) responde a pergunta crítica numa tarde, sem esperar a verificação.
   - **⬆️ Saiu de ⏸️ Bloqueados em 2026-09-06 (grooming):** ele não esperava a Meta — esperava alguém abrir o processo. Ficar em Bloqueados o tornava invisível no planejamento por 26 dias, enquanto a anotação de 11/08 dizia que descobrir a elegibilidade era caminho crítico. Volta a ⏸️ **depois** de submetido, quando a bola estiver mesmo com eles.
   - **⚠️ Prioridade elevada (2026-08-11, benchmarking do NAPO-002):** verificação da empresa pode **não bastar**. O acesso a _authentication templates_ passa por um caminho de escala da Meta que inclui limiar de volume (ordem de grandeza citada publicamente: milhares de conversas iniciadas pelo negócio por dia, por número). A Napo faz 303 pizzas/mês. O risco deixou de ser "o envio pode falhar" e passou a ser "o canal pode nunca ser liberado". **Descobrir a elegibilidade real é agora caminho crítico** — se negativa, a decisão de canal precisa ser reaberta antes do NAPO-006.
@@ -105,8 +106,17 @@ _O escopo do R1 cresceu em 2026-09-05: vender deixou de ser só o site. Ver [`do
   - **✂️ Partido em dois (2026-09-06, na especificação):** **A** — conta no Resend, domínio verificado e DNS publicado, **agora**; **B** — colar as credenciais nos painéis de staging e produção, **dentro do NAPO-021**, porque esses projetos só nascem lá. Descoberta ao especificar: o ambiente local continua no inbox falso, e SMTP de projeto remoto é painel, não `config.toml` — **não há código a versionar**, por isso o item não virou spec.
   - **Promovida de 💡 em:** 2026-09-06
 
+- [ ] **NAPO-032** Canal do OTP pelo WhatsGW
+  - **Spec:** *(a criar)*
+  - **Dependências:** NAPO-002 (concluído — a porta `RemetenteDeCodigo` já existe)
+  - **Bloqueia:** NAPO-021 (o login não sobe sem um canal real de OTP)
+  - **ADR pré-requisito:** [ADR-0002-otp-whatsgw](docs/adr/0002-otp-whatsgw.md) (Status: Aceito)
+  - **Valor:** Alto · **Esforço:** Baixo · **MoSCoW:** Must
+  - **Notas:** adaptador `RemetenteWhatsGW` atrás da porta que o NAPO-002 criou, e `WHATSAPP_PROVIDER` ganha o valor `whatsgw`. Envio é um POST com `apikey`, número remetente, destinatário e texto — sem template. **Número dedicado**, separado do WhatsApp da loja: se a Meta banir por automação, o estrago fica no envio de código e não leva o atendimento junto. **A spec precisa resolver duas coisas que o ADR deixou em aberto:** como o sistema percebe que a **sessão caiu** (ela cai sozinha, sem deploy) e qual é o **canal de reserva** — candidato natural é OTP por e-mail, o que amarra este item ao NAPO-031. O contrato de negócio do NAPO-002 segue intacto: HMAC com pepper, tempo constante, tetos por número e IP, recusa cega para número de outra conta.
+  - **Criada em:** 2026-09-06 (a partir do ADR-0002)
+
 - [ ] **NAPO-021** Provisionar homologação e produção + primeiro deploy
-  - **Dependências:** NAPO-001 · **NAPO-031 parte A** (domínio verificado no Resend) — a parte B do 031, que é configurar o SMTP nos painéis, **acontece dentro desta spec**: os projetos de staging e produção nascem aqui
+  - **Dependências:** NAPO-001, NAPO-032 (canal real de OTP) · **NAPO-031 parte A** (domínio verificado no Resend) — a parte B do 031, que é configurar o SMTP nos painéis, **acontece dentro desta spec**: os projetos de staging e produção nascem aqui
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **⚠️ Conferir antes de publicar (do NAPO-003, 2026-08-17):** (a) a separação real de bancada entre doce e salgado, que sustenta o precaucional de avelã estar só nos doces; (b) a Banana declara leite em "contém" e a Massa Doce, que é a base dela, declara só glúten — uma das duas está errada.
   - **⬇️ Movido para o fim da fila (2026-09-04):** decisão do PM — validar telas, fluxos e o pagamento real no ambiente de desenvolvimento antes de provisionar homologação e produção. Continua sendo o último passo do R1, não um item opcional.

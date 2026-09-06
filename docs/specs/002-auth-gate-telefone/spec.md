@@ -10,6 +10,14 @@
 > Para detalhes técnicos veja `design.md`. Para validação veja `tests.md`.
 > Dono primário: **PM / Product Owner**.
 
+
+> ⚠️ **Canal do OTP trocado em 2026-09-06 por [ADR-0002](../../adr/0002-otp-whatsgw.md).**
+> O código passa a ser entregue pelo **WhatsGW**, não pela API oficial da Meta. **Esta spec
+> continua válida palavra por palavra no contrato de negócio** — HMAC com pepper, comparação em
+> tempo constante, tetos por número e por IP, recusa cega para número de outra conta — e está
+> **desatualizada apenas no mecanismo de entrega**. A porta `RemetenteDeCodigo` absorve a troca.
+> A implementação é o NAPO-032. Registrado aqui, sem reabrir a spec.
+
 ---
 
 ## 1. Visão Geral (User Stories)
