@@ -200,6 +200,10 @@ Ainda abertas, para as fases seguintes:
 
 ---
 
+- [ ] **Tela de carrinho vazio à altura da marca** — a tela atual não agrada o PM: é funcional, mas genérica demais para o perfil premium do cliente da Napo. É uma superfície que aparece cedo na jornada, muitas vezes antes de a pessoa ter visto qualquer produto, e hoje ela não vende nada nem conta nada — só informa uma ausência. **Exige Gate Visual A com mais de uma direção**: o valor está na escolha entre caminhos (convite à vitrine? sabor em destaque? a fornada da semana?), não num mockup único. Cabe como spec **lite** — uma tela, sem regra de negócio nova. Registrado em 2026-09-06. **Origem:** PM durante a validação do NAPO-025.
+
+---
+
 ## ⏸️ Bloqueados (Aguardando externo)
 
 _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do controle)._
