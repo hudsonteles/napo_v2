@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mockup — Espinha de cobrança (NAPO-025)</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style type="text/tailwindcss">
+      @theme {
+        --color-preto: #0a0a0a;
+        --color-branco: #ffffff;
+        --color-amarelo: #f5c518;
+        --color-superficie: #141414;
+        --color-superficie-alta: #1e1e1e;
+        --color-borda: #2a2a2a;
+        --color-borda-forte: #3d3d3d;
+        --color-texto-suave: #a1a1a1;
+        --color-erro: #f87171;
+        --color-amarelo-escuro: #d9ac0f;
+        --radius-card: 16px;
+        --radius-campo: 10px;
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      }
+    </style>
+
+    <style>
+      /* Andaime do mockup — não faz parte do produto. */
+      .serrilha {
+        -webkit-mask-image: radial-gradient(circle at 0 50%, transparent 7px, #000 7.5px),
+          radial-gradient(circle at 100% 50%, transparent 7px, #000 7.5px);
+        -webkit-mask-composite: source-in;
+        mask-image: radial-gradient(circle at 0 50%, transparent 7px, #000 7.5px),
+          radial-gradient(circle at 100% 50%, transparent 7px, #000 7.5px);
+        mask-composite: intersect;
+      }
+      .rotulo {
+        letter-spacing: 0.18em;
+      }
+      /* Hachura que marca o que NÃO é nosso: o miolo do Payment Brick. */
+      .territorio-mp {
+        background-image: repeating-linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.02) 0 8px,
+          transparent 8px 16px
+        );
+      }
+    </style>
+  </head>
+
+  <body class="min-h-dvh bg-preto font-sans text-branco antialiased">
+    <!--
+      ══ CABEÇALHO DE MAPEAMENTO — NAPO-025 Espinha de cobrança ══
+      MODELO:            A (arquivo único; 3 telas da mesma jornada, mesma shell de (loja))
+      TELAS:             /checkout (modificada) · /pedido/[numero]/pagar (NOVA) · /pedido/[numero] (modificada)
+      CATÁLOGO USADO:    <CabecalhoSite>, <Marca>, <Card>, <Button>, <Badge>,
+                         <ResumoPedido>, <SeletorEndereco>
+      NOVOS A CRIAR:     <ContagemRegressiva>  (packages/ui/src/components — cronômetro da reserva)
+                         <BrickPagamento>      (features/pedidos/components — monta o Payment Brick)
+      TERRITÓRIO ALHEIO: o miolo hachurado da seção B é componente do Mercado Pago.
+                         O que se aprova aqui é a MOLDURA, o tema escuro e o entorno —
+                         campos, parcelamento e bandeiras são deles (ADR-0001, trade-off aceito).
+      MARKUP CRU ACEITO: container raiz, grid de duas colunas, espaçamento entre seções
+      DADO DERIVADO:     dia da fornada vem do motor (NAPO-004) · frete vem da faixa (NAPO-005) ·
+                         prazo da reserva vem de config_operacao.pagamento_minutos (RN11)
+      PREÇOS REAIS:      Calabresa 39,90 (Tradicional) · Peito de Peru c/ Gorgonzola 49,90 (Premium)
+      PEDIDO DE EXEMPLO: 2 Calabresa + 1 Peito de Peru = 129,70 · frete 10,00 · total 139,70
+    -->
+
+    <!-- ════════════════ ANDAIME DE REVISÃO — não é produto ════════════════ -->
+    <nav class="sticky top-0 z-50 border-b border-borda-forte bg-superficie-alta/95 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl flex-wrap items-center gap-1 px-4 py-2.5 text-xs">
+        <span class="rotulo mr-3 font-mono text-[10px] uppercase text-texto-suave">Revisão NAPO-025</span>
+        <a href="#checkout" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">A · /checkout</a>
+        <a href="#pagar" class="rounded-campo px-2.5 py-1 font-medium text-amarelo hover:bg-borda">B · /pagar ⇦ o novo</a>
+        <a href="#estados" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">C · Estados críticos</a>
+        <a href="#pedido" class="rounded-campo px-2.5 py-1 font-medium hover:bg-borda">D · /pedido</a>
+      </div>
+    </nav>
+
+    <!-- → ♻️ <CabecalhoSite> — pattern do NAPO-003, sem alteração -->
+    <header class="border-b border-borda bg-preto">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <!-- → ♻️ <Marca /> -->
+        <a href="#" class="flex items-center gap-2" aria-label="Napo — início">
+          <span class="text-xl font-extrabold tracking-tight">NAP<span class="text-amarelo">O</span></span>
+        </a>
+        <nav class="hidden items-center gap-6 text-sm text-texto-suave sm:flex">
+          <a href="#" class="hover:text-branco">Pizzas</a>
+          <a href="#" class="hover:text-branco">Eventos</a>
+          <a href="#" class="hover:text-branco">Dúvidas</a>
+        </nav>
+        <a href="#" class="relative flex h-11 w-11 items-center justify-center rounded-campo hover:bg-superficie-alta" aria-label="Carrinho com 3 itens">
+          <i data-lucide="shopping-bag" class="h-5 w-5"></i>
+          <span class="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amarelo px-1 font-mono text-[10px] font-bold text-preto">3</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         A · /checkout — MODIFICADA. O pagamento sai daqui.
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="checkout" class="mx-auto max-w-6xl px-4 py-10">
+      <p class="rotulo mb-1.5 font-mono text-[10px] uppercase text-amarelo">A · /checkout · modificada</p>
+      <p class="mb-6 max-w-2xl text-xs leading-relaxed text-texto-suave">
+        Só o <strong class="text-branco">passo 2</strong> e o rótulo do botão mudam. O passo 2 deixa de
+        avisar que o cliente vai para o Mercado Pago e passa a dizer o contrário; o botão deixa de
+        prometer pagamento e promete o que de fato faz — guardar a vaga.
+      </p>
+
+      <h1 class="text-3xl font-extrabold tracking-tight">Finalizar pedido</h1>
+
+      <div class="mt-7 grid gap-8 lg:grid-cols-[1fr_340px]">
+        <div class="space-y-8">
+          <!-- ─────────── passo 1 — inalterado ─────────── -->
+          <section>
+            <h2 class="flex items-center gap-2.5 text-lg font-bold">
+              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amarelo font-mono text-xs font-bold text-preto">1</span>
+              Onde entregamos
+            </h2>
+
+            <!-- → ♻️ <SeletorEndereco> — sem alteração nesta spec -->
+            <div class="mt-4 space-y-2.5">
+              <label class="flex cursor-pointer items-start gap-3 rounded-card border border-amarelo/50 bg-amarelo/5 p-4">
+                <span class="mt-1 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 border-amarelo">
+                  <span class="h-2 w-2 rounded-full bg-amarelo"></span>
+                </span>
+                <span class="min-w-0 flex-1">
+                  <span class="block font-semibold">SQN 208 · Bloco C · apto 402</span>
+                  <span class="mt-0.5 block text-sm text-texto-suave">Asa Norte, Brasília · 70853-030</span>
+                  <span class="mt-2 block font-mono text-xs text-texto-suave">6,4 km · frete R$ 10,00</span>
+                </span>
+                <!-- → ♻️ <Badge> -->
+                <span class="rounded-campo border border-borda-forte px-2 py-0.5 font-mono text-[10px] uppercase text-texto-suave">padrão</span>
+              </label>
+
+              <label class="flex cursor-pointer items-start gap-3 rounded-card border border-borda bg-superficie p-4">
+                <span class="mt-1 h-4 w-4 shrink-0 rounded-full border-2 border-borda-forte"></span>
+                <span class="min-w-0 flex-1">
+                  <span class="block font-semibold">SCS Quadra 2 · Bloco A · sala 610</span>
+                  <span class="mt-0.5 block text-sm text-texto-suave">Asa Sul, Brasília · 70300-500</span>
+                  <span class="mt-2 block font-mono text-xs text-texto-suave">9,1 km · frete R$ 14,00</span>
+                </span>
+              </label>
+
+              <!-- → ♻️ <Button variant="ghost"> -->
+              <button class="flex w-full items-center justify-center gap-2 rounded-card border border-dashed border-borda-forte px-4 py-3 text-sm text-texto-suave transition hover:border-amarelo/40 hover:text-branco">
+                <i data-lucide="plus" class="h-4 w-4"></i> Cadastrar outro endereço
+              </button>
+            </div>
+          </section>
+
+          <!-- ─────────── passo 2 — MODIFICADO ─────────── -->
+          <section>
+            <h2 class="flex items-center gap-2.5 text-lg font-bold">
+              <span class="flex h-7 w-7 items-center justify-center rounded-full bg-amarelo font-mono text-xs font-bold text-preto">2</span>
+              Como você paga
+            </h2>
+
+            <!-- MUDANÇA 1: a frase se inverte. Antes: "acontece no ambiente do
+                 Mercado Pago". Agora a promessa do ADR-0001 é explícita. -->
+            <p class="mt-3 max-w-prose text-sm leading-relaxed text-texto-suave">
+              O pagamento acontece <strong class="text-branco">aqui mesmo, na próxima tela</strong> — você
+              não vai para nenhum site de terceiro. Pix cai na hora e a fornada é confirmada na hora.
+            </p>
+
+            <!-- MUDANÇA 2: os selos deixam de ser <span> com classes soltas e
+                 passam a usar o primitivo <Badge> (auditoria §4.1). -->
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+              <!-- → ♻️ <Badge tone="destaque"> -->
+              <span class="flex items-center gap-1.5 rounded-campo border border-amarelo/40 bg-amarelo/10 px-3 py-1.5 font-mono text-xs text-amarelo">
+                <i data-lucide="zap" class="h-3.5 w-3.5"></i> Pix
+              </span>
+              <!-- → ♻️ <Badge> -->
+              <span class="rounded-campo border border-borda px-3 py-1.5 font-mono text-xs text-texto-suave">crédito</span>
+              <span class="rounded-campo border border-borda px-3 py-1.5 font-mono text-xs text-texto-suave">débito</span>
+            </div>
+
+            <p class="mt-4 flex items-start gap-2 text-xs leading-relaxed text-texto-suave">
+              <i data-lucide="shield-check" class="mt-0.5 h-3.5 w-3.5 shrink-0 text-texto-suave"></i>
+              Os dados do seu cartão são digitados em campos protegidos do Mercado Pago e
+              <strong class="text-branco">não passam pelos nossos servidores</strong>.
+            </p>
+          </section>
+        </div>
+
+        <!-- → ♻️ <ResumoPedido> — ficha da fornada aprovada no NAPO-006 -->
+        <aside class="h-fit space-y-4 lg:sticky lg:top-20">
+          <div class="overflow-hidden rounded-card border border-amarelo/30 bg-superficie">
+            <div class="serrilha border-b border-dashed border-borda-forte bg-amarelo/5 px-5 py-4">
+              <p class="rotulo font-mono text-[10px] uppercase text-amarelo">Fornada</p>
+              <p class="mt-1.5 text-2xl font-extrabold leading-none tracking-tight">sexta-feira, 11/09</p>
+              <p class="mt-2 text-xs leading-relaxed text-texto-suave">
+                Assada e congelada no dia. Entrega entre 14h e 20h.
+              </p>
+            </div>
+
+            <div class="px-5 py-4">
+              <dl class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <dt class="text-texto-suave">3 pizzas</dt>
+                  <dd class="font-mono">R$ 129,70</dd>
+                </div>
+                <div class="flex justify-between">
+                  <dt class="text-texto-suave">Frete · 6,4 km</dt>
+                  <dd class="font-mono">R$ 10,00</dd>
+                </div>
+                <div class="mt-3 flex items-baseline justify-between border-t border-borda pt-3">
+                  <dt class="font-bold">Total</dt>
+                  <dd class="font-mono text-xl font-extrabold">R$ 139,70</dd>
+                </div>
+              </dl>
+
+              <p class="mt-2.5 font-mono text-[11px] text-texto-suave">faltam R$ 20,30 para frete grátis</p>
+
+              <!-- MUDANÇA 3: o botão promete o que faz. "Pagar" mentia — o
+                   pagamento é na próxima tela; o que este clique faz é segurar
+                   a vaga. → ♻️ <Button> -->
+              <button class="mt-4 flex w-full items-center justify-center gap-2 rounded-campo bg-amarelo px-4 py-3 font-semibold text-preto transition hover:bg-amarelo-escuro">
+                <i data-lucide="lock" class="h-4 w-4"></i> Reservar e pagar R$ 139,70
+              </button>
+              <p class="mt-2.5 text-center text-[11px] leading-relaxed text-texto-suave">
+                Sua vaga na fornada fica reservada por 30 minutos.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="flex items-center gap-3 border-t border-borda-forte py-6 text-texto-suave">
+        <i data-lucide="arrow-down" class="h-4 w-4 text-amarelo"></i>
+        <p class="font-mono text-xs">o clique reserva a vaga e leva para a tela nova ↓</p>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         B · /pedido/[numero]/pagar — NOVA
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="pagar" class="mx-auto max-w-6xl px-4 py-10">
+      <p class="rotulo mb-1.5 font-mono text-[10px] uppercase text-amarelo">B · /pedido/1042/pagar · nova</p>
+      <p class="mb-6 max-w-2xl text-xs leading-relaxed text-texto-suave">
+        Rota própria e endereçável de propósito: a janela é de 30 minutos e o cliente recarrega, volta
+        e abre em outra aba. Um passo revelado dentro do checkout perderia o pedido a cada F5 — e
+        convidaria a criar um segundo pedido, consumindo uma segunda vaga da mesma pessoa.
+      </p>
+
+      <div class="flex flex-wrap items-baseline justify-between gap-3">
+        <div>
+          <h1 class="text-3xl font-extrabold tracking-tight">Pagamento do pedido</h1>
+          <p class="mt-1 font-mono text-sm text-texto-suave">#1042 · sexta-feira, 11/09</p>
+        </div>
+
+        <!-- → ✨ <ContagemRegressiva> — NOVO em packages/ui/src/components.
+             Existe porque a janela de 30 min deixa de ser uma frase e vira
+             fato visível enquanto o cliente digita o cartão. É o que dá sentido
+             a não reiniciar o relógio a cada tentativa (RN12). -->
+        <div class="flex items-center gap-2 rounded-campo border border-borda-forte bg-superficie px-3.5 py-2">
+          <i data-lucide="timer" class="h-4 w-4 text-amarelo"></i>
+          <span class="font-mono text-sm font-bold tabular-nums">28:14</span>
+          <span class="text-xs text-texto-suave">de vaga reservada</span>
+        </div>
+      </div>
+
+      <div class="mt-7 grid gap-8 lg:grid-cols-[1fr_340px]">
+        <div class="space-y-5">
+          <!-- → ✨ <BrickPagamento> — a moldura é nossa, o miolo é do Mercado Pago -->
+          <div class="overflow-hidden rounded-card border border-borda bg-superficie">
+            <div class="flex items-center justify-between border-b border-borda px-5 py-3.5">
+              <p class="text-sm font-semibold">Como você quer pagar</p>
+              <span class="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-texto-suave">
+                <i data-lucide="lock" class="h-3 w-3"></i> conexão segura
+              </span>
+            </div>
+
+            <!-- ╔══════════════════════════════════════════════════════════╗
+                 ║ TERRITÓRIO DO MERCADO PAGO — Payment Brick.               ║
+                 ║ A representação abaixo é aproximada: campos, bandeiras,   ║
+                 ║ parcelamento e validação são componente deles. Só o TEMA  ║
+                 ║ (cores, fonte, raio) é customizável — ADR-0001.           ║
+                 ╚══════════════════════════════════════════════════════════╝ -->
+            <div class="territorio-mp p-5">
+              <div class="grid gap-2.5 sm:grid-cols-2">
+                <button class="flex items-center gap-3 rounded-campo border border-amarelo/50 bg-amarelo/5 px-4 py-3 text-left">
+                  <i data-lucide="zap" class="h-4 w-4 text-amarelo"></i>
+                  <span>
+                    <span class="block text-sm font-semibold">Pix</span>
+                    <span class="block font-mono text-[11px] text-texto-suave">confirma na hora</span>
+                  </span>
+                </button>
+                <button class="flex items-center gap-3 rounded-campo border border-borda-forte px-4 py-3 text-left">
+                  <i data-lucide="credit-card" class="h-4 w-4 text-texto-suave"></i>
+                  <span>
+                    <span class="block text-sm font-semibold">Cartão de crédito</span>
+                    <span class="block font-mono text-[11px] text-texto-suave">em até 3x sem juros</span>
+                  </span>
+                </button>
+              </div>
+
+              <div class="mt-4 space-y-3">
+                <div>
+                  <label class="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-texto-suave">Número do cartão</label>
+                  <div class="flex h-11 items-center rounded-campo border border-borda-forte bg-preto px-3.5 font-mono text-sm text-texto-suave">
+                    5031 •••• •••• 3557
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-texto-suave">Validade</label>
+                    <div class="flex h-11 items-center rounded-campo border border-borda-forte bg-preto px-3.5 font-mono text-sm text-texto-suave">11/30</div>
+                  </div>
+                  <div>
+                    <label class="mb-1.5 block font-mono text-[11px] uppercase tracking-wider text-texto-suave">Código</label>
+                    <div class="flex h-11 items-center rounded-campo border border-borda-forte bg-preto px-3.5 font-mono text-sm text-texto-suave">•••</div>
+                  </div>
+                </div>
+              </div>
+
+              <button class="mt-5 flex w-full items-center justify-center gap-2 rounded-campo bg-amarelo px-4 py-3 font-semibold text-preto transition hover:bg-amarelo-escuro">
+                Pagar R$ 139,70
+              </button>
+
+              <p class="mt-3 text-center font-mono text-[10px] uppercase tracking-wider text-texto-suave">
+                ↑ miolo hachurado = componente do Mercado Pago
+              </p>
+            </div>
+          </div>
+
+          <p class="flex items-start gap-2 text-xs leading-relaxed text-texto-suave">
+            <i data-lucide="shield-check" class="mt-0.5 h-3.5 w-3.5 shrink-0"></i>
+            Número, validade e código são digitados em campos do Mercado Pago e não passam pelos
+            servidores da Napo em nenhum momento.
+          </p>
+        </div>
+
+        <!-- → ♻️ <ResumoPedido> — a mesma ficha, agora com o pedido já criado -->
+        <aside class="h-fit space-y-4 lg:sticky lg:top-20">
+          <div class="overflow-hidden rounded-card border border-amarelo/30 bg-superficie">
+            <div class="serrilha border-b border-dashed border-borda-forte bg-amarelo/5 px-5 py-4">
+              <p class="rotulo font-mono text-[10px] uppercase text-amarelo">Fornada</p>
+              <p class="mt-1.5 text-2xl font-extrabold leading-none tracking-tight">sexta-feira, 11/09</p>
+              <p class="mt-2 text-xs leading-relaxed text-texto-suave">Entrega entre 14h e 20h.</p>
+            </div>
+            <div class="px-5 py-4">
+              <dl class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <dt class="text-texto-suave">2 Calabresa</dt>
+                  <dd class="font-mono">R$ 79,80</dd>
+                </div>
+                <div class="flex justify-between">
+                  <dt class="text-texto-suave">1 Peito de Peru</dt>
+                  <dd class="font-mono">R$ 49,90</dd>
+                </div>
+                <div class="flex justify-between">
+                  <dt class="text-texto-suave">Frete · 6,4 km</dt>
+                  <dd class="font-mono">R$ 10,00</dd>
+                </div>
+                <div class="mt-3 flex items-baseline justify-between border-t border-borda pt-3">
+                  <dt class="font-bold">Total</dt>
+                  <dd class="font-mono text-xl font-extrabold">R$ 139,70</dd>
+                </div>
+              </dl>
+              <p class="mt-3 text-[11px] leading-relaxed text-texto-suave">
+                SQN 208 · Bloco C · apto 402 — Asa Norte
+              </p>
+            </div>
+          </div>
+
+          <a href="#checkout" class="block text-center font-mono text-xs text-texto-suave underline underline-offset-4 hover:text-branco">
+            voltar e trocar o endereço
+          </a>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         C · Estados críticos
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="estados" class="border-t border-borda-forte bg-superficie/40">
+      <div class="mx-auto max-w-6xl px-4 py-10">
+        <p class="rotulo mb-1.5 font-mono text-[10px] uppercase text-amarelo">C · estados críticos</p>
+        <p class="mb-7 max-w-2xl text-xs leading-relaxed text-texto-suave">
+          Os três estados que decidem se a tela funciona. Todos aparecem na região do Brick, na
+          seção B — aqui estão lado a lado só para revisão.
+        </p>
+
+        <div class="grid gap-5 lg:grid-cols-3">
+          <!-- ── C1 · recusa: card permanente, nunca toast ── -->
+          <div>
+            <p class="mb-3 font-mono text-[11px] uppercase tracking-wider text-texto-suave">C1 · cartão recusado</p>
+            <div class="rounded-card border border-erro/40 bg-erro/5 p-4">
+              <div class="flex gap-3">
+                <i data-lucide="triangle-alert" class="mt-0.5 h-5 w-5 shrink-0 text-erro"></i>
+                <div class="min-w-0">
+                  <p class="font-semibold">O cartão não passou</p>
+                  <p class="mt-1 text-sm leading-relaxed text-texto-suave">
+                    O banco recusou a compra. Costuma resolver ligando para ele — ou você pode pagar
+                    com Pix agora.
+                  </p>
+                  <button class="mt-3 rounded-campo border border-borda-forte px-3 py-2 text-xs font-medium transition hover:bg-superficie-alta">
+                    Tentar outro cartão
+                  </button>
+                </div>
+              </div>
+            </div>
+            <p class="mt-3 text-[11px] leading-relaxed text-texto-suave">
+              Card que <strong class="text-branco">permanece</strong>, não toast: quem não viu tenta de
+              novo achando que travou. A vaga continua reservada e o relógio
+              <strong class="text-branco">não reinicia</strong> (RN12). O texto é nosso — nenhum código
+              ou mensagem do gateway aparece (RN13).
+            </p>
+          </div>
+
+          <!-- ── C2 · vaga vencida ── -->
+          <div>
+            <p class="mb-3 font-mono text-[11px] uppercase tracking-wider text-texto-suave">C2 · os 30 minutos venceram</p>
+            <div class="rounded-card border border-amarelo/50 bg-amarelo/5 p-4">
+              <div class="flex gap-3">
+                <i data-lucide="timer-off" class="mt-0.5 h-5 w-5 shrink-0 text-amarelo"></i>
+                <div class="min-w-0">
+                  <p class="font-semibold">A vaga voltou para a fornada</p>
+                  <p class="mt-1 text-sm leading-relaxed text-texto-suave">
+                    Passaram-se 30 minutos e liberamos sua vaga para outro pedido. Seus itens
+                    continuam no carrinho — é só recomeçar.
+                  </p>
+                  <a href="#" class="mt-3 inline-block font-mono text-xs text-amarelo underline underline-offset-2">
+                    voltar ao carrinho
+                  </a>
+                </div>
+              </div>
+            </div>
+            <p class="mt-3 text-[11px] leading-relaxed text-texto-suave">
+              O Brick é <strong class="text-branco">desmontado</strong> aos 00:00. Deixá-lo em tela
+              seria oferecer um pagamento que o sistema vai recusar — ou pior, aceitar sem vaga.
+            </p>
+          </div>
+
+          <!-- ── C3 · ambiente sem credencial ── -->
+          <div>
+            <p class="mb-3 font-mono text-[11px] uppercase tracking-wider text-texto-suave">C3 · PAGAMENTO_PROVIDER=fake</p>
+            <div class="rounded-card border border-dashed border-borda-forte bg-superficie p-4">
+              <div class="flex gap-3">
+                <i data-lucide="flask-conical" class="mt-0.5 h-5 w-5 shrink-0 text-texto-suave"></i>
+                <div class="min-w-0">
+                  <p class="font-semibold">Pagamento simulado</p>
+                  <p class="mt-1 text-sm leading-relaxed text-texto-suave">
+                    Este ambiente não tem gateway configurado. Escolha o desfecho para seguir o fluxo.
+                  </p>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <button class="rounded-campo border border-borda-forte px-3 py-2 text-xs font-medium hover:bg-superficie-alta">aprovar</button>
+                    <button class="rounded-campo border border-borda-forte px-3 py-2 text-xs font-medium hover:bg-superficie-alta">recusar</button>
+                    <button class="rounded-campo border border-borda-forte px-3 py-2 text-xs font-medium hover:bg-superficie-alta">deixar pendente</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="mt-3 text-[11px] leading-relaxed text-texto-suave">
+              O Brick <strong class="text-branco">não é oferecido</strong> sem credencial:
+              <code class="font-mono text-[10px]">ARCHITECTURE.md §2.2.3</code> — caminho que depende de
+              configuração externa só aparece onde a configuração existe. É o que mantém o fluxo
+              inteiro fechado sem túnel.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════════════════
+         D · /pedido/[numero] — MODIFICADA (lê situação derivada)
+         ════════════════════════════════════════════════════════════════════ -->
+    <section id="pedido" class="mx-auto max-w-2xl px-4 py-10">
+      <p class="rotulo mb-1.5 font-mono text-[10px] uppercase text-amarelo">D · /pedido/1042 · modificada</p>
+      <p class="mb-6 text-xs leading-relaxed text-texto-suave">
+        Visualmente quase igual. A mudança é de origem do dado: o selo deixa de ler
+        <code class="font-mono text-[10px]">pedidos.status</code> e passa a ler a situação
+        <strong class="text-branco">derivada das cobranças</strong> (RN2). Quem confirma continua
+        sendo o webhook, nunca esta tela (RN6).
+      </p>
+
+      <div class="rounded-card border border-borda bg-superficie p-6">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="rotulo font-mono text-[10px] uppercase text-texto-suave">Pedido</p>
+            <p class="mt-1 text-2xl font-extrabold tracking-tight">#1042</p>
+          </div>
+          <!-- → ♻️ <Badge> — agora alimentado pela situação derivada -->
+          <span class="flex items-center gap-1.5 rounded-campo border border-amarelo/40 bg-amarelo/10 px-3 py-1.5 font-mono text-xs text-amarelo">
+            <i data-lucide="loader-circle" class="h-3.5 w-3.5"></i> aguardando pagamento
+          </span>
+        </div>
+
+        <div class="mt-6 space-y-2 border-t border-borda pt-5 text-sm">
+          <div class="flex justify-between">
+            <span class="text-texto-suave">Fornada</span>
+            <span class="font-semibold">sexta-feira, 11/09</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-texto-suave">Total</span>
+            <span class="font-mono font-extrabold">R$ 139,70</span>
+          </div>
+        </div>
+
+        <div class="mt-5 rounded-campo border border-borda-forte bg-superficie-alta p-4">
+          <p class="text-sm leading-relaxed text-texto-suave">
+            Assim que o pagamento for confirmado, esta tela muda sozinha. Não precisa recarregar.
+          </p>
+        </div>
+
+        <a href="#pagar" class="mt-4 flex w-full items-center justify-center gap-2 rounded-campo border border-borda-forte px-4 py-3 text-sm font-medium transition hover:bg-superficie-alta">
+          <i data-lucide="arrow-left" class="h-4 w-4"></i> Voltar ao pagamento
+        </a>
+      </div>
+
+      <p class="mt-4 text-[11px] leading-relaxed text-texto-suave">
+        O botão de voltar ao pagamento é novo e existe porque agora <em>existe</em> para onde voltar:
+        enquanto a vaga viver, o cliente pode retomar a tentativa em vez de recomeçar o pedido.
+      </p>
+    </section>
+
+    <footer class="border-t border-borda px-4 py-8 text-center">
+      <p class="font-mono text-[11px] text-texto-suave">
+        Mockup de revisão — NAPO-025 · Gate Visual A · não é código de produção
+      </p>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
