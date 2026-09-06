@@ -227,6 +227,15 @@
 - **Sinal e saldo de evento saem de graça.** Duas cobranças do mesmo pedido. Não é
   escopo desta spec, mas é consequência do modelo — e é por isso que a derivação da
   RN2 já contempla pagamento parcial.
+- **"Fornada" deixa de nomear o que o cliente reserva** (decisão do PM, 2026-09-05,
+  antes do primeiro commit de código). A palavra continua onde **explica a escassez**
+  — vitrine, barra de disponibilidade, seletor, "esgotado nesta fornada" —, porque ali
+  ela é a narrativa que faz o limite parecer honesto em vez de arbitrário. Mas onde o
+  cliente reserva e possui algo, a palavra passa a ser **entrega**: a ficha do resumo,
+  a frase da reserva, o cronômetro, a expiração e a tela do pedido. O cliente não
+  guarda um lugar numa assadeira; ele guarda a entrega de sexta. São dois objetos
+  distintos na cabeça dele — compra-se da fornada de sexta, recebe-se a entrega de
+  sexta —, e o contrato visual foi ajustado antes de virar código.
 - **Risco declarado no ADR-0001:** o Brick é componente do Mercado Pago e aceita
   customização de cor, tipografia e raio, mas não fica 100% na identidade Napo. Se
   o Gate Visual A reprovar mesmo depois de customizado, a alternativa é reabrir o

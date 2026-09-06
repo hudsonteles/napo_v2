@@ -68,7 +68,7 @@
                          O que se aprova aqui é a MOLDURA, o tema escuro e o entorno —
                          campos, parcelamento e bandeiras são deles (ADR-0001, trade-off aceito).
       MARKUP CRU ACEITO: container raiz, grid de duas colunas, espaçamento entre seções
-      DADO DERIVADO:     dia da fornada vem do motor (NAPO-004) · frete vem da faixa (NAPO-005) ·
+      DADO DERIVADO:     dia da entrega vem do motor (NAPO-004) · frete vem da faixa (NAPO-005) ·
                          prazo da reserva vem de config_operacao.pagamento_minutos (RN11)
       PREÇOS REAIS:      Calabresa 39,90 (Tradicional) · Peito de Peru c/ Gorgonzola 49,90 (Premium)
       PEDIDO DE EXEMPLO: 2 Calabresa + 1 Peito de Peru = 129,70 · frete 10,00 · total 139,70
@@ -168,7 +168,7 @@
                  Mercado Pago". Agora a promessa do ADR-0001 é explícita. -->
             <p class="mt-3 max-w-prose text-sm leading-relaxed text-texto-suave">
               O pagamento acontece <strong class="text-branco">aqui mesmo, na próxima tela</strong> — você
-              não vai para nenhum site de terceiro. Pix cai na hora e a fornada é confirmada na hora.
+              não vai para nenhum site de terceiro. Pix cai na hora e sua entrega é confirmada na hora.
             </p>
 
             <!-- MUDANÇA 2: os selos deixam de ser <span> com classes soltas e
@@ -191,14 +191,14 @@
           </section>
         </div>
 
-        <!-- → ♻️ <ResumoPedido> — ficha da fornada aprovada no NAPO-006 -->
+        <!-- → ♻️ <ResumoPedido> — a ficha aprovada no NAPO-006; o rótulo passa de FORNADA para ENTREGA -->
         <aside class="h-fit space-y-4 lg:sticky lg:top-20">
           <div class="overflow-hidden rounded-card border border-amarelo/30 bg-superficie">
             <div class="serrilha border-b border-dashed border-borda-forte bg-amarelo/5 px-5 py-4">
-              <p class="rotulo font-mono text-[10px] uppercase text-amarelo">Fornada</p>
+              <p class="rotulo font-mono text-[10px] uppercase text-amarelo">Entrega</p>
               <p class="mt-1.5 text-2xl font-extrabold leading-none tracking-tight">sexta-feira, 11/09</p>
               <p class="mt-2 text-xs leading-relaxed text-texto-suave">
-                Assada e congelada no dia. Entrega entre 14h e 20h.
+                Assada e congelada no dia. Chega entre 14h e 20h.
               </p>
             </div>
 
@@ -227,7 +227,7 @@
                 <i data-lucide="lock" class="h-4 w-4"></i> Reservar e pagar R$ 139,70
               </button>
               <p class="mt-2.5 text-center text-[11px] leading-relaxed text-texto-suave">
-                Sua vaga na fornada fica reservada por 30 minutos.
+                Sua entrega de sexta-feira fica reservada por 30 minutos.
               </p>
             </div>
           </div>
@@ -266,7 +266,7 @@
         <div class="flex items-center gap-2 rounded-campo border border-borda-forte bg-superficie px-3.5 py-2">
           <i data-lucide="timer" class="h-4 w-4 text-amarelo"></i>
           <span class="font-mono text-sm font-bold tabular-nums">28:14</span>
-          <span class="text-xs text-texto-suave">de vaga reservada</span>
+          <span class="text-xs text-texto-suave">sua entrega está reservada</span>
         </div>
       </div>
 
@@ -345,9 +345,9 @@
         <aside class="h-fit space-y-4 lg:sticky lg:top-20">
           <div class="overflow-hidden rounded-card border border-amarelo/30 bg-superficie">
             <div class="serrilha border-b border-dashed border-borda-forte bg-amarelo/5 px-5 py-4">
-              <p class="rotulo font-mono text-[10px] uppercase text-amarelo">Fornada</p>
+              <p class="rotulo font-mono text-[10px] uppercase text-amarelo">Entrega</p>
               <p class="mt-1.5 text-2xl font-extrabold leading-none tracking-tight">sexta-feira, 11/09</p>
-              <p class="mt-2 text-xs leading-relaxed text-texto-suave">Entrega entre 14h e 20h.</p>
+              <p class="mt-2 text-xs leading-relaxed text-texto-suave">Chega entre 14h e 20h.</p>
             </div>
             <div class="px-5 py-4">
               <dl class="space-y-2 text-sm">
@@ -426,10 +426,10 @@
               <div class="flex gap-3">
                 <i data-lucide="timer-off" class="mt-0.5 h-5 w-5 shrink-0 text-amarelo"></i>
                 <div class="min-w-0">
-                  <p class="font-semibold">A vaga voltou para a fornada</p>
+                  <p class="font-semibold">Sua entrega não está mais reservada</p>
                   <p class="mt-1 text-sm leading-relaxed text-texto-suave">
-                    Passaram-se 30 minutos e liberamos sua vaga para outro pedido. Seus itens
-                    continuam no carrinho — é só recomeçar.
+                    Passaram-se 30 minutos e a data voltou a ficar disponível para outros pedidos.
+                    Seus itens continuam no carrinho — é só recomeçar.
                   </p>
                   <a href="#" class="mt-3 inline-block font-mono text-xs text-amarelo underline underline-offset-2">
                     voltar ao carrinho
@@ -499,7 +499,7 @@
 
         <div class="mt-6 space-y-2 border-t border-borda pt-5 text-sm">
           <div class="flex justify-between">
-            <span class="text-texto-suave">Fornada</span>
+            <span class="text-texto-suave">Entrega</span>
             <span class="font-semibold">sexta-feira, 11/09</span>
           </div>
           <div class="flex justify-between">

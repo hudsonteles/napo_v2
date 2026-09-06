@@ -208,7 +208,7 @@ E a data de expiração enviada ao gateway é a mesma
 DADO um pedido cuja reserva venceu
 QUANDO o cliente permanece na tela de pagar
 ENTÃO o formulário é retirado da tela
-E ele lê que a vaga voltou para a fornada, com caminho para o carrinho
+E ele lê que a entrega não está mais reservada, com caminho para o carrinho
 ```
 
 ### T23 — Recusa não reinicia o relógio
@@ -369,6 +369,7 @@ E nenhuma chamada ao SDK do Mercado Pago é feita
 6. Em viewport ≥1280px nenhuma das três telas tem texto cortado, sobreposto ou colado na borda; abaixo de 768px o Brick ocupa a largura inteira e o resumo colapsa para o topo, sem barra fixa disputando espaço com o teclado.
 7. A tela do pedido mostra a situação de pagamento derivada e oferece o caminho de volta ao pagamento enquanto a vaga viver.
 8. Nenhuma tela do fluxo exibe bolha de validação nativa do navegador nem página de erro de terceiro (`ARCHITECTURE.md` §2.2.3).
+9. **Vocabulário:** nas superfícies onde o cliente reserva e possui — ficha do resumo, frase da reserva, cronômetro, expiração e tela do pedido — a palavra é **entrega**. "Fornada" só aparece onde explica a escassez (vitrine, barra, seletor, "esgotado nesta fornada"). Nenhuma tela do checkout ou do pagamento diz "vaga na fornada".
 
 ---
 

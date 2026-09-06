@@ -141,7 +141,7 @@ Isso não é elegância: é o que torna o NAPO-026 possível. Um pedido de balc�
 
 | Elemento | Decisão | Componente alvo | Justificativa |
 |---|---|---|---|
-| Ficha da fornada / resumo | ♻️ REUSAR | `<ResumoPedido>` | Contrato visual aprovado no Gate Visual A do NAPO-006; muda só microcopy e rótulo do botão |
+| Ficha da entrega / resumo | ♻️ REUSAR | `<ResumoPedido>` | Contrato visual aprovado no Gate Visual A do NAPO-006; muda só microcopy e rótulo do botão |
 | Seletor de endereço | ♻️ REUSAR | `<SeletorEndereco>` | Inalterado |
 | Cards de aviso e bloqueio | ♻️ REUSAR | `<Card>` + `<TriangleAlert>` | Padrão já estabelecido no checkout |
 | Botão primário | ♻️ REUSAR | `<Button>` | — |
@@ -157,7 +157,7 @@ Isso não é elegância: é o que torna o NAPO-026 possível. Um pedido de balc�
 /checkout  (modificado — o pagamento sai daqui)
 ┌──────────────────────────────────────────┬─────────────────┐
 │ Finalizar pedido                         │  ┌───────────┐  │
-│                                          │  │ FORNADA   │  │
+│                                          │  │ ENTREGA   │  │
 │ ① Onde entregamos                        │  │ sexta 12/09│  │
 │   [ SeletorEndereco ]                    │  ├───────────┤  │
 │                                          │  │ 3 pizzas  │  │
@@ -171,7 +171,7 @@ Isso não é elegância: é o que torna o NAPO-026 possível. Um pedido de balc�
 /pedido/[numero]/pagar  (novo — onde o Brick vive)
 ┌──────────────────────────────────────────┬─────────────────┐
 │ Pedido #1042        ⏱ 28:14 restantes    │  ┌───────────┐  │
-│                                          │  │ FORNADA   │  │
+│                                          │  │ ENTREGA   │  │
 │ ┌──── Payment Brick (Mercado Pago) ────┐ │  │ ...       │  │
 │ │  ○ Pix    ○ Cartão de crédito        │ │  │ TOTAL     │  │
 │ │  [ campos isolados do MP ]           │ │  └───────────┘  │
@@ -190,10 +190,10 @@ Isso não é elegância: é o que torna o NAPO-026 possível. Um pedido de balc�
 | Região | default | loading | error | success |
 |---|---|---|---|---|
 | Passo 2 do checkout | selos Pix/crédito/débito + frase de que o pagamento é aqui no site | — | — | — |
-| Botão do resumo | "Reservar e pagar R$ X" | "Reservando sua vaga…" + desabilitado | toast com a nossa mensagem; carrinho intacto | navega para `/pedido/[n]/pagar` |
-| Brick de pagamento | formulário do Mercado Pago com tema escuro | esqueleto do tamanho do Brick até o SDK montar | card nosso: "Não conseguimos abrir o pagamento agora. Sua vaga está reservada até [hora]." + botão de tentar de novo | navega para `/pedido/[n]` |
+| Botão do resumo | "Reservar e pagar R$ X" | "Reservando sua entrega…" + desabilitado | toast com a nossa mensagem; carrinho intacto | navega para `/pedido/[n]/pagar` |
+| Brick de pagamento | formulário do Mercado Pago com tema escuro | esqueleto do tamanho do Brick até o SDK montar | card nosso: "Não conseguimos abrir o pagamento agora. Sua entrega está reservada até [hora]." + botão de tentar de novo | navega para `/pedido/[n]` |
 | Recusa de cartão | — | — | card **permanente** (não toast) com a família do motivo + "tentar outro cartão" reabrindo o Brick limpo | — |
-| Cronômetro | `⏱ 28:14 restantes` | — | aos 00:00 o Brick é desmontado e o card diz que a vaga voltou, com link para o carrinho | — |
+| Cronômetro | `⏱ 28:14 restantes` | — | aos 00:00 o Brick é desmontado e o card diz que a entrega deixou de estar reservada, com link para o carrinho | — |
 | Tela do pedido | situação derivada (aguardando / pago / estornado) | consulta com espaçamento crescente, como hoje | mantém o comportamento da RN19 | "Pedido confirmado" |
 
 **Microcopy literal das recusas (RN13):**
@@ -223,7 +223,7 @@ Nenhuma delas repete texto, código ou `status_detail` do Mercado Pago.
 |---|---|---|---|
 | Cabeçalho e rodapé | `<CabecalhoSite>` · `<RodapeSite>` | `packages/ui/src/patterns/` | ♻️ REUSAR |
 | Logotipo | `<Marca>` | `packages/ui/src/components/` | ♻️ REUSAR |
-| Ficha da fornada / resumo | `<ResumoPedido>` | `features/pedidos/components/` | ♻️ REUSAR (microcopy e rótulo do botão mudam) |
+| Ficha da entrega / resumo | `<ResumoPedido>` | `features/pedidos/components/` | ♻️ REUSAR (microcopy e rótulo do botão mudam) |
 | Lista de endereços | `<SeletorEndereco>` | `features/pedidos/components/` | ♻️ REUSAR |
 | Selos de forma de pagamento | `<Badge>` | `packages/ui/src/components/` | ♻️ REUSAR — hoje são `<span>` com classes soltas |
 | Cards de aviso, recusa e vencimento | `<Card>` | `packages/ui/src/components/` | ♻️ REUSAR |
@@ -251,7 +251,7 @@ Ver a seção **"Critérios visuais de aceite"** de [`tests.md`](./tests.md) —
 ### 4.5 Decisões de UX não-óbvias
 
 - **Página dedicada para pagar, não passo revelado no próprio checkout.** A janela é de 30 minutos e o cliente recarrega, volta, abre em outra aba. Uma rota endereçável (`/pedido/[numero]/pagar`) sobrevive a tudo isso e mostra o mesmo estado; um passo revelado por `useState` no checkout perderia o pedido a cada F5 e convidaria à criação de um segundo pedido — segunda vaga consumida pela mesma pessoa. **Alternativa rejeitada:** revelar o passo 3 na mesma tela; mais fluido em tela, frágil em uso real. Bônus não perseguido, mas registrado: é a superfície que o instrumento `link` do NAPO-026 reaproveita.
-- **O cronômetro entra agora.** Hoje a frase "sua vaga fica reservada por 30 minutos" aparece no resumo e some da memória. Enquanto o cliente digita o cartão, o tempo restante é a informação que justifica a pressa e explica a recusa por vencimento sem precisar de suporte.
+- **O cronômetro entra agora.** Hoje a frase "sua vaga na fornada fica reservada por 30 minutos" aparece no resumo e some da memória. Enquanto o cliente digita o cartão, o tempo restante é a informação que justifica a pressa e explica a recusa por vencimento sem precisar de suporte.
 - **Recusa é card permanente, nunca toast.** Mesmo critério aprovado no NAPO-006 para bloqueios que exigem ação: toast some sozinho, e quem não viu tenta de novo achando que travou.
 - **O Brick não é oferecido quando o provider é `fake`.** `ARCHITECTURE.md` §2.2.3 é explícito: caminho que depende de configuração externa só aparece quando a configuração existe naquele ambiente. Com `PAGAMENTO_PROVIDER=fake` a tela mostra um painel nosso de simulação — é o que mantém o fluxo inteiro fechado sem túnel e sem credencial.
 
