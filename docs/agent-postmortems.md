@@ -54,6 +54,25 @@ Adicione novas entradas **no topo** da seção "Entradas", mais recentes primeir
 
 <!-- Adicione novas entradas NO TOPO desta seção. Mais recentes primeiro. -->
 
+### 2026-09-06 — Build de produção rodado com o dev server vivo, de novo
+
+**Spec/Contexto:** NAPO-025, bloco H, durante a validação do gateway real com o PM.
+**O que pedi:** corrigir o "Sair" que não deslogava e as mensagens de erro da tela de pagamento.
+**O que esperava:** as correções entrarem sem derrubar o ambiente que eu tinha acabado de subir para o PM testar.
+**O que veio:** o agente encadeou `pnpm build` no mesmo comando do commit, com o dev server rodando. Os dois escrevem em `apps/web/.next`; o build sobrescreveu o cache do dev e o site passou a ser servido sem CSS. Quem percebeu foi o humano, no meio do teste.
+
+**Causa provável:** a regra existe desde 2026-08-18 (`AGENTS.md` §2 item 12) e o próprio agente a havia transcrito no `plan.md` desta spec, em "Notas de execução". Ainda assim ela foi violada — o gate foi tratado como um passo de checklist a encadear antes do commit, sem releitura do estado do ambiente. O agente **derruba** o dev server antes de `build` quando o build é o objetivo declarado do comando; falhou quando o `build` virou um item no meio de uma linha de `&&` cujo propósito era commitar.
+
+**Correção naquele momento:** encerrar o processo do dev, apagar `apps/web/.next` e subir de novo.
+
+**Ação de follow-up:**
+
+- [ ] Virou regra em AGENTS.md? Seção: **já era regra** (§2 item 12) — reincidência
+- [ ] Virou caso de eval? Arquivo: —
+- [x] Registrado como 2ª ocorrência — o padrão não é falta de regra, é o gate encadeado em comando composto. Candidato a virar verificação automática (hook de pré-commit que recusa `build` com processo `next dev` vivo) se acontecer uma terceira vez.
+
+---
+
 ### 2026-08-18 — Comandos de ambiente rodados sem considerar processos vivos e escopo do worktree
 
 **Spec/Contexto:** NAPO-005, durante os Gates Visuais dos blocos G, H e I.
