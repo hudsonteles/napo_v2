@@ -47,6 +47,32 @@ export interface BrickPagamentoProps {
 
 const reais = (centavos: number) => centavos / 100;
 
+/**
+ * Os tokens da Napo repetidos em hexadecimal, de propósito.
+ *
+ * O Brick roda dentro de um iframe do Mercado Pago: `var(--color-amarelo)` não
+ * resolve lá dentro, porque as variáveis do nosso `tokens.css` não atravessam a
+ * fronteira. A duplicação é a única forma de o botão de pagar ser amarelo em
+ * vez do azul padrão deles — mas ela é acoplamento real: mexeu na paleta em
+ * `packages/ui/src/tokens.css`, mexa aqui também.
+ */
+const TOKENS_DO_BRICK = {
+  baseColor: '#f5c518',
+  baseColorFirstVariant: '#d9ac0f',
+  baseColorSecondVariant: '#d9ac0f',
+  buttonTextColor: '#0a0a0a',
+  textPrimaryColor: '#ffffff',
+  textSecondaryColor: '#a1a1a1',
+  formBackgroundColor: '#141414',
+  inputBackgroundColor: '#0a0a0a',
+  outlinePrimaryColor: '#2a2a2a',
+  outlineSecondaryColor: '#3d3d3d',
+  errorColor: '#f87171',
+  borderRadiusSmall: '10px',
+  borderRadiusMedium: '10px',
+  borderRadiusLarge: '16px',
+};
+
 export function BrickPagamento({ valorCentavos, emailPadrao, aoPagar }: BrickPagamentoProps) {
   const chave = publicEnv.NEXT_PUBLIC_MP_PUBLIC_KEY;
   const [recusa, setRecusa] = useState<string | null>(null);
@@ -168,7 +194,7 @@ function Brick({
         // redireciona o cliente — o oposto do que o ADR-0001 decidiu.
         paymentMethods: { creditCard: 'all', debitCard: 'all', bankTransfer: 'all' },
         visual: {
-          style: { theme: 'dark' },
+          style: { theme: 'dark', customVariables: TOKENS_DO_BRICK },
           hideFormTitle: true,
         },
       }}

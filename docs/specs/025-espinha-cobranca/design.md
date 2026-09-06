@@ -239,6 +239,15 @@ Nenhuma delas repete texto, código ou `status_detail` do Mercado Pago.
 | `<ContagemRegressiva>` | `packages/ui/src/components/` | Cronômetro decrescente com formatação `mm:ss` tabular e evento de término. Nenhum primitivo do catálogo tem noção de tempo; `<Badge>` mostraria o número mas não o faria correr nem avisaria a página quando zerar — e é o zerar que desmonta o Brick |
 | `<BrickPagamento>` | `features/pedidos/components/` | Montagem de componente de terceiro com ciclo de vida próprio (`initialization`, `onSubmit`, `onError`, desmontagem no vencimento). É específico do domínio de pagamento e não pode virar primitivo genérico do catálogo |
 
+#### 4.4.3.1 Tokens duplicados no Brick (acoplamento declarado)
+
+O Payment Brick roda dentro de um iframe do Mercado Pago, e as variáveis CSS do
+`packages/ui/src/tokens.css` não atravessam essa fronteira: `var(--color-amarelo)`
+não resolve lá dentro. A única forma de o botão de pagar sair amarelo em vez do azul
+padrão deles é repetir a paleta em hexadecimal, via `customVariables`. **É acoplamento
+real e declarado:** mexeu na paleta em `tokens.css`, mexa em `brick-pagamento.tsx`
+também. Achado no Gate Visual B de 2026-09-06, quando o PM notou o botão azul.
+
 #### 4.4.4 Markup cru aceito
 
 - Container raiz das páginas (`<main className="mx-auto max-w-6xl px-4 py-10">`) — layout de página.
