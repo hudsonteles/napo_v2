@@ -95,11 +95,20 @@ export async function criarCobranca(
       emailPagador: entrada.emailPagador,
       expiraEm: pedido.expiraEm,
     });
-  } catch {
+  } catch (erro) {
     // A vaga NÃO é devolvida: o cliente está na tela, com o cartão na mão, e vai
     // tentar de novo em segundos. Derrubar a reserva dele seria puni-lo pelo
     // erro do terceiro. A cobrança é encerrada para a próxima tentativa caber.
-    await cobrancas.mudarSituacao({ cobrancaId: cobranca.id, situacao: 'expirada' });
+    //
+    // O motivo fica gravado na própria cobrança: tentativa que falha sem deixar
+    // rastro é tentativa que ninguém consegue investigar depois — o mesmo
+    // princípio da RN15, aplicado ao lado de cá da chamada. O cliente não vê
+    // nada disso (RN13).
+    await cobrancas.mudarSituacao({
+      cobrancaId: cobranca.id,
+      situacao: 'expirada',
+      detalhe: `falha ao criar no gateway: ${motivoDoErro(erro)}`.slice(0, 500),
+    });
     return falhar({ motivo: 'gateway_indisponivel', status: 503 });
   }
 
@@ -133,4 +142,18 @@ export async function criarCobranca(
 
 function falhar(falha: FalhaDaCobranca): ResultadoDaCobranca {
   return { ok: false, falha };
+}
+
+/** O SDK do gateway embala a causa em campos diferentes conforme o erro. */
+function motivoDoErro(erro: unknown): string {
+  if (typeof erro !== 'object' || erro === null) return String(erro);
+
+  const e = erro as { message?: unknown; status?: unknown; cause?: unknown };
+  const partes = [
+    e.status === undefined ? null : `status ${String(e.status)}`,
+    typeof e.message === 'string' ? e.message : null,
+    e.cause === undefined ? null : JSON.stringify(e.cause),
+  ].filter(Boolean);
+
+  return partes.length > 0 ? partes.join(' — ') : 'sem detalhe';
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CircleUserRound, LogOut, MapPin, ReceiptText, UserRound } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -28,6 +28,7 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/client';
  */
 export function AcessoConta({ className }: { className?: string }) {
   const [email, setEmail] = useState<string | null>(null);
+  const sairRef = useRef<HTMLFormElement>(null);
   const [autenticado, setAutenticado] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -107,14 +108,23 @@ export function AcessoConta({ className }: { className?: string }) {
         <DropdownMenuSeparator />
 
         {/* Sair é POST: por GET, qualquer prefetch do navegador derrubaria a
-            sessão sem ninguém ter clicado. */}
-        <DropdownMenuItem asChild>
-          <form action="/api/auth/sair" method="post">
-            <button type="submit" className="flex w-full items-center gap-3 text-left">
-              <LogOut className="h-4 w-4" /> Sair
-            </button>
-          </form>
+            sessão sem ninguém ter clicado.
+ 
+            O formulário fica FORA do item de propósito. Dentro dele, o Radix
+            fecha o menu ao selecionar e desmonta o item antes de o navegador
+            terminar a submissão — o clique parecia não fazer nada. Aqui o item
+            só dispara o envio, e quem submete é um formulário que continua
+            montado. */}
+        <DropdownMenuItem
+          onSelect={(evento) => {
+            evento.preventDefault();
+            sairRef.current?.requestSubmit();
+          }}
+        >
+          <LogOut className="h-4 w-4" /> Sair
         </DropdownMenuItem>
+
+        <form ref={sairRef} action="/api/auth/sair" method="post" className="hidden" />
       </DropdownMenuContent>
     </DropdownMenu>
   );

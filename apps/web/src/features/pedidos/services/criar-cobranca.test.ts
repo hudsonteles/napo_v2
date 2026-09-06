@@ -191,10 +191,15 @@ describe('criarCobranca', () => {
     );
 
     expect(resultado).toEqual({ ok: false, falha: { motivo: 'gateway_indisponivel', status: 503 } });
+    // A falha deixa rastro na própria cobrança: tentativa que morre em silêncio
+    // é tentativa que ninguém investiga depois.
     expect(repo.mudarSituacao).toHaveBeenCalledWith({
       cobrancaId: COBRANCA_ID,
       situacao: 'expirada',
+      detalhe: expect.stringContaining('mercado pago fora do ar'),
     });
+    // E o cliente não vê nada disso (RN13).
+    expect(JSON.stringify(resultado)).not.toMatch(/mercado pago fora do ar/);
   });
 
   it('devolve o QR quando o meio é Pix', async () => {

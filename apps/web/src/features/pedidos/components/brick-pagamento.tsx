@@ -29,11 +29,20 @@ export interface PagamentoEnviado {
   emailPagador: string;
 }
 
+/**
+ * O desfecho de uma tentativa. `recusa` e `indisponivel` são telas diferentes
+ * de propósito: dizer "o cartão não passou" quando quem falhou fomos nós manda
+ * o cliente trocar de cartão para resolver um problema que não é dele.
+ */
+export type ResultadoDaTentativa =
+  | { ok: true }
+  | { ok: false; tipo: 'recusa'; mensagem: string }
+  | { ok: false; tipo: 'indisponivel' };
+
 export interface BrickPagamentoProps {
   valorCentavos: number;
   emailPadrao: string;
-  /** Devolve a mensagem de recusa quando a tentativa não passa. */
-  aoPagar: (dados: PagamentoEnviado) => Promise<{ ok: boolean; mensagem?: string }>;
+  aoPagar: (dados: PagamentoEnviado) => Promise<ResultadoDaTentativa>;
 }
 
 const reais = (centavos: number) => centavos / 100;
@@ -98,7 +107,9 @@ export function BrickPagamento({ valorCentavos, emailPadrao, aoPagar }: BrickPag
               onResultado={async (dados) => {
                 setIndisponivel(false);
                 const resposta = await aoPagar(dados);
-                if (!resposta.ok) setRecusa(resposta.mensagem ?? null);
+                if (resposta.ok) return;
+                if (resposta.tipo === 'recusa') setRecusa(resposta.mensagem);
+                else setIndisponivel(true);
               }}
               onFalha={() => setIndisponivel(true)}
             />
@@ -199,7 +210,13 @@ function PainelSimulado({
     setProcessando(true);
     setMensagem(null);
     const resposta = await aoPagar({ metodo, parcelas: 1, emailPagador: emailPadrao, token: 'tok-simulado' });
-    if (!resposta.ok) setMensagem(resposta.mensagem ?? 'Não foi possível concluir.');
+    if (!resposta.ok) {
+      setMensagem(
+        resposta.tipo === 'recusa'
+          ? resposta.mensagem
+          : 'Não conseguimos abrir o pagamento agora. Sua entrega continua reservada.',
+      );
+    }
     setProcessando(false);
   }
 

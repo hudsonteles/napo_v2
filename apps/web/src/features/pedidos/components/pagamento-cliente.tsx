@@ -7,7 +7,11 @@ import { Timer, TimerOff } from 'lucide-react';
 import { Card } from '@napo/ui/components/card';
 import { ContagemRegressiva } from '@napo/ui/components/contagem-regressiva';
 
-import { BrickPagamento, type PagamentoEnviado } from './brick-pagamento';
+import {
+  BrickPagamento,
+  type PagamentoEnviado,
+  type ResultadoDaTentativa,
+} from './brick-pagamento';
 
 /**
  * A ilha da tela de pagamento.
@@ -48,7 +52,7 @@ export function PagamentoCliente({
   const router = useRouter();
   const [venceu, setVenceu] = useState(false);
 
-  async function pagar(dados: PagamentoEnviado) {
+  async function pagar(dados: PagamentoEnviado): Promise<ResultadoDaTentativa> {
     const resposta = await fetch('/api/pagamentos', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -66,13 +70,17 @@ export function PagamentoCliente({
 
     if (corpo?.error?.motivo === 'pedido_vencido') {
       setVenceu(true);
-      return { ok: false };
+      return { ok: false, tipo: 'indisponivel' };
     }
 
-    return {
-      ok: false,
-      mensagem: corpo?.error?.mensagem ?? 'Não foi possível concluir. Tente de novo.',
-    };
+    // Só recusa de verdade vira "o cartão não passou". Falha nossa ou do
+    // gateway é outra tela: mandar o cliente trocar de cartão para resolver um
+    // problema que não é dele é mentir sobre a causa.
+    if (corpo?.error?.motivo === 'recusado' && corpo.error.mensagem) {
+      return { ok: false, tipo: 'recusa', mensagem: corpo.error.mensagem };
+    }
+
+    return { ok: false, tipo: 'indisponivel' };
   }
 
   return (
