@@ -71,6 +71,18 @@ _Itens conhecidos sem ordem fixa. Reordenar conforme aprendizado e novas informa
 
 _O escopo do R1 cresceu em 2026-09-05: vender deixou de ser só o site. Ver [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md)._
 
+- [ ] **NAPO-030** Tela de carrinho vazio à altura da marca
+  - **Dependências:** —
+  - **Valor:** Médio · **Esforço:** Baixo · **MoSCoW:** Could
+  - **Promovida em:** 2026-09-06 (de 💡, no grooming)
+  - **Notas:** a tela atual é funcional e genérica demais para o perfil premium do cliente. Aparece cedo na jornada, muitas vezes antes de a pessoa ter visto qualquer produto, e hoje só informa uma ausência — não vende nem conta nada. **Cabe como spec lite** (uma tela, sem RN nova), mas o **Gate Visual A precisa trazer mais de uma direção**: o valor está na escolha entre caminhos (convite à vitrine? sabor em destaque? a fornada da semana?), não num mockup único. **Origem:** PM durante a validação do NAPO-025.
+
+- [ ] **NAPO-017** Verificação da empresa na Meta (WhatsApp Business API)
+  - **Dependências:** — · **Bloqueia:** NAPO-002 em produção e, por consequência, o NAPO-021
+  - **Valor:** Alto · **Esforço:** Baixo (é processo, não código) · **MoSCoW:** Must
+  - **⬆️ Saiu de ⏸️ Bloqueados em 2026-09-06 (grooming):** ele não esperava a Meta — esperava alguém abrir o processo. Ficar em Bloqueados o tornava invisível no planejamento por 26 dias, enquanto a anotação de 11/08 dizia que descobrir a elegibilidade era caminho crítico. Volta a ⏸️ **depois** de submetido, quando a bola estiver mesmo com eles.
+  - **⚠️ Prioridade elevada (2026-08-11, benchmarking do NAPO-002):** verificação da empresa pode **não bastar**. O acesso a _authentication templates_ passa por um caminho de escala da Meta que inclui limiar de volume (ordem de grandeza citada publicamente: milhares de conversas iniciadas pelo negócio por dia, por número). A Napo faz 303 pizzas/mês. O risco deixou de ser "o envio pode falhar" e passou a ser "o canal pode nunca ser liberado". **Descobrir a elegibilidade real é agora caminho crítico** — se negativa, a decisão de canal precisa ser reaberta antes do NAPO-006.
+
 - [ ] **NAPO-008** Admin: insumos/BOM, estoque, entregadores, custos e painel econômico
   - **Dependências:** NAPO-002, NAPO-004, NAPO-028
   - **✂️ Quebrado em 2026-09-05:** "registrar venda" saiu para o **NAPO-026** (a maquininha precisava de um pedido a que se ligar, e isso estava enterrado no item mais caro do backlog) e a **taxa por transação passa a vir pronta do NAPO-028** — não é mais preciso modelar tabela de taxa por bandeira e parcelamento.
@@ -175,7 +187,6 @@ Ainda abertas, para as fases seguintes:
 - [ ] **Sinal/depósito e política de cancelamento de eventos** — o registro de decisões trata pagamento só no contexto de delivery. Registrado em 2026-08-10.
 - [ ] **Conflito de agenda em eventos:** equipe e **equipamento** duplo-alocados. Registrado em 2026-08-10.
 - [ ] **Cadastro de custo de equipe e deslocamento** — pré-requisito da precificação assistida de eventos (NAPO-010). Registrado em 2026-08-10.
-- [ ] **Como um lead de evento entra no pipeline antes do bot existir** — hoje não há porta de entrada. Registrado em 2026-08-10.
 - [ ] **Histórico de calote/no-show por cliente** — paraquedas para revisitar caso a caso a regra de pagamento na entrega do bot (NAPO-015). Registrado em 2026-08-10. **Reposicionado em 2026-09-05:** pagamento na entrega é o canal dominante e ~99% pagam, então **não haverá trava** (design da espinha §4.1). A espinha grava a evidência (quem escolheu, quem honrou, quem sumiu) — esta ideia deixa de ser feature e vira a decisão de política que se toma depois, com número real na mão.
 - [ ] **Resiliência offline e degradação do KDS** — o PDV resolve por fila offline-first, o KDS ainda não tem estratégia. Registrado em 2026-08-10.
 - [ ] **Migrar o Supabase CLI para 2.x e o Postgres local para 17** — o repositório fixa CLI 1.x e `major_version = 15`, que já não são o padrão de projetos novos do Supabase. A troca é barata enquanto não existe produção e cara depois que houver dado real. Gatilho observado: um volume Docker criado por uma CLI 2.x recusou subir na 1.x (`database files are incompatible with server`) e derrubou o ambiente local inteiro — enquanto as máquinas de dev tiverem CLIs diferentes, quem clonar perde o stack. Registrado em 2026-08-10. **Origem:** conserto do merge travado de NAPO-001, com duas máquinas em CLIs divergentes. **Exige revisão de spec NAPO-001 antes de promover** — mexe em `supabase/config.toml`, no `package.json` e no CI.
@@ -194,7 +205,6 @@ Ainda abertas, para as fases seguintes:
 
 ---
 
-- [ ] **Tela de carrinho vazio à altura da marca** — a tela atual não agrada o PM: é funcional, mas genérica demais para o perfil premium do cliente da Napo. É uma superfície que aparece cedo na jornada, muitas vezes antes de a pessoa ter visto qualquer produto, e hoje ela não vende nada nem conta nada — só informa uma ausência. **Exige Gate Visual A com mais de uma direção**: o valor está na escolha entre caminhos (convite à vitrine? sabor em destaque? a fornada da semana?), não num mockup único. Cabe como spec **lite** — uma tela, sem regra de negócio nova. Registrado em 2026-09-06. **Origem:** PM durante a validação do NAPO-025.
 
 ---
 
@@ -209,11 +219,6 @@ Ainda abertas, para as fases seguintes:
 ## ⏸️ Bloqueados (Aguardando externo)
 
 _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do controle)._
-
-- [ ] **NAPO-017** Verificação da empresa na Meta (WhatsApp Business API)
-  - **Bloqueado por:** processo de verificação da Meta — **bloqueia o login em produção** (NAPO-002 não sobe sem isso)
-  - **Desde:** 2026-08-10
-  - **⚠️ Prioridade elevada (2026-08-11, benchmarking do NAPO-002):** verificação da empresa pode **não bastar**. O acesso a _authentication templates_ passa por um caminho de escala da Meta que inclui limiar de volume (ordem de grandeza citada publicamente: milhares de conversas iniciadas pelo negócio por dia, por número). A Napo faz 303 pizzas/mês. O risco deixou de ser "o envio pode falhar" e passou a ser "o canal pode nunca ser liberado". **Descobrir a elegibilidade real é agora caminho crítico** — se negativa, a decisão de canal precisa ser reaberta antes do NAPO-006.
 
 - [ ] **NAPO-018** Contador: anexo do Simples e atividade mista
   - **Bloqueado por:** definição do contador (congelado industrializado vs. fresca no balcão — o Simples exige a segregação na declaração mensal)
@@ -296,6 +301,8 @@ _Histórico — adicionar mais recentes NO TOPO._
 ## ❌ Cancelados
 
 _Itens descartados. IDs permanecem reservados (não reciclar)._
+
+- [x] **Como um lead de evento entra no pipeline antes do bot existir** · **cancelado 2026-09-06** · motivo: absorvida pela ideia "Orçamento de eventos online (simulador + captação de lead)", que resolve a porta de entrada e diz isso no próprio texto. Manter as duas faria o backlog prometer duas coisas onde há uma. Nunca teve ID.
 
 - [x] **NAPO-023** Pagamento fim a fim com Mercado Pago real (ambiente de desenvolvimento) · **absorvido pelo NAPO-025** em 2026-09-05
   - Nasceu em 2026-09-04 para exercitar o caminho real do Mercado Pago, que o NAPO-006 fechou com `PAGAMENTO_PROVIDER=fake`. Ao especificá-lo, o PM levantou que o cliente **não deve sair do site para pagar** — e o Checkout Pro só existe em redirect desde que o modal foi descontinuado ([ADR-0001](docs/adr/0001-checkout-bricks.md)). Exercitar o Checkout Pro para trocá-lo em seguida seria pagar a integração duas vezes, então o escopo inteiro passou para o NAPO-025, agora sobre Checkout Bricks. **ID reservado, não reciclar.**
