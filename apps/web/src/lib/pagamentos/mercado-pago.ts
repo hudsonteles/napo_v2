@@ -44,6 +44,15 @@ interface RespostaPagamento {
 }
 
 /**
+ * O Postgres devolve `timestamptz` com **microssegundos** (seis casas) e o
+ * Mercado Pago recusa isso: ele exige `yyyy-MM-dd'T'HH:mm:ss.SSSZ`. Traduzir o
+ * formato é obrigação do adaptador — é literalmente o trabalho dele.
+ */
+function dataParaOGateway(iso: string): string {
+  return new Date(iso).toISOString();
+}
+
+/**
  * O 404 do SDK chega como exceção com `status`. Distinguir "não conhece este
  * pagamento" de "o gateway caiu" é o que separa devolver `null` (contrato da
  * porta) de deixar o erro subir — e é exatamente o defeito que a RN14 conserta.
@@ -78,7 +87,7 @@ export class PagamentoMercadoPago implements PortaPagamento {
         // pendente é a natureza dele, não uma análise.
         ...(entrada.token ? { binary_mode: true } : {}),
         // O QR do Pix morre junto com a vaga (RN11): um relógio só.
-        date_of_expiration: entrada.expiraEm,
+        date_of_expiration: dataParaOGateway(entrada.expiraEm),
         // Amarra a notificação à TENTATIVA, não ao pedido: duas tentativas do
         // mesmo pedido chegariam indistinguíveis se a referência fosse o pedido.
         external_reference: entrada.cobrancaId,

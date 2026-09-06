@@ -46,7 +46,21 @@ describe('PagamentoMercadoPago.criarCobranca', () => {
     expect(body.transaction_amount).toBe(139.7);
     expect(body.external_reference).toBe(ENTRADA.cobrancaId);
     expect(body.token).toBe('tok-do-brick');
-    expect(body.date_of_expiration).toBe(ENTRADA.expiraEm);
+    expect(body.date_of_expiration).toBe(new Date(ENTRADA.expiraEm).toISOString());
+  });
+
+  it('a data de expiração vai no formato que o gateway aceita, não no do Postgres', async () => {
+    // `timestamptz` chega com seis casas de microssegundo e o Mercado Pago
+    // recusa com 400. Traduzir é obrigação do adaptador.
+    criarPagamento.mockResolvedValueOnce({ id: 4, status: 'approved' });
+
+    await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca({
+      ...ENTRADA,
+      expiraEm: '2026-09-11T20:30:00.123456+00:00',
+    });
+
+    const [{ body }] = criarPagamento.mock.calls[0] as [{ body: Record<string, unknown> }];
+    expect(body.date_of_expiration).toBe('2026-09-11T20:30:00.123Z');
   });
 
   it('T20/RN10 — envia a chave de idempotência derivada da cobrança', async () => {
