@@ -46,6 +46,10 @@ Valem para **toda** tarefa, **todo** spec, **todo** módulo. Violar é motivo de
 
     Violar qualquer um dos três pontos = violação inegociável. Reverter (`git checkout -- .`) e replanejar.
 
+13. **Escrita de arquivo por script: conteúdo pronto antes de abrir o destino.**
+    - `open(caminho, 'w')` **trunca no momento da abertura**. Se a montagem do conteúdo falhar depois disso — encoding, chave ausente, qualquer coisa — o que sobra é um arquivo vazio, e o erro não parece um erro de escrita. Gere o conteúdo completo numa variável, valide, e só então abra o arquivo. Cuidado com a ordem de avaliação: `open(p,'wb').write(s.encode())` **também** abre antes de codificar.
+    - **`git add -A` não é o padrão depois de um comando que falhou.** Ele varre dano colateral para dentro do commit sem ninguém olhar. Depois de qualquer falha, o staging é explícito por caminho, e `git status` é lido antes.
+
 12. **Comando de ferramenta não roda no vácuo — considere processos vivos e escopo.**
     - **Encerre processos de longa duração antes de gate ou instalação.** Dev server, watcher e build de produção disputam os mesmos artefatos: `pnpm add` religa `node_modules` sob o processo em execução, e `build` sobrescreve o cache que o `dev` está usando. O sintoma nunca aponta para a causa — vem como página sem CSS, `MODULE_NOT_FOUND` ou grafo de módulos corrompido, e queima o tempo do humano em diagnóstico. Derrube antes, suba depois.
     - **Nunca invoque script de escopo global quando o alvo é o Mapa de Impacto.** `format`, `lint --fix` e afins agem sobre o repositório inteiro: reformatam documentação aprovada, contratos visuais versionados e arquivos de outras specs. Restrinja o comando aos caminhos do Mapa, ou não o rode.
