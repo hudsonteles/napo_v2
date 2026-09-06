@@ -352,8 +352,8 @@ E nenhuma chamada ao SDK do Mercado Pago é feita
 | # | Caminho | Estado | Evidência |
 |---|---|---|---|
 | 1 | Pix aprovado | ⏳ **bloqueado** | ver nota abaixo |
-| 2 | Cartão aprovado | ⏳ **bloqueado** | 4 tentativas, todas em `pending_contingency` |
-| 3 | Cartão recusado | ⏳ **bloqueado** | idem — a simulação por nome do titular não vale nesta conta |
+| 2 | Cartão aprovado | ⏳ **bloqueado** | 6 tentativas; sem `binary_mode` caem em `pending_contingency`, com ele recusam — a simulação por nome do titular não vale nesta conta |
+| 3 | Cartão recusado | ✅ | pagamentos `1351485149` e `1328078678`, `cc_rejected_other_reason`; notificação real → evento `pagamento_nao_aprovado` com detalhe `recusado` |
 | 4 | Pix pendente | ✅ | pagamento `1328075818`, `pending_waiting_transfer`, **QR devolvido**; evento `pagamento_nao_aprovado` |
 | 5 | Notificação duplicada | ⏳ **bloqueado** | depende de uma cobrança aprovada existir |
 | 6 | Assinatura inválida | ✅ | `401` + evento `assinatura_invalida` (`mp_payment_id` = `teste`) |
@@ -369,12 +369,21 @@ E nenhuma chamada ao SDK do Mercado Pago é feita
   foi confirmado, em três notificações independentes.
 - **`consultarPagamento` contra a API real** rodou em cada notificação, sem exceção.
 
-**Bloqueio conhecido:** os cartões de teste desta conta caem todos em
-`pending_contingency`, e a simulação determinística por nome do titular (`APRO`, `FUND`)
-não tem efeito. O Mercado Pago exige um **usuário de teste vendedor** para isso — o
-`MP_ACCESS_TOKEN` atual é a credencial de teste da conta real, não de um test user. Usar
-o e-mail de um comprador de teste com essa credencial devolve `Payer email forbidden`.
-Fechar os caminhos 1, 2, 3 e 5 depende de trocar as credenciais, e isso é decisão do PM.
+**Achado que vale virar decisão de produto: `binary_mode`.** Sem a flag, todo cartão desta
+conta para em `pending_contingency` — e continuava lá 2h30 depois. Com ela, o gateway
+decide na hora. Isso importa além do teste: um cartão "em análise" segura vaga de fornada
+por horas contra uma reserva de 30 minutos, e o cliente fica sem resposta. Ligar
+`binary_mode` troca essa espera por um não imediato — ao custo de recusar o que a análise
+poderia aprovar. Não foi ligado no adaptador; está registrado como pergunta ao PM.
+
+**Bloqueio dos caminhos 1, 2 e 5:** a simulação determinística por nome do titular
+(`APRO`) não tem efeito com estas credenciais. O Mercado Pago exige credenciais de um
+**usuário de teste vendedor**, e o `MP_ACCESS_TOKEN` é a credencial de teste da conta real
+NAPOBSB (termina em `-3567856762`; a do vendedor de teste terminaria em `-3665486978`).
+Tentativa por API descartada: `POST /applications` e a listagem de test users respondem
+403/405 — aplicação só nasce no painel. O par de usuários de teste já existe
+(vendedor `3665486978`, comprador `3665500982`); falta só criar a aplicação no painel
+logado como o vendedor.
 
 ---
 
