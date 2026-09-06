@@ -47,7 +47,7 @@ Arquivos: `packages/ui/src/components/contagem-regressiva.tsx`, `features/pedido
 > Os dois `✨ CRIAR NOVO` de `design.md` §4.4.3. Vêm **antes** das telas que os consomem (regra 4.0.1).
 
 ### Bloco G — Telas + Gate Visual B
-Arquivos: `app/(loja)/checkout/page.tsx`, `app/(loja)/pedido/[numero]/pagar/page.tsx`, `features/pedidos/components/{checkout-cliente,resumo-pedido,estado-pagamento}.tsx` · Testes: critérios visuais 1–9 · Depende: F · Est: 90min · Agente: inline · `[~]` **código verde, aguardando Gate Visual B do PM**
+Arquivos: `app/(loja)/checkout/page.tsx`, `app/(loja)/pedido/[numero]/pagar/page.tsx`, `features/pedidos/components/{checkout-cliente,resumo-pedido,estado-pagamento}.tsx` · Testes: critérios visuais 1–9 · Depende: F · Est: 90min · Agente: inline · `[x]` concluído — **Gate Visual B aprovado pelo PM em 2026-09-06**
 > Ambiente real aberto **antes** de declarar verde (postmortem 2026-08-18). Aprovação explícita do PM.
 
 ### Bloco H — RN20: os seis caminhos no Mercado Pago real

@@ -395,7 +395,7 @@ E nenhuma chamada ao SDK do Mercado Pago é feita
 - [ ] Nenhum instrumento além de `online` ganhou tela
 
 ### Gates
-- [ ] **Gate Visual B** — as três telas abertas na aplicação real **antes** de qualquer bloco ser declarado verde, com aprovação explícita do PM (postmortem 2026-08-18, `AGENTS.md` §2 item 11b)
+- [x] **Gate Visual B** (aprovado pelo PM em 2026-09-06) — as três telas abertas na aplicação real **antes** de qualquer bloco ser declarado verde, com aprovação explícita do PM (postmortem 2026-08-18, `AGENTS.md` §2 item 11b)
 - [ ] **T37 (RN20)** — os seis caminhos observados contra o Mercado Pago real, com evidência registrada
 
 ### Fechamento
