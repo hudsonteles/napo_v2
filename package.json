@@ -24,8 +24,8 @@
     "db:migrate": "node scripts/supabase.mjs migration up --local",
     "db:sync": "node scripts/supabase.mjs migration up --local && pnpm db:types",
     "db:test": "node scripts/supabase.mjs test db",
-    "db:types": "supabase gen types typescript --local > packages/db/src/types.generated.ts",
-    "db:types:check": "supabase gen types typescript --local | git diff --no-index --exit-code packages/db/src/types.generated.ts -",
+    "db:types": "node scripts/gen-types.mjs",
+    "db:types:check": "node scripts/gen-types.mjs --check",
     "db:push:staging": "supabase db push --linked",
     "db:push:prod": "bash scripts/confirm-prod-deploy.sh napo-prod && supabase db push --linked"
   },

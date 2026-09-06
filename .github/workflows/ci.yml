@@ -79,10 +79,4 @@ jobs:
         run: pnpm db:test
 
       - name: Drift dos tipos gerados (RN9, T7)
-        run: |
-          node scripts/supabase.mjs gen types typescript --local > packages/db/src/types.generated.ts
-          if ! git diff --exit-code -- packages/db/src/types.generated.ts; then
-            echo "::error::Tipos gerados fora de sincronia. Rode 'pnpm db:types' e commite o resultado."
-            exit 1
-          fi
-          echo "OK: tipos em sincronia com as migrations."
+        run: pnpm db:types:check

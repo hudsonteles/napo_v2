@@ -60,12 +60,29 @@ function carregar(caminho) {
 const SEM_CREDENCIAL = 'ausente-neste-ambiente';
 const OBRIGATORIAS = ['SUPABASE_AUTH_GOOGLE_CLIENT_ID', 'SUPABASE_AUTH_GOOGLE_SECRET'];
 
-// O ambiente já definido vence o arquivo: em CI as variáveis vêm do runner.
-const ambiente = { ...carregar(arquivo), ...process.env };
+/**
+ * O ambiente que o CLI precisa. Exportado porque `gen-types.mjs` executa o
+ * mesmo binário por outro caminho — capturando a saída em vez de herdá-la — e
+ * duplicar a leitura do arquivo faria as duas divergirem no primeiro ajuste.
+ */
+export function ambienteSupabase() {
+  // O ambiente já definido vence o arquivo: em CI as variáveis vêm do runner.
+  const ambiente = { ...carregar(arquivo), ...process.env };
 
-for (const chave of OBRIGATORIAS) {
-  if (!ambiente[chave]) ambiente[chave] = SEM_CREDENCIAL;
+  for (const chave of OBRIGATORIAS) {
+    if (!ambiente[chave]) ambiente[chave] = SEM_CREDENCIAL;
+  }
+
+  return ambiente;
 }
+
+// Importado como módulo (`gen-types.mjs`), não deve executar nada.
+const invocadoDireto = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+
+if (!invocadoDireto) {
+  // nada a fazer: quem importa quer só `ambienteSupabase`.
+} else {
+const ambiente = ambienteSupabase();
 
 const processo = spawn('supabase', process.argv.slice(2), {
   stdio: 'inherit',
@@ -74,3 +91,4 @@ const processo = spawn('supabase', process.argv.slice(2), {
 });
 
 processo.on('exit', (codigo) => process.exit(codigo ?? 1));
+}
