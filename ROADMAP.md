@@ -196,6 +196,10 @@ Ainda abertas, para as fases seguintes:
 
 - [ ] **Ranking das "mais pedidas" derivado de venda real** — hoje `ranking_mais_pedidas` é preenchido à mão na migration de catálogo (1 Calabresa · 2 Peito de Peru com Gorgonzola · 3 Frango c/ Catupiry). O PM pediu que a home ordenasse pelo que mais vende, mas não existe pedido no banco até o NAPO-006 — e um ranking cravado envelhece calado: quando a preferência mudar, a home continua afirmando um fato que deixou de ser verdade. Quando houver histórico de venda, derivar de uma janela móvel (ex.: 90 dias) com o valor manual como override do admin (NAPO-008). Registrado em 2026-08-17. **Origem:** bloco C do NAPO-003. **Depende de NAPO-006.**
 
+- [ ] **Recusa de telefone duplicado dizer o motivo em desenvolvimento** — a RN do NAPO-002 recusa **cegamente** quando o número pertence a outra conta, para o endpoint não virar oráculo de enumeração de clientes. Em produção isso está certo; em desenvolvimento custa caro — o PM perdeu tempo achando que o código `123456` estava quebrado quando o que barrava era o telefone já pertencer a outro perfil. A ideia é a mensagem dizer o motivo **só** quando `WHATSAPP_PROVIDER=fake`, na mesma chave que já decide canal e código fixo — sem criar um segundo interruptor que alguém possa ligar em produção por engano. Registrado em 2026-09-06. **Origem:** validação do Gate Visual B do NAPO-025, quando o PM tentou criar uma segunda conta com o próprio telefone. **Exige revisão de spec NAPO-002 antes de promover** — mexe numa regra cuja motivação é de segurança.
+
+---
+
 ## ⏸️ Bloqueados (Aguardando externo)
 
 _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do controle)._
