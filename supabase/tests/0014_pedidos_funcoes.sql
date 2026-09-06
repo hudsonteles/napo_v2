@@ -223,8 +223,18 @@ from public.reservas r
 where r.dia_entrega = '2030-09-27' and r.produto_id = :produto
 limit 1;
 
-select is(public.expirar_pedidos(), 1,
-  'T15 — a varredura expira exatamente o pedido vencido');
+-- A varredura é global, mas a asserção não pode ser: banco de desenvolvimento
+-- acumula pedido vencido de uso real, e afirmar "expirou exatamente 1" só passa
+-- em banco recém-resetado (falhou com 3 em 2026-09-05). Contar os vencidos no
+-- mesmo instante preserva o que a asserção provava — que pedido dentro do prazo
+-- não é varrido junto — sem depender do estado da máquina.
+create temporary table t15_vencidos on commit drop as
+select count(*)::int as total
+from public.pedidos
+where status = 'aguardando_pagamento' and expira_em <= now();
+
+select is(public.expirar_pedidos(), (select total from t15_vencidos),
+  'T15 — a varredura expira os pedidos vencidos, e nenhum dentro do prazo');
 
 select is(
   (select status::text from public.pedidos where id = '70ed0000-0000-0000-0000-000000000006'),
