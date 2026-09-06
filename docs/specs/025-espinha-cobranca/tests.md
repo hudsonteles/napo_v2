@@ -351,11 +351,11 @@ E nenhuma chamada ao SDK do Mercado Pago é feita
 
 | # | Caminho | Estado | Evidência |
 |---|---|---|---|
-| 1 | Pix aprovado | ⏳ **bloqueado** | ver nota abaixo |
-| 2 | Cartão aprovado | ⏳ **bloqueado** | 6 tentativas; sem `binary_mode` caem em `pending_contingency`, com ele recusam — a simulação por nome do titular não vale nesta conta |
-| 3 | Cartão recusado | ✅ | pagamentos `1351485149` e `1328078678`, `cc_rejected_other_reason`; notificação real → evento `pagamento_nao_aprovado` com detalhe `recusado` |
+| 1 | Pix aprovado | ❌ **dívida** | sandbox não permite pagar um QR; estreia no NAPO-021 |
+| 2 | Cartão aprovado | ❌ **dívida** | 6 tentativas. Esta conta manda todo cartão para análise antifraude: com `binary_mode` recusa, sem ele fica parado (2h30 depois, ainda em `pending_contingency`). Não há combinação de cartão, titular ou CPF que contorne |
+| 3 | Cartão recusado | ✅ | fechado **pelo fluxo real do produto**: Brick → `/api/pagamentos` → adaptador → gateway → recusa traduzida na tela (pagamentos `1351492375` e `1351485871`, `cc_rejected_other_reason` → família `emissor`). Também por script (`1351485149`, `1328078678`) |
 | 4 | Pix pendente | ✅ | pagamento `1328075818`, `pending_waiting_transfer`, **QR devolvido**; evento `pagamento_nao_aprovado` |
-| 5 | Notificação duplicada | ⏳ **bloqueado** | depende de uma cobrança aprovada existir |
+| 5 | Notificação duplicada | ❌ **dívida** | depende de uma cobrança aprovada existir, que o caminho 2 não produz |
 | 6 | Assinatura inválida | ✅ | `401` + evento `assinatura_invalida` (`mp_payment_id` = `teste`) |
 
 **O que ficou provado contra o gateway real, além dos dois caminhos fechados:**
@@ -375,6 +375,15 @@ decide na hora. Isso importa além do teste: um cartão "em análise" segura vag
 por horas contra uma reserva de 30 minutos, e o cliente fica sem resposta. Ligar
 `binary_mode` troca essa espera por um não imediato — ao custo de recusar o que a análise
 poderia aprovar. Não foi ligado no adaptador; está registrado como pergunta ao PM.
+
+**Placar final: 3 de 6 caminhos fechados**, e os três restantes viram dívida registrada — decisão do PM em 2026-09-06. O risco que originou a RN20 (simulação não pegou o defeito do 404) está coberto pelos achados acima; o que falta é o desfecho de aprovação, que o adaptador falso exercita em teste automatizado e que a primeira venda real vai validar no NAPO-021.
+
+**Quatro defeitos reais só apareceram porque o gateway foi exercitado**, e nenhum deles seria pego por teste com mock:
+
+1. **`date_of_expiration` no formato do Postgres.** `timestamptz` tem seis casas de microssegundo; o Mercado Pago exige três e recusa com 400. **Todo** pagamento pela tela falhava.
+2. **O `catch` do gateway era cego.** A causa do defeito 1 morria nele; foi preciso gravar o motivo na cobrança para descobrir.
+3. **"O cartão não passou" aparecia para falha nossa.** Mandava o cliente trocar de cartão para resolver um problema que não era dele.
+4. **O botão do Brick saía azul.** A customização só mandava o tema; a paleta precisa ir em hexadecimal porque o iframe não enxerga nossos tokens.
 
 **Bloqueio dos caminhos 1, 2 e 5:** a simulação determinística por nome do titular
 (`APRO`) não tem efeito com estas credenciais. O Mercado Pago exige credenciais de um

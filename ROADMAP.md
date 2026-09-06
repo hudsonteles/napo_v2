@@ -34,13 +34,7 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-- [ ] **NAPO-025** Espinha de cobrança: cobrança como entidade e pagamento no site sem sair dele
-  - **Dependências:** NAPO-006 · **Iniciado em:** 2026-09-05
-  - **ADR pré-requisito:** [ADR-0001-checkout-bricks](docs/adr/0001-checkout-bricks.md) (Status: Aceito)
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **🐞 Defeito encontrado no spike de 2026-09-05 (corrigir aqui):** o `PagamentoMercadoPago.consultarPagamento` **viola o contrato da própria porta**. A `PortaPagamento` documenta `null` quando o gateway não conhece o pagamento (`porta.ts:53`), e o `PagamentoFake` cumpre — mas o SDK do Mercado Pago **lança exceção no 404**, e ela sobe antes do `if (!pagamento)` que gravaria o evento e devolveria 502. Resultado observado com o gateway real: **500 sem nenhuma linha em `pagamento_eventos`**. Isso importa porque notificação chegando antes de o pagamento ficar consultável é corrida real em produção: o reenvio acontece (é 5xx), mas o rastro de auditoria se perde. Só apareceu porque o webhook foi exercitado contra o Mercado Pago de verdade.
-  - **Spec:** [`docs/specs/025-espinha-cobranca/`](docs/specs/025-espinha-cobranca/) — aprovada em 2026-09-05 (20 RNs, 37 cenários, Gate Visual A aprovado)
-  - **Notas:** desenho completo em [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md). **Absorve o NAPO-023.** Cria `cobranca` como entidade de primeira classe — um pedido tem 0..n cobranças e `situacao_pagamento` é **derivada**, nunca um campo que alguém esquece de atualizar. Cinco instrumentos atrás da porta que o NAPO-006 já criou: `online` (Checkout Bricks, no nosso domínio), `pix_qr`, `link`, `dinheiro` e `point` (este entra no NAPO-027). Dinheiro é ofertado **sem destaque** — atrito deliberado, decisão do PM. Aqui também acontece o que era o NAPO-023: credenciais de teste, túnel, assinatura HMAC real, aprovado/recusado/pendente e idempotência sob notificação duplicada. **Dispara Gate Visual A** — a tela de checkout ganha o Brick.
+_Fila vazia — o NAPO-025 fechou em 2026-09-06. O próximo a entrar é o topo de 🟡 Próximos: **NAPO-007**._
 
 ---
 
@@ -239,6 +233,17 @@ _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do 
 ## ✅ Concluídos
 
 _Histórico — adicionar mais recentes NO TOPO._
+
+- [x] **NAPO-025** Espinha de cobrança: cobrança como entidade e pagamento no site sem sair dele · concluído 2026-09-06 · [`docs/specs/025-espinha-cobranca/`](docs/specs/025-espinha-cobranca/)
+  - **Cobrança virou entidade de primeira classe.** Um pedido tem 0..n cobranças, e `situacao_pagamento` é **derivada** — não existe no sistema um caminho que marque um pedido como pago. Campo mantido por trigger foi descartado de propósito: é o mesmo esquecimento com outro culpado.
+  - **O eixo do dinheiro saiu do eixo da entrega (RN3).** `status` passou a descrever só o ciclo do que foi vendido, e `vagas_ocupadas` deixou de conhecer o vocabulário de pagamento: ocupa quem não foi encerrado. É isso que torna expressável o pedido de balcão pago na entrega — o NAPO-026 não teria como existir sem essa separação.
+  - **A armadilha do bloco era a contagem dupla.** Com pagamento fora do status, "todo pedido vivo + toda reserva viva" cobraria a mesma vaga duas vezes. O desempate virou o vínculo `reservas.pedido_id`; `snapshot.ts` mudou junto, porque divergir dele faz a vitrine oferecer a vaga que o checkout recusa.
+  - **Checkout Bricks no nosso domínio (ADR-0001):** o cliente não sai do site. `POST /api/pedidos` parou de tocar o gateway — reserva e grava; quem recebe o token do Brick é a rota nova `POST /api/pagamentos`. Aprovar não é confirmar: quem confirma continua sendo o webhook (RN6).
+  - **O defeito que originou a spec foi corrigido e provado no gateway real:** notificação de pagamento desconhecido devolve 502 **com** a linha em `pagamento_eventos`, onde antes era 500 sem rastro nenhum.
+  - **Quatro defeitos só apareceram porque o gateway foi exercitado de verdade**, e nenhum seria pego por mock: o formato de data do Postgres que derrubava **todo** pagamento, o `catch` cego que escondia a causa, a mensagem que culpava o cartão por falha nossa, e o Brick azul em vez de amarelo.
+  - **`binary_mode` em cartão** (decisão do PM): uma análise que resolve em horas não cabe numa reserva de 30 minutos. O cliente leva um não imediato e ainda dá tempo de tentar outro cartão ou Pix dentro do prazo.
+  - 434 testes Vitest + 145 pgTAP. **RN20 fechou com 3 de 6 caminhos** no Mercado Pago real (recusa, Pix pendente, assinatura inválida); os três de aprovação viraram dívida — a conta de teste manda todo cartão para análise antifraude, e não há combinação que contorne. Estreiam no NAPO-021.
+  - **Efeito colateral do caminho:** corrigido o "Sair" do menu, que não deslogava desde o NAPO-002 — o `<form>` vivia dentro do item do Radix e era desmontado antes de a submissão terminar.
 
 - [x] **NAPO-006** Carrinho e checkout com Mercado Pago · concluído 2026-09-04 · [`docs/specs/006-checkout/`](docs/specs/006-checkout/)
   - Carrinho **anônimo** no navegador (RN1): adicionar não pede login e não reserva vaga — quem reserva é o clique em pagar, por 30 minutos. Seis sacolas abandonadas não podem esgotar a fornada de quem ia pagar.
