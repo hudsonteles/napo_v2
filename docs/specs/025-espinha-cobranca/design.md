@@ -281,6 +281,16 @@ Ver a seção **"Critérios visuais de aceite"** de [`tests.md`](./tests.md) —
   **Alternativa rejeitada:** exigir credencial real para rodar o checkout local.
   **Motivo:** foi o que permitiu o NAPO-006 fechar sem túnel, e continua sendo o que permite alguém clonar o repositório e ver o fluxo funcionar. A RN20 exige o gateway real **uma vez, na validação**, não a cada `pnpm dev`.
 
+- **Decisão:** cartão vai ao gateway com `binary_mode`, Pix não.
+  **Alternativa rejeitada:** aceitar o comportamento padrão, com pagamento "em análise".
+  **Motivo:** a vaga fica reservada 30 minutos, e uma análise que resolve em horas não
+  cabe nessa janela — o cliente ficaria sem resposta na tela e a vaga presa. Com a flag
+  ele leva um não imediato e ainda dá tempo de tentar outro cartão ou Pix dentro do prazo,
+  que é exatamente o que a RN12 permite. Custo aceito: perde-se a venda que a análise
+  aprovaria depois. Decisão do PM em 2026-09-06, a partir do que apareceu ao exercitar o
+  gateway real — sem a flag, **todo** cartão daquela conta parou em `pending_contingency` e
+  continuava lá 2h30 depois. Pix fica de fora: pendente é a natureza do meio.
+
 - **Decisão:** a reserva **não** é devolvida quando o gateway falha na `POST /api/pagamentos`.
   **Alternativa rejeitada:** repetir o comportamento do NAPO-006, que libera a vaga na hora.
   **Motivo:** lá o cliente ainda não tinha pedido e ia embora; aqui ele está na tela, com o cartão na mão, e vai tentar de novo em segundos. Derrubar a vaga dele por uma falha nossa seria punir o cliente pelo erro do terceiro. A vaga volta pelo vencimento normal, se ele desistir.

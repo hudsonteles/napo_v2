@@ -60,6 +60,28 @@ describe('PagamentoMercadoPago.criarCobranca', () => {
     expect(requestOptions.idempotencyKey).toBe(ENTRADA.cobrancaId);
   });
 
+  it('RN12 — cartão responde na hora: nada de "em análise" contra uma reserva de 30 min', async () => {
+    criarPagamento.mockResolvedValueOnce({ id: 5, status: 'approved' });
+
+    await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca(ENTRADA);
+
+    const [{ body }] = criarPagamento.mock.calls[0] as [{ body: Record<string, unknown> }];
+    expect(body.binary_mode).toBe(true);
+  });
+
+  it('Pix não leva binary_mode: pendente é a natureza do meio', async () => {
+    criarPagamento.mockResolvedValueOnce({ id: 6, status: 'pending' });
+
+    await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca({
+      ...ENTRADA,
+      metodo: 'pix',
+      token: undefined,
+    });
+
+    const [{ body }] = criarPagamento.mock.calls[0] as [{ body: Record<string, unknown> }];
+    expect(body.binary_mode).toBeUndefined();
+  });
+
   it('devolve o QR quando o meio é Pix', async () => {
     criarPagamento.mockResolvedValueOnce({
       id: 9,

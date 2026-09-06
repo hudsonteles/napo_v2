@@ -70,6 +70,13 @@ export class PagamentoMercadoPago implements PortaPagamento {
         payment_method_id: entrada.metodo,
         installments: entrada.parcelas,
         token: entrada.token,
+        // Cartão responde na hora, nunca "em análise" (decisão do PM,
+        // 2026-09-06). A vaga fica reservada 30 minutos e uma análise que
+        // demora horas não cabe nessa janela: o cliente ficaria sem resposta e
+        // a vaga presa. Com a flag ele leva um não imediato e ainda dá tempo de
+        // tentar outro cartão ou Pix dentro do prazo (RN12). Pix fica de fora —
+        // pendente é a natureza dele, não uma análise.
+        ...(entrada.token ? { binary_mode: true } : {}),
         // O QR do Pix morre junto com a vaga (RN11): um relógio só.
         date_of_expiration: entrada.expiraEm,
         // Amarra a notificação à TENTATIVA, não ao pedido: duas tentativas do
