@@ -204,6 +204,14 @@ Ainda abertas, para as fases seguintes:
 
 ---
 
+- [ ] **E-mail transacional de pedido: confirmação e lembrete de Pix** — hoje **nenhum e-mail é enviado**. O cliente paga e a única confirmação que ele tem é a tela; fechou a aba, não sobra nada. Duas mensagens distintas: **confirmação** quando a cobrança aprova (com dia de entrega, itens e endereço) e **lembrete** enquanto um Pix segue pendente dentro dos 30 minutos — sem lembrete, o cliente que fecha a aba perde a vaga sem saber. **Depende do SMTP customizado via Resend**, que já está em 💡 e bloqueia o NAPO-021. Quando o WhatsApp existir (NAPO-015), a mesma decisão de "o que avisar e quando" deve valer para os dois canais — escrever a regra duas vezes é como as mensagens divergem. Registrado em 2026-09-06. **Origem:** PM ao ver o fluxo de pagamento completo no NAPO-025.
+
+- [ ] **Impressora térmica na loja: todo pedido novo sai em papel** — a cozinha precisa do pedido impresso para preparar e separar, e o gatilho tem que ser **todo pedido, de qualquer origem**: site, balcão, WhatsApp, iFood e 99food. É isso que torna a ideia dependente da espinha de cobrança e do registro de venda (NAPO-026) — sem um lugar único onde a venda nasce, seriam cinco integrações de impressão. A decisão técnica principal é **como a impressora é alcançada**: rede (IP fixo, o servidor imprime sozinho) × USB/Bluetooth (exige uma máquina de pé na loja com o sistema aberto). Registrado em 2026-09-06. **Origem:** PM durante a validação do NAPO-025.
+
+- [ ] **Alerta sonoro de pedido novo no admin** — com o sistema aberto numa aba, a chegada de um pedido toca um aviso, para a loja não depender de alguém olhar a tela. Vale para todo pedido, como a impressão. Dois pontos que decidem se funciona: navegador **bloqueia áudio sem interação prévia** do usuário (precisa de um gesto para "armar" o som), e aba em segundo plano recebe menos ciclos — o aviso precisa sobreviver a isso. Anda junto da impressão: as duas são reações ao mesmo evento "pedido novo", e faz sentido nascerem da mesma fonte. Registrado em 2026-09-06. **Origem:** PM durante a validação do NAPO-025.
+
+---
+
 ## ⏸️ Bloqueados (Aguardando externo)
 
 _Itens com bloqueio externo (espera de terceiro, decisão, dependência fora do controle)._
