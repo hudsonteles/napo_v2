@@ -24,6 +24,30 @@ export type {
 export { dependenciasDaConfirmacao } from './services/dependencias';
 export type { FerramentasDeViabilidade } from './services/dependencias';
 export { repositorioDePedidos } from './services/pedidos-repo';
-export type { EventoDePagamento, PedidoLido, RepositorioDePedidos } from './services/pedidos-repo';
-export { esquemaCriarPedido, esquemaValidarCarrinho } from './schema';
-export type { EntradaCriarPedido, EntradaValidarCarrinho } from './schema';
+export type {
+  EventoDePagamento,
+  PedidoLido,
+  RepositorioDePedidos,
+  SituacaoPagamento,
+} from './services/pedidos-repo';
+export { repositorioDeCobrancas } from './services/cobrancas-repo';
+export type {
+  CobrancaLida,
+  InstrumentoCobranca,
+  RepositorioDeCobrancas,
+  SituacaoCobranca,
+} from './services/cobrancas-repo';
+export { criarCobranca } from './services/criar-cobranca';
+export type {
+  CobrancaAberta,
+  DependenciasDaCobranca,
+  EntradaPagamento,
+  FalhaDaCobranca,
+  ResultadoDaCobranca,
+} from './services/criar-cobranca';
+export { esquemaCriarPagamento, esquemaCriarPedido, esquemaValidarCarrinho } from './schema';
+export type {
+  EntradaCriarPagamento,
+  EntradaCriarPedido,
+  EntradaValidarCarrinho,
+} from './schema';

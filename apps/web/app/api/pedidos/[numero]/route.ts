@@ -4,6 +4,7 @@ import { avaliarViabilidade, devolucaoPorCancelamento } from '@napo/core';
 
 import { carregarSnapshot } from '@/features/disponibilidade';
 import {
+  repositorioDeCobrancas,
   dependenciasDaConfirmacao,
   reconciliarPedido,
   repositorioDePedidos,
@@ -34,13 +35,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ num
     return NextResponse.json({ success: false, error: 'Pedido não encontrado.' }, { status: 404 });
   }
 
-  if (pedido.status !== 'aguardando_pagamento') {
+  // Só vale perguntar ao gateway enquanto o dinheiro não chegou (RN19).
+  if (pedido.situacaoPagamento === 'pago' || pedido.situacaoPagamento === 'estornado') {
     return NextResponse.json({ success: true, data: resumo(pedido) });
   }
 
   await reconciliarPedido(
     pedido,
-    dependenciasDaConfirmacao(repo, portaDePagamento(), {
+    dependenciasDaConfirmacao(repo, repositorioDeCobrancas(), portaDePagamento(), {
       carregarSnapshot,
       avaliarViabilidade,
       devolucaoPorCancelamento,

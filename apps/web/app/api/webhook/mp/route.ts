@@ -3,7 +3,12 @@ import { NextResponse } from 'next/server';
 import { avaliarViabilidade, devolucaoPorCancelamento } from '@napo/core';
 
 import { carregarSnapshot } from '@/features/disponibilidade';
-import { dependenciasDaConfirmacao, processarNotificacao, repositorioDePedidos } from '@/features/pedidos';
+import {
+  dependenciasDaConfirmacao,
+  processarNotificacao,
+  repositorioDeCobrancas,
+  repositorioDePedidos,
+} from '@/features/pedidos';
 import { portaDePagamento } from '@/lib/pagamentos/porta';
 
 export const dynamic = 'force-dynamic';
@@ -49,7 +54,7 @@ export async function POST(request: Request) {
 
     const { http, resultado } = await processarNotificacao(
       dataId,
-      dependenciasDaConfirmacao(repo, pagamento, {
+      dependenciasDaConfirmacao(repo, repositorioDeCobrancas(), pagamento, {
         carregarSnapshot,
         avaliarViabilidade,
         devolucaoPorCancelamento,

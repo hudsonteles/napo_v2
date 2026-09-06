@@ -5,13 +5,15 @@ import type { DiaSemana, Produto, Snapshot } from '@napo/core';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 /**
- * Espelha o `in` de `vagas_ocupadas` (migration 0014). Divergir daqui faz a
- * vitrine oferecer a vaga que o checkout recusa — ou o contrário.
+ * Espelha `vagas_ocupadas` (migration 0017). Divergir daqui faz a vitrine
+ * oferecer a vaga que o checkout recusa — ou o contrário.
  *
- * `aguardando_pagamento` fica de fora de propósito: a vaga dele já está contada
- * pela reserva que o sustenta (RN7).
+ * O critério deixou de ser uma lista de estados que ocupam e passou a ser o
+ * complemento: ocupa quem não foi encerrado, independente de pagamento (RN4).
+ * O desempate contra a reserva que sustenta o pedido é o vínculo
+ * `reservas.pedido_id`, não mais o status.
  */
-const STATUS_QUE_OCUPAM_VAGA = ['pago', 'em_producao', 'pronto', 'em_rota', 'entregue'] as const;
+const STATUS_ENCERRADOS = ['cancelado', 'expirado'] as const;
 
 /**
  * Monta o snapshot que alimenta o núcleo puro.
@@ -35,13 +37,16 @@ export async function carregarSnapshot(produtos: Produto[], agora = new Date()):
         .from('reservas')
         .select('dia_entrega, produto_id, quantidade')
         .eq('status', 'ativa')
+        // Reserva amarrada a pedido não conta sozinha: quem ocupa a vaga dela
+        // é o pedido. Sem este filtro, a mesma vaga entraria duas vezes.
+        .is('pedido_id', null)
         .gt('expira_em', agora.toISOString()),
       // O filtro fica na raiz porque `status` é coluna de `pedidos`: os itens
       // vêm pendurados, sem `!inner` e sem uma segunda ida ao banco.
       supabase
         .from('pedidos')
         .select('dia_entrega, pedido_itens(produto_id, quantidade)')
-        .in('status', [...STATUS_QUE_OCUPAM_VAGA]),
+        .not('status', 'in', `(${STATUS_ENCERRADOS.join(',')})`),
     ]);
 
   if (config.error) throw config.error;
@@ -82,7 +87,7 @@ export async function carregarSnapshot(produtos: Produto[], agora = new Date()):
       produtoId: p.produto_id,
       quantidade: p.quantidade,
     })),
-    // Reserva viva e pedido ativo ocupam a mesma vaga (RN12). O núcleo soma a
+    // Carrinho no ar e pedido não encerrado ocupam a mesma vaga (RN4). O núcleo soma a
     // lista inteira; o que decide o que entra aqui é a consulta.
     consumos: [
       ...(reservas.data ?? []).map((r) => ({

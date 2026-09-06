@@ -9,7 +9,17 @@ import { createSupabaseAdminClient } from '@/lib/supabase/admin';
  * **revogados** de `authenticated` (0013): uma política que deixasse o cliente
  * inserir daria isolamento correto e cobrança errada — ele escolheria o próprio
  * `total_centavos`. Pedido nasce e muda por servidor.
+ *
+ * A leitura passa por `pedidos_com_pagamento` porque a situação de pagamento é
+ * derivada das cobranças (RN2) e não existe como coluna.
  */
+
+export type SituacaoPagamento =
+  | 'sem_pagamento'
+  | 'aguardando'
+  | 'parcial'
+  | 'pago'
+  | 'estornado';
 
 export interface ItemReservado {
   id: string;
@@ -34,7 +44,12 @@ export interface PedidoParaGravar {
   freteCentavos: number;
   totalCentavos: number;
   expiraEm: string;
-  reservaId: string;
+  /**
+   * TODAS as reservas do carrinho, não só a primeira. É o vínculo que impede a
+   * contagem dupla em `vagas_ocupadas` (RN4): reserva amarrada a pedido deixa
+   * de contar sozinha, e um carrinho de três sabores tem três linhas.
+   */
+  reservaIds: string[];
   itens: ItemDoPedido[];
 }
 
@@ -47,10 +62,12 @@ export interface PedidoLido {
   id: string;
   numero: number;
   profileId: string;
+  /** Ciclo de entrega, não de dinheiro (RN3). */
   status: string;
+  situacaoPagamento: SituacaoPagamento;
   diaEntrega: string;
   totalCentavos: number;
-  mpPaymentId: string | null;
+  expiraEm: string;
   itens: { produtoId: string; quantidade: number }[];
 }
 
@@ -79,38 +96,37 @@ export interface RepositorioDePedidos {
     minutos: number;
   }): Promise<ItemReservado[] | null>;
   gravarPedido(pedido: PedidoParaGravar): Promise<PedidoGravado>;
-  registrarPreferencia(pedidoId: string, preferenciaId: string): Promise<void>;
   /** Compensação da RN13: some com o pedido e devolve a vaga na mesma requisição. */
   desfazerPedido(pedidoId: string, reservaIds: string[]): Promise<void>;
   lerPedido(pedidoId: string): Promise<PedidoLido | null>;
   lerPedidoPorNumero(numero: number): Promise<PedidoLido | null>;
-  /** `false` = já estava pago. É a resposta idempotente que o webhook precisa (RN9). */
+  /** `false` = a cobrança já estava aprovada. É a resposta idempotente do webhook (RN16). */
   confirmarPagamento(entrada: {
-    pedidoId: string;
+    cobrancaId: string;
     mpPaymentId: string;
     forma: string;
     veredito: 'viavel' | 'cutoff_vencido' | 'sem_vaga';
   }): Promise<boolean>;
-  marcarEstornado(pedidoId: string): Promise<void>;
-  /** `false` = já estava cancelado, expirado ou estornado. */
+  /** `false` = já estava cancelado ou expirado. */
   cancelarPedido(pedidoId: string, devolucao: 'capacidade' | 'lote'): Promise<boolean>;
   registrarEvento(evento: EventoDePagamento): Promise<void>;
-  /** Pedidos que passaram do prazo sem notificação (RN19). */
+  /** Pedidos que passaram do prazo sem que o dinheiro chegasse (RN19). */
   pedidosVencidos(): Promise<PedidoLido[]>;
   expirarPedidos(): Promise<number>;
 }
 
 const CAMPOS_PEDIDO =
-  'id, numero, profile_id, status, dia_entrega, total_centavos, mp_payment_id, pedido_itens(produto_id, quantidade)';
+  'id, numero, profile_id, status, situacao_pagamento, dia_entrega, total_centavos, expira_em, pedido_itens(produto_id, quantidade)';
 
 interface LinhaPedido {
   id: string;
   numero: number;
   profile_id: string;
   status: string;
+  situacao_pagamento: SituacaoPagamento;
   dia_entrega: string;
   total_centavos: number;
-  mp_payment_id: string | null;
+  expira_em: string;
   pedido_itens: { produto_id: string; quantidade: number }[];
 }
 
@@ -120,9 +136,10 @@ function paraPedido(linha: LinhaPedido): PedidoLido {
     numero: Number(linha.numero),
     profileId: linha.profile_id,
     status: linha.status,
+    situacaoPagamento: linha.situacao_pagamento,
     diaEntrega: linha.dia_entrega,
     totalCentavos: linha.total_centavos,
-    mpPaymentId: linha.mp_payment_id,
+    expiraEm: linha.expira_em,
     itens: linha.pedido_itens.map((item) => ({
       produtoId: item.produto_id,
       quantidade: item.quantidade,
@@ -172,7 +189,7 @@ export function repositorioDePedidos(): RepositorioDePedidos {
           frete_centavos: pedido.freteCentavos,
           total_centavos: pedido.totalCentavos,
           expira_em: pedido.expiraEm,
-          reserva_id: pedido.reservaId,
+          reserva_id: pedido.reservaIds[0],
         })
         .select('id, numero')
         .single();
@@ -191,16 +208,17 @@ export function repositorioDePedidos(): RepositorioDePedidos {
 
       if (itens.error) throw itens.error;
 
+      // O vínculo precisa existir antes de a próxima consulta de
+      // disponibilidade acontecer: entre o insert do pedido e este update, a
+      // vaga conta duas vezes.
+      const vinculo = await supabase
+        .from('reservas')
+        .update({ pedido_id: data.id })
+        .in('id', pedido.reservaIds);
+
+      if (vinculo.error) throw vinculo.error;
+
       return { id: data.id, numero: Number(data.numero) };
-    },
-
-    async registrarPreferencia(pedidoId, preferenciaId) {
-      const { error } = await supabase
-        .from('pedidos')
-        .update({ mp_preference_id: preferenciaId })
-        .eq('id', pedidoId);
-
-      if (error) throw error;
     },
 
     async desfazerPedido(pedidoId, reservaIds) {
@@ -213,7 +231,7 @@ export function repositorioDePedidos(): RepositorioDePedidos {
 
     async lerPedido(pedidoId) {
       const { data } = await supabase
-        .from('pedidos')
+        .from('pedidos_com_pagamento')
         .select(CAMPOS_PEDIDO)
         .eq('id', pedidoId)
         .maybeSingle();
@@ -223,7 +241,7 @@ export function repositorioDePedidos(): RepositorioDePedidos {
 
     async lerPedidoPorNumero(numero) {
       const { data } = await supabase
-        .from('pedidos')
+        .from('pedidos_com_pagamento')
         .select(CAMPOS_PEDIDO)
         .eq('numero', numero)
         .maybeSingle();
@@ -231,9 +249,9 @@ export function repositorioDePedidos(): RepositorioDePedidos {
       return data ? paraPedido(data as unknown as LinhaPedido) : null;
     },
 
-    async confirmarPagamento({ pedidoId, mpPaymentId, forma, veredito }) {
+    async confirmarPagamento({ cobrancaId, mpPaymentId, forma, veredito }) {
       const { data, error } = await supabase.rpc('confirmar_pagamento', {
-        p_pedido: pedidoId,
+        p_cobranca: cobrancaId,
         p_payment_id: mpPaymentId,
         p_forma: forma,
         p_veredito: veredito,
@@ -241,15 +259,6 @@ export function repositorioDePedidos(): RepositorioDePedidos {
 
       if (error) throw error;
       return data === true;
-    },
-
-    async marcarEstornado(pedidoId) {
-      const { error } = await supabase
-        .from('pedidos')
-        .update({ status: 'estornado' })
-        .eq('id', pedidoId);
-
-      if (error) throw error;
     },
 
     async cancelarPedido(pedidoId, devolucao) {
@@ -276,12 +285,17 @@ export function repositorioDePedidos(): RepositorioDePedidos {
 
     async pedidosVencidos() {
       const { data } = await supabase
-        .from('pedidos')
+        .from('pedidos_com_pagamento')
         .select(CAMPOS_PEDIDO)
-        .eq('status', 'aguardando_pagamento')
+        .eq('status', 'novo')
         .lte('expira_em', new Date().toISOString());
 
-      return ((data ?? []) as unknown as LinhaPedido[]).map(paraPedido);
+      // O filtro da situação fica aqui e não na consulta porque `aguardando`
+      // também é pedido a investigar: é o caso da RN19, em que a cobrança
+      // existe no gateway e a notificação nunca chegou.
+      return ((data ?? []) as unknown as LinhaPedido[])
+        .map(paraPedido)
+        .filter((pedido) => pedido.situacaoPagamento !== 'pago');
     },
 
     async expirarPedidos() {

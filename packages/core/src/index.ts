@@ -19,4 +19,5 @@ export * from './disponibilidade';
 export * from './entrega';
 export * from './frete';
 export * from './otp';
+export * from './pagamento';
 export * from './telefone';

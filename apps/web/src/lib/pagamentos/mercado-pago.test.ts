@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const criarPreferencia = vi.fn();
+const criarPagamento = vi.fn();
 const buscarPagamento = vi.fn();
+const procurarPagamento = vi.fn();
 
 vi.mock('mercadopago', () => ({
   MercadoPagoConfig: class {},
-  Preference: class {
-    create = criarPreferencia;
-  },
   Payment: class {
+    create = criarPagamento;
     get = buscarPagamento;
+    search = procurarPagamento;
   },
 }));
 
@@ -17,78 +17,157 @@ const { PagamentoMercadoPago } = await import('./mercado-pago');
 
 const CREDENCIAIS = { accessToken: 'token', webhookSecret: 'segredo' };
 
-const COBRANCA = {
-  referenciaExterna: 'pedido-1',
+const ENTRADA = {
+  cobrancaId: '7c0b0000-0000-0000-0000-000000000001',
   numeroPedido: 1042,
-  itens: [{ titulo: 'Calabresa', quantidade: 2, precoUnitarioCentavos: 6490 }],
-  freteCentavos: 1000,
-  urlRetorno: 'https://napobsb.com.br/pedido/1042',
+  valorCentavos: 13970,
+  descricao: 'Napo — pedido #1042',
+  token: 'tok-do-brick',
+  metodo: 'master',
+  parcelas: 1,
+  emailPagador: 'cliente@napo.test',
+  expiraEm: '2026-09-11T20:30:00.000-03:00',
 };
 
-describe('PagamentoMercadoPago', () => {
+/** Erro no formato que o SDK do Mercado Pago levanta. */
+function erroDoSdk(status: number) {
+  return Object.assign(new Error('erro do gateway'), { status });
+}
+
+describe('PagamentoMercadoPago.criarCobranca', () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it('manda o valor em reais e amarra a preferência ao pedido', async () => {
-    criarPreferencia.mockResolvedValueOnce({ id: 'pref-1', init_point: 'https://mp/pagar' });
+  it('manda o valor em reais e amarra a notificação à cobrança, não ao pedido', async () => {
+    criarPagamento.mockResolvedValueOnce({ id: 123, status: 'approved', status_detail: 'accredited' });
 
-    const cobranca = await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca(COBRANCA);
+    await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca(ENTRADA);
 
-    const [{ body }] = criarPreferencia.mock.calls[0] as [{ body: Record<string, unknown> }];
-    expect(body.external_reference).toBe('pedido-1');
-    expect(body.items).toEqual([
-      expect.objectContaining({ quantity: 2, unit_price: 64.9, currency_id: 'BRL' }),
-    ]);
-    expect(body.shipments).toEqual({ cost: 10, mode: 'not_specified' });
-    expect(cobranca).toEqual({ preferenciaId: 'pref-1', urlPagamento: 'https://mp/pagar' });
+    const [{ body }] = criarPagamento.mock.calls[0] as [{ body: Record<string, unknown> }];
+    expect(body.transaction_amount).toBe(139.7);
+    expect(body.external_reference).toBe(ENTRADA.cobrancaId);
+    expect(body.token).toBe('tok-do-brick');
+    expect(body.date_of_expiration).toBe(ENTRADA.expiraEm);
   });
 
-  it('preferência sem URL de pagamento é erro, não cobrança vazia', async () => {
-    criarPreferencia.mockResolvedValueOnce({ id: 'pref-1' });
+  it('T20/RN10 — envia a chave de idempotência derivada da cobrança', async () => {
+    criarPagamento.mockResolvedValueOnce({ id: 123, status: 'approved' });
 
-    await expect(new PagamentoMercadoPago(CREDENCIAIS).criarCobranca(COBRANCA)).rejects.toThrow(
-      /sem id ou sem URL/,
-    );
+    await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca(ENTRADA);
+
+    const [{ requestOptions }] = criarPagamento.mock.calls[0] as [
+      { requestOptions: { idempotencyKey: string } },
+    ];
+    expect(requestOptions.idempotencyKey).toBe(ENTRADA.cobrancaId);
   });
 
-  it('T27 — o status e o valor saem da consulta, em centavos', async () => {
-    buscarPagamento.mockResolvedValueOnce({
-      id: 123456,
+  it('devolve o QR quando o meio é Pix', async () => {
+    criarPagamento.mockResolvedValueOnce({
+      id: 9,
+      status: 'pending',
+      point_of_interaction: {
+        transaction_data: { qr_code: '00020126...BR', qr_code_base64: 'iVBORw0KGgo=' },
+      },
+    });
+
+    const criada = await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca({
+      ...ENTRADA,
+      metodo: 'pix',
+      token: undefined,
+    });
+
+    expect(criada.status).toBe('pendente');
+    expect(criada.pix).toEqual({ codigo: '00020126...BR', imagemBase64: 'iVBORw0KGgo=' });
+  });
+
+  it('guarda o motivo cru da recusa para auditoria, sem interpretá-lo', async () => {
+    criarPagamento.mockResolvedValueOnce({
+      id: 7,
       status: 'rejected',
-      transaction_amount: 135.7,
+      status_detail: 'cc_rejected_insufficient_amount',
+    });
+
+    const criada = await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca(ENTRADA);
+
+    expect(criada.status).toBe('recusado');
+    expect(criada.detalhe).toBe('cc_rejected_insufficient_amount');
+  });
+
+  it('status novo do gateway não confirma pedido por omissão', async () => {
+    criarPagamento.mockResolvedValueOnce({ id: 8, status: 'algo_que_o_mp_inventou' });
+
+    const criada = await new PagamentoMercadoPago(CREDENCIAIS).criarCobranca(ENTRADA);
+
+    expect(criada.status).toBe('pendente');
+  });
+});
+
+describe('PagamentoMercadoPago.consultarPagamento', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('T25/RN14 — pagamento que o gateway não conhece devolve nulo, não exceção', async () => {
+    // O SDK lança no 404. Deixar a exceção subir faz o webhook responder 500
+    // sem gravar linha nenhuma em `pagamento_eventos` — o defeito observado com
+    // o gateway real em 2026-09-05.
+    buscarPagamento.mockRejectedValueOnce(erroDoSdk(404));
+
+    const consultado = await new PagamentoMercadoPago(CREDENCIAIS).consultarPagamento('nao-existe');
+
+    expect(consultado).toBeNull();
+  });
+
+  it('RN14 — gateway fora do ar continua sendo erro, não "não encontrado"', async () => {
+    buscarPagamento.mockRejectedValueOnce(erroDoSdk(503));
+
+    await expect(
+      new PagamentoMercadoPago(CREDENCIAIS).consultarPagamento('qualquer'),
+    ).rejects.toThrow();
+  });
+
+  it('converte o valor para centavos e devolve o detalhe', async () => {
+    buscarPagamento.mockResolvedValueOnce({
+      id: 123,
+      status: 'approved',
+      status_detail: 'accredited',
+      transaction_amount: 139.7,
       payment_method_id: 'pix',
-      external_reference: 'pedido-1',
+      external_reference: ENTRADA.cobrancaId,
     });
 
-    const pagamento = await new PagamentoMercadoPago(CREDENCIAIS).consultarPagamento('123456');
+    const consultado = await new PagamentoMercadoPago(CREDENCIAIS).consultarPagamento('123');
 
-    expect(pagamento).toEqual({
-      id: '123456',
-      status: 'recusado',
-      valorCentavos: 13570,
+    expect(consultado).toEqual({
+      id: '123',
+      status: 'aprovado',
+      valorCentavos: 13970,
       forma: 'pix',
-      referenciaExterna: 'pedido-1',
+      detalhe: 'accredited',
+      referenciaExterna: ENTRADA.cobrancaId,
     });
   });
+});
 
-  it('status desconhecido não confirma pagamento', async () => {
-    buscarPagamento.mockResolvedValueOnce({ id: 1, status: 'status_que_ainda_nao_existe' });
+describe('PagamentoMercadoPago.buscarPagamentoDaReferencia', () => {
+  beforeEach(() => vi.clearAllMocks());
 
-    const pagamento = await new PagamentoMercadoPago(CREDENCIAIS).consultarPagamento('1');
+  it('RN19 — procura pela referência da cobrança', async () => {
+    procurarPagamento.mockResolvedValueOnce({
+      results: [{ id: 55, status: 'approved', transaction_amount: 10, external_reference: 'c-1' }],
+    });
 
-    expect(pagamento?.status).toBe('pendente');
+    const achado = await new PagamentoMercadoPago(CREDENCIAIS).buscarPagamentoDaReferencia('c-1');
+
+    const [{ options }] = procurarPagamento.mock.calls[0] as [
+      { options: { external_reference: string } },
+    ];
+    expect(options.external_reference).toBe('c-1');
+    expect(achado?.id).toBe('55');
   });
 
-  it('estorno e chargeback chegam como estornado (RN14)', async () => {
-    for (const status of ['refunded', 'charged_back']) {
-      buscarPagamento.mockResolvedValueOnce({ id: 1, status, transaction_amount: 10 });
-      const pagamento = await new PagamentoMercadoPago(CREDENCIAIS).consultarPagamento('1');
-      expect(pagamento?.status).toBe('estornado');
-    }
-  });
+  it('RN14 — referência desconhecida devolve nulo mesmo quando o SDK lança', async () => {
+    procurarPagamento.mockRejectedValueOnce(erroDoSdk(404));
 
-  it('pagamento inexistente devolve null', async () => {
-    buscarPagamento.mockResolvedValueOnce(null);
-
-    expect(await new PagamentoMercadoPago(CREDENCIAIS).consultarPagamento('999')).toBeNull();
+    expect(
+      await new PagamentoMercadoPago(CREDENCIAIS).buscarPagamentoDaReferencia('c-2'),
+    ).toBeNull();
   });
 });

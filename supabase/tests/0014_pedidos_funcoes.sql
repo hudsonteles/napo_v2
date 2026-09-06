@@ -35,16 +35,16 @@ select is(public.vagas_ocupadas(:dia, :produto), 2,
   'T33 — reserva viva sozinha conta (comportamento que já existia no NAPO-004)');
 
 insert into public.pedidos
-  (id, profile_id, status, dia_entrega, endereco_snapshot, subtotal_centavos, frete_centavos, total_centavos, expira_em, mp_payment_id, pago_em)
+  (id, profile_id, status, dia_entrega, endereco_snapshot, subtotal_centavos, frete_centavos, total_centavos, expira_em)
 values
-  ('70ed0000-0000-0000-0000-000000000001', '70000000-0000-0000-0000-000000000001', 'pago',
-   :dia, '{}'::jsonb, 11970, 600, 12570, now() + interval '30 min', 'mp-pago-1', now());
+  ('70ed0000-0000-0000-0000-000000000001', '70000000-0000-0000-0000-000000000001', 'novo',
+   :dia, '{}'::jsonb, 11970, 600, 12570, now() + interval '30 min');
 
 insert into public.pedido_itens (pedido_id, produto_id, nome_snapshot, quantidade, preco_unitario_snapshot)
 values ('70ed0000-0000-0000-0000-000000000001', :produto, 'Calabresa', 3, 3990);
 
 select is(public.vagas_ocupadas(:dia, :produto), 5,
-  'T33 — reserva viva (2) + pedido pago (3) = 5 vagas ocupadas');
+  'T33 — carrinho no ar (2) + pedido vivo (3) = 5 vagas ocupadas');
 
 select is(public.vagas_ocupadas(:dia, :outro), 0,
   'T33 — a contagem é por produto: outro sabor não é afetado');
@@ -77,19 +77,20 @@ values
 select is(public.vagas_ocupadas('2030-09-20', :produto), 0,
   'T34 — pedido expirado e cancelado não ocupam vaga');
 
--- Pedido aguardando pagamento também não conta: quem segura a vaga dele é a
--- reserva. Contar os dois seria cobrar a mesma vaga duas vezes do estoque.
+-- INVERTIDO no NAPO-025 (RN4): pedido recém-criado passa a ocupar vaga. O
+-- desempate contra a reserva que o sustenta deixou de ser o status e virou o
+-- vínculo `reservas.pedido_id` — provado em 0017_pedido_eixo_entrega.sql.
 insert into public.pedidos
   (id, profile_id, status, dia_entrega, endereco_snapshot, subtotal_centavos, frete_centavos, total_centavos, expira_em)
 values
-  ('70ed0000-0000-0000-0000-000000000004', '70000000-0000-0000-0000-000000000001', 'aguardando_pagamento',
+  ('70ed0000-0000-0000-0000-000000000004', '70000000-0000-0000-0000-000000000001', 'novo',
    '2030-09-20', '{}'::jsonb, 3990, 600, 4590, now() + interval '30 min');
 
 insert into public.pedido_itens (pedido_id, produto_id, nome_snapshot, quantidade, preco_unitario_snapshot)
 values ('70ed0000-0000-0000-0000-000000000004', :produto, 'Calabresa', 9, 3990);
 
-select is(public.vagas_ocupadas('2030-09-20', :produto), 0,
-  'T34 — pedido aguardando pagamento não conta: quem segura a vaga é a reserva dele');
+select is(public.vagas_ocupadas('2030-09-20', :produto), 9,
+  'T34/RN4 — pedido novo sem cobrança nenhuma ocupa vaga: capacidade não pergunta por dinheiro');
 
 -- Estados que ocupam de verdade (a pizza existe ou vai existir).
 update public.pedidos set status = 'em_producao' where id = '70ed0000-0000-0000-0000-000000000004';
@@ -100,9 +101,9 @@ update public.pedidos set status = 'entregue' where id = '70ed0000-0000-0000-000
 select is(public.vagas_ocupadas('2030-09-20', :produto), 9,
   'T34 — entregue ocupa: a pizza saiu daquela fornada');
 
-update public.pedidos set status = 'estornado' where id = '70ed0000-0000-0000-0000-000000000004';
+update public.pedidos set status = 'cancelado' where id = '70ed0000-0000-0000-0000-000000000004';
 select is(public.vagas_ocupadas('2030-09-20', :produto), 0,
-  'T34 — estornado devolve a vaga');
+  'T34/RN4 — encerrado devolve a vaga; estorno agora chega aqui como cancelamento');
 
 -- ═════════════════════════════════════════════════════════════════════════════
 -- reservar_carrinho — tudo ou nada, sob um lock só (RN7)
@@ -162,12 +163,15 @@ select is(public.vagas_ocupadas('2030-09-27', :produto), 2,
 insert into public.pedidos
   (id, profile_id, status, dia_entrega, endereco_snapshot, subtotal_centavos, frete_centavos, total_centavos, expira_em)
 values
-  ('70ed0000-0000-0000-0000-000000000005', '70000000-0000-0000-0000-000000000001', 'aguardando_pagamento',
+  ('70ed0000-0000-0000-0000-000000000005', '70000000-0000-0000-0000-000000000001', 'novo',
    '2026-10-02', '{}'::jsonb, 7980, 600, 8580, now() + interval '30 min');
 
-insert into public.reservas (id, profile_id, dia_entrega, produto_id, quantidade, expira_em, status)
+-- A reserva nasce amarrada ao pedido (NAPO-025): é o vínculo que impede a
+-- contagem dupla, e não mais o fato de o pedido estar fora da soma.
+insert into public.reservas (id, profile_id, dia_entrega, produto_id, quantidade, expira_em, status, pedido_id)
 values ('7e5e0000-0000-0000-0000-000000000001', '70000000-0000-0000-0000-000000000001',
-        '2026-10-02', :produto, 2, now() + interval '30 min', 'ativa');
+        '2026-10-02', :produto, 2, now() + interval '30 min', 'ativa',
+        '70ed0000-0000-0000-0000-000000000005');
 
 update public.pedidos set reserva_id = '7e5e0000-0000-0000-0000-000000000001'
   where id = '70ed0000-0000-0000-0000-000000000005';
@@ -175,16 +179,20 @@ update public.pedidos set reserva_id = '7e5e0000-0000-0000-0000-000000000001'
 insert into public.pedido_itens (pedido_id, produto_id, nome_snapshot, quantidade, preco_unitario_snapshot)
 values ('70ed0000-0000-0000-0000-000000000005', :produto, 'Calabresa', 2, 3990);
 
+insert into public.cobrancas (id, pedido_id, instrumento, valor_centavos, situacao, expira_em)
+values ('7c0b0000-0000-0000-0000-000000000001', '70ed0000-0000-0000-0000-000000000005',
+        'online', 8580, 'pendente', now() + interval '30 min');
+
 select is(
-  public.confirmar_pagamento('70ed0000-0000-0000-0000-000000000005', 'mp-conf-1', 'pix', 'viavel'),
+  public.confirmar_pagamento('7c0b0000-0000-0000-0000-000000000001', 'mp-conf-1', 'pix', 'viavel'),
   true,
-  'confirmar_pagamento confirma o pedido e devolve true'
+  'confirmar_pagamento aprova a cobrança e devolve true'
 );
 
 select is(
-  (select status::text from public.pedidos where id = '70ed0000-0000-0000-0000-000000000005'),
+  public.situacao_pagamento('70ed0000-0000-0000-0000-000000000005')::text,
   'pago',
-  'T9 — o pedido fica pago com o identificador do pagamento'
+  'T9/RN2 — o pedido passa a estar pago pela derivação, sem ninguém escrever nele'
 );
 
 select is(
@@ -197,9 +205,9 @@ select is(public.vagas_ocupadas('2026-10-02', :produto), 2,
   'T9/RN12 — a vaga continua ocupada depois de a reserva ser consumida');
 
 select is(
-  public.confirmar_pagamento('70ed0000-0000-0000-0000-000000000005', 'mp-conf-1', 'pix', 'viavel'),
+  public.confirmar_pagamento('7c0b0000-0000-0000-0000-000000000001', 'mp-conf-1', 'pix', 'viavel'),
   false,
-  'T7/RN9 — confirmar de novo devolve false sem reprocessar'
+  'T7/RN16 — confirmar de novo devolve false sem reprocessar'
 );
 
 -- ═════════════════════════════════════════════════════════════════════════════
@@ -217,11 +225,18 @@ select is(public.vagas_ocupadas('2026-10-02', :produto), 0,
 -- T15 — pedido vencido expira e libera a reserva.
 insert into public.pedidos
   (id, profile_id, status, dia_entrega, endereco_snapshot, subtotal_centavos, frete_centavos, total_centavos, expira_em, reserva_id)
-select '70ed0000-0000-0000-0000-000000000006', '70000000-0000-0000-0000-000000000001', 'aguardando_pagamento',
+select '70ed0000-0000-0000-0000-000000000006', '70000000-0000-0000-0000-000000000001', 'novo',
        '2026-10-09', '{}'::jsonb, 3990, 600, 4590, now() - interval '1 min', r.id
 from public.reservas r
 where r.dia_entrega = '2030-09-27' and r.produto_id = :produto
 limit 1;
+
+-- O vínculo que a varredura usa para devolver a vaga é `reservas.pedido_id`,
+-- não `pedidos.reserva_id` — este último guarda só a primeira reserva de um
+-- carrinho de vários produtos e por isso não serve de chave (NAPO-025).
+update public.reservas set pedido_id = '70ed0000-0000-0000-0000-000000000006'
+where id = (select reserva_id from public.pedidos
+            where id = '70ed0000-0000-0000-0000-000000000006');
 
 -- A varredura é global, mas a asserção não pode ser: banco de desenvolvimento
 -- acumula pedido vencido de uso real, e afirmar "expirou exatamente 1" só passa
@@ -230,8 +245,10 @@ limit 1;
 -- não é varrido junto — sem depender do estado da máquina.
 create temporary table t15_vencidos on commit drop as
 select count(*)::int as total
-from public.pedidos
-where status = 'aguardando_pagamento' and expira_em <= now();
+from public.pedidos p
+where p.status = 'novo'
+  and p.expira_em <= now()
+  and public.situacao_pagamento(p.id) = 'sem_pagamento';
 
 select is(public.expirar_pedidos(), (select total from t15_vencidos),
   'T15 — a varredura expira os pedidos vencidos, e nenhum dentro do prazo');

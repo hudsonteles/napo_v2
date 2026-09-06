@@ -10,6 +10,7 @@ vi.mock('@/lib/guarda-api', () => ({
 vi.mock('@/lib/pagamentos/porta', () => ({ portaDePagamento: () => ({}) }));
 vi.mock('@/features/disponibilidade', () => ({ carregarSnapshot: vi.fn() }));
 vi.mock('@/features/pedidos', () => ({
+  repositorioDeCobrancas: () => ({}),
   reconciliarPedido: (...args: unknown[]) => reconciliarPedido(...args),
   dependenciasDaConfirmacao: () => ({}),
   repositorioDePedidos: () => ({ lerPedidoPorNumero }),
@@ -56,7 +57,10 @@ describe('GET /api/pedidos/[numero]', () => {
   });
 
   it('pedido já resolvido não gasta uma consulta ao gateway', async () => {
-    lerPedidoPorNumero.mockResolvedValue({ ...AGUARDANDO, status: 'entregue' });
+    // O critério deixou de ser o status e passou a ser a situação derivada: um
+    // pedido `entregue` continua sendo pedido pago, e perguntar ao gateway de
+    // novo é aquecer servidor à toa.
+    lerPedidoPorNumero.mockResolvedValue({ ...AGUARDANDO, situacaoPagamento: 'pago' });
 
     const resposta = await GET(requisicao(), PARAMS);
 

@@ -16,6 +16,7 @@ vi.mock('@/lib/pagamentos/porta', () => ({
 vi.mock('@/features/disponibilidade', () => ({ carregarSnapshot: vi.fn() }));
 
 vi.mock('@/features/pedidos', () => ({
+  repositorioDeCobrancas: () => ({}),
   processarNotificacao: (...args: unknown[]) => processarNotificacao(...args),
   dependenciasDaConfirmacao: () => ({}),
   repositorioDePedidos: () => ({ registrarEvento }),

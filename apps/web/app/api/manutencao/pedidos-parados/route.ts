@@ -4,6 +4,7 @@ import { avaliarViabilidade, devolucaoPorCancelamento } from '@napo/core';
 
 import { carregarSnapshot } from '@/features/disponibilidade';
 import {
+  repositorioDeCobrancas,
   dependenciasDaConfirmacao,
   reconciliarPedido,
   repositorioDePedidos,
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   const repo = repositorioDePedidos();
-  const deps = dependenciasDaConfirmacao(repo, portaDePagamento(), {
+  const deps = dependenciasDaConfirmacao(repo, repositorioDeCobrancas(), portaDePagamento(), {
     carregarSnapshot,
     avaliarViabilidade,
     devolucaoPorCancelamento,

@@ -41,3 +41,24 @@ export const esquemaValidarCarrinho = z
   .strict();
 
 export type EntradaValidarCarrinho = z.infer<typeof esquemaValidarCarrinho>;
+
+/**
+ * Entrada do Payment Brick (RN9).
+ *
+ * `.strict()` aqui vale mais do que em qualquer outro schema do projeto: é o
+ * que faz número, validade e código de segurança serem **recusados** se algum
+ * dia caírem no corpo por engano. O que trafega é o token que o SDK gerou no
+ * navegador — dado de cartão não passa pelo nosso servidor, nem em log.
+ */
+export const esquemaCriarPagamento = z
+  .object({
+    pedidoId: z.string().uuid(),
+    /** Ausente no Pix, que não tokeniza nada. */
+    token: z.string().min(1).optional(),
+    metodo: z.string().min(1),
+    parcelas: z.number().int().positive().max(12),
+    emailPagador: z.string().email(),
+  })
+  .strict();
+
+export type EntradaCriarPagamento = z.infer<typeof esquemaCriarPagamento>;

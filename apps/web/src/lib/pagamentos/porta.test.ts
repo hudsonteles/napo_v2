@@ -5,19 +5,19 @@ const getPagamentoEnv = vi.fn();
 vi.mock('@/lib/env', () => ({ getPagamentoEnv: () => getPagamentoEnv() }));
 vi.mock('mercadopago', () => ({
   MercadoPagoConfig: class {},
-  Preference: class {},
   Payment: class {},
 }));
 
 const COBRANCA = {
-  referenciaExterna: 'pedido-1',
+  cobrancaId: 'c0b-1',
   numeroPedido: 1042,
-  itens: [
-    { titulo: 'Calabresa', quantidade: 2, precoUnitarioCentavos: 6490 },
-    { titulo: 'Margherita', quantidade: 1, precoUnitarioCentavos: 5990 },
-  ],
-  freteCentavos: 1000,
-  urlRetorno: 'https://napobsb.com.br/pedido/1042',
+  valorCentavos: 19970,
+  descricao: 'Napo — pedido #1042',
+  token: 'tok',
+  metodo: 'master',
+  parcelas: 1,
+  emailPagador: 'cliente@napo.test',
+  expiraEm: '2026-09-11T20:30:00.000-03:00',
 };
 
 async function carregarPorta(provider: string) {
@@ -26,6 +26,7 @@ async function carregarPorta(provider: string) {
     PAGAMENTO_PROVIDER: provider,
     MP_ACCESS_TOKEN: 'token',
     MP_WEBHOOK_SECRET: 'segredo',
+    NEXT_PUBLIC_MP_PUBLIC_KEY: 'chave-publica',
   });
   const { portaDePagamento } = await import('./porta');
   return portaDePagamento();
@@ -48,48 +49,56 @@ describe('portaDePagamento', () => {
 });
 
 describe('PagamentoFake', () => {
-  it('devolve o total cobrado, para a conferência de valor ter o que conferir (RN10)', async () => {
+  it('devolve o valor cobrado, para a conferência de valor ter o que conferir (RN17)', async () => {
     const porta = await carregarPorta('fake');
-    const cobranca = await porta.criarCobranca(COBRANCA);
-    const idPagamento = new URL(cobranca.urlPagamento).searchParams.get('pagamento_falso');
+    const { idPagamento } = await porta.criarCobranca(COBRANCA);
 
-    const pagamento = await porta.consultarPagamento(idPagamento as string);
-
-    // 2 × 64,90 + 59,90 + 10,00 de frete.
-    expect(pagamento).toEqual({
+    expect(await porta.consultarPagamento(idPagamento)).toEqual({
       id: idPagamento,
       status: 'aprovado',
       valorCentavos: 19970,
-      forma: 'pix',
-      referenciaExterna: 'pedido-1',
+      forma: 'master',
+      detalhe: 'accredited',
+      referenciaExterna: 'c0b-1',
     });
   });
 
-  it('o retorno leva de volta ao pedido, sem exigir túnel', async () => {
+  it('o método escolhe o desfecho, para recusa e pendência serem exercitáveis sem túnel', async () => {
     const porta = await carregarPorta('fake');
 
-    const { urlPagamento } = await porta.criarCobranca(COBRANCA);
+    const recusada = await porta.criarCobranca({ ...COBRANCA, cobrancaId: 'c0b-2', metodo: 'recusar' });
+    expect(recusada.status).toBe('recusado');
+    expect(recusada.detalhe).toBe('cc_rejected_insufficient_amount');
 
-    expect(urlPagamento).toContain('https://napobsb.com.br/pedido/1042');
+    const pendente = await porta.criarCobranca({ ...COBRANCA, cobrancaId: 'c0b-3', metodo: 'pendente' });
+    expect(pendente.status).toBe('pendente');
+    expect((await porta.consultarPagamento(pendente.idPagamento))?.status).toBe('pendente');
+  });
+
+  it('RN11 — o Pix devolve o código que a nossa tela desenha', async () => {
+    const porta = await carregarPorta('fake');
+
+    const { pix } = await porta.criarCobranca({ ...COBRANCA, cobrancaId: 'c0b-4', metodo: 'pix' });
+
+    expect(pix?.codigo).toContain('c0b-4');
   });
 
   it('a cobrança de uma instância é encontrada por outra', async () => {
     // Cada Route Handler do Next é um bundle próprio: quem cria a cobrança
-    // (`POST /api/pedidos`) não é a mesma instância que a consulta
+    // (`POST /api/pagamentos`) não é a mesma instância que a consulta
     // (`GET /api/pedidos/[numero]`). Com o registro preso ao módulo, o pedido
     // ficava eternamente "confirmando".
     const { PagamentoFake } = await import('./fake');
     const criador = new PagamentoFake();
     const consultor = new PagamentoFake();
 
-    const { urlPagamento } = await criador.criarCobranca(COBRANCA);
-    const idPagamento = new URL(urlPagamento).searchParams.get('pagamento_falso') as string;
+    const { idPagamento } = await criador.criarCobranca({ ...COBRANCA, cobrancaId: 'c0b-5' });
 
     expect(await consultor.consultarPagamento(idPagamento)).toMatchObject({
       status: 'aprovado',
       valorCentavos: 19970,
     });
-    expect(await consultor.buscarPagamentoDaReferencia('pedido-1')).toMatchObject({
+    expect(await consultor.buscarPagamentoDaReferencia('c0b-5')).toMatchObject({
       id: idPagamento,
     });
   });

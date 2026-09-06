@@ -31,6 +31,13 @@ const publicSchema = z.object({
     .enum(['true', 'false'])
     .default('false')
     .transform((valor) => valor === 'true'),
+  // Chave pública do Mercado Pago: o Payment Brick tokeniza o cartão no
+  // navegador com ela (ADR-0001). Pública por construção — quem protege é o
+  // access token do servidor, que nunca sai daqui. Vazia onde o provider é
+  // `fake`: sem ela a tela oferece o painel de simulação, não o Brick
+  // (ARCHITECTURE §2.2.3 — caminho que depende de configuração externa só
+  // aparece onde a configuração existe).
+  NEXT_PUBLIC_MP_PUBLIC_KEY: z.string().default(''),
 });
 
 const publicParsed = publicSchema.safeParse({
@@ -39,6 +46,7 @@ const publicParsed = publicSchema.safeParse({
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_BROWSER_KEY,
   NEXT_PUBLIC_AUTH_GOOGLE: process.env.NEXT_PUBLIC_AUTH_GOOGLE,
+  NEXT_PUBLIC_MP_PUBLIC_KEY: process.env.NEXT_PUBLIC_MP_PUBLIC_KEY,
 });
 
 if (!publicParsed.success) {
@@ -152,6 +160,9 @@ const pagamentoSchema = z
     PAGAMENTO_PROVIDER: z.enum(['fake', 'mercado_pago']).default('fake'),
     MP_ACCESS_TOKEN: z.string().min(1).optional(),
     MP_WEBHOOK_SECRET: z.string().min(1).optional(),
+    // Pública, mas validada aqui: sem ela o Brick não monta, e descobrir isso
+    // no primeiro cliente que tenta pagar é tarde demais.
+    NEXT_PUBLIC_MP_PUBLIC_KEY: z.string().min(1).optional(),
     // Autoriza a varredura de pedidos parados (RN13, RN19). Quem chama é
     // agendador, não pessoa — por isso segredo em header e não sessão.
     MANUTENCAO_SECRET: z.string().min(1).optional(),
@@ -161,7 +172,11 @@ const pagamentoSchema = z
   .superRefine((valores, ctx) => {
     if (valores.PAGAMENTO_PROVIDER !== 'mercado_pago') return;
 
-    for (const chave of ['MP_ACCESS_TOKEN', 'MP_WEBHOOK_SECRET'] as const) {
+    for (const chave of [
+      'MP_ACCESS_TOKEN',
+      'MP_WEBHOOK_SECRET',
+      'NEXT_PUBLIC_MP_PUBLIC_KEY',
+    ] as const) {
       if (!valores[chave]) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -183,6 +198,7 @@ export function getPagamentoEnv(): PagamentoEnv {
     PAGAMENTO_PROVIDER: process.env.PAGAMENTO_PROVIDER,
     MP_ACCESS_TOKEN: process.env.MP_ACCESS_TOKEN,
     MP_WEBHOOK_SECRET: process.env.MP_WEBHOOK_SECRET,
+    NEXT_PUBLIC_MP_PUBLIC_KEY: process.env.NEXT_PUBLIC_MP_PUBLIC_KEY,
     MANUTENCAO_SECRET: process.env.MANUTENCAO_SECRET,
   });
 

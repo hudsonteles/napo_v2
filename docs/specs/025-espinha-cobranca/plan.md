@@ -29,18 +29,18 @@ TypeScript strict · Next.js 15 App Router (monorepo pnpm) · Supabase (Postgres
 Arquivos: `supabase/migrations/0016_cobrancas.sql`, `supabase/tests/0016_cobrancas.sql` · Testes: T4, T5–T9, T16, T33 · Depende: — · Paralelo: C · Est: 75min · Agente: inline · `[x]` concluído
 
 ### Bloco B — Schema: eixo de entrega e `vagas_ocupadas`
-Arquivos: `supabase/migrations/0017_pedido_eixo_entrega.sql`, `supabase/tests/0014_pedidos_funcoes.sql`, `supabase/tests/0013_pedidos_rls.sql` · Testes: T3, T11, T12, T13 · Depende: A · Est: 90min · Agente: inline · `[ ]`
+Arquivos: `supabase/migrations/0017_pedido_eixo_entrega.sql`, `supabase/tests/0014_pedidos_funcoes.sql`, `supabase/tests/0013_pedidos_rls.sql` · Testes: T3, T11, T12, T13 · Depende: A · Est: 90min · Agente: inline · `[x]` concluído — **fundido com C, D e E: ver decisão de execução**
 > **Bloco de maior risco da spec.** `vagas_ocupadas` é lida pela vitrine inteira. pgTAP verde antes de qualquer código de aplicação.
 
 ### Bloco C — Porta, adaptador e famílias de recusa
-Arquivos: `packages/core/src/pagamento/recusa.ts`, `packages/core/src/index.ts`, `apps/web/src/lib/pagamentos/{porta,mercado-pago,fake}.ts`, `apps/web/src/lib/env.ts`, `.env.example` · Testes: T14, T20, T24, T25 · Depende: — · Paralelo: A · Est: 75min · Agente: inline · `[ ]`
+Arquivos: `packages/core/src/pagamento/recusa.ts`, `packages/core/src/index.ts`, `apps/web/src/lib/pagamentos/{porta,mercado-pago,fake}.ts`, `apps/web/src/lib/env.ts`, `.env.example` · Testes: T14, T20, T24, T25 · Depende: — · Paralelo: A · Est: 75min · Agente: inline · `[x]` concluído
 > Aqui mora a correção da RN14 — o 404 que hoje sobe como exceção.
 
 ### Bloco D — Repositórios e serviços de cobrança
-Arquivos: `features/pedidos/services/{cobrancas-repo,criar-cobranca,criar-pedido,confirmar-pagamento,pedidos-repo,dependencias}.ts`, `features/pedidos/{schema,index}.ts` · Testes: T1, T2, T10, T15, T17, T19, T21, T23, T26–T31, T34, T35 · Depende: A, B, C · Est: 90min · Agente: inline · `[ ]`
+Arquivos: `features/pedidos/services/{cobrancas-repo,criar-cobranca,criar-pedido,confirmar-pagamento,pedidos-repo,dependencias}.ts`, `features/pedidos/{schema,index}.ts` · Testes: T1, T2, T10, T15, T17, T19, T21, T23, T26–T31, T34, T35 · Depende: A, B, C · Est: 90min · Agente: inline · `[x]` concluído
 
 ### Bloco E — Rotas de API
-Arquivos: `app/api/pedidos/route.ts`, `app/api/pagamentos/route.ts`, `app/api/pedidos/[numero]/route.ts`, `app/api/webhook/mp/route.ts`, `app/api/manutencao/pedidos-parados/route.ts` · Testes: T17, T18, T27, T32, T36 · Depende: D · Est: 60min · Agente: inline · `[ ]`
+Arquivos: `app/api/pedidos/route.ts`, `app/api/pagamentos/route.ts`, `app/api/pedidos/[numero]/route.ts`, `app/api/webhook/mp/route.ts`, `app/api/manutencao/pedidos-parados/route.ts` · Testes: T17, T18, T27, T32, T36 · Depende: D · Est: 60min · Agente: inline · `[x]` concluído
 
 ### Bloco F — Componentes novos do catálogo
 Arquivos: `packages/ui/src/components/contagem-regressiva.tsx`, `features/pedidos/components/brick-pagamento.tsx` · Testes: T22, T36 · Depende: E · Est: 60min · Agente: inline · `[ ]`
@@ -88,3 +88,9 @@ B depende de A (mesma tabela)
 - **Backfill do Bloco A verificado com dado real, não com fixture.** Os 3 pedidos de 04/09 preservados no pré-flight serviram de evidência: o pago virou cobrança `online`/`aprovada` com o mesmo `mp_payment_id` e deriva `pago`; os 2 pendentes derivam `sem_pagamento`, porque nunca houve tentativa. T4 é verificação de migração, não cenário permanente — depois da 0017 não existe mais coluna com que comparar.
 - **`packages/db/src/types.generated.ts` regenerado nos blocos de schema.** É consequência mecânica da migration que o Mapa autoriza, não escopo novo.
 - **⚠️ `pnpm db:types` é perigoso e foi contornado.** Chama `supabase` direto em vez do wrapper `scripts/supabase.mjs`, então falha por variável de ambiente ausente — e o `>` já truncou o arquivo antes disso. Recuperado com `git checkout`. Contornado gerando em arquivo temporário e copiando por cima. Correção proposta ao PM no checkpoint do Bloco B (fora do Mapa: `package.json`).
+- **⚠️ O Bloco B não fecha sozinho — falha de planejamento minha.** A 0017 derruba as colunas de pagamento e troca o enum de `status`; a aplicação para de compilar na hora (5 erros em `pedidos-repo.ts` e `snapshot.ts`). Migration de contract e camada de dados são atômicas: commitar B isolado violaria a regra de nunca commitar com gate vermelho. pgTAP já está verde (145/145) e a 0017 está aplicada no banco local. Decisão levada ao PM no checkpoint.
+- **Blocos B, C, D e E viraram um commit só, por acoplamento real.** Derrubar as colunas e trocar o enum quebra a compilação da aplicação; alinhar a camada de dados exige a porta nova; e as rotas consomem os serviços. Qualquer corte menor deixaria um commit com gate vermelho. O PM aprovou a fusão no checkpoint; C entrou junto por ser pré-requisito mecânico do D.
+- **`reservas.pedido_id` passa a ser o vínculo autoritativo.** `pedidos.reserva_id` guarda só a primeira reserva de um carrinho de vários produtos e por isso não serve de chave. `gravarPedido` amarra todas; `vagas_ocupadas` e `snapshot.ts` desempatam por ele. Sem isso a mesma vaga contaria duas vezes.
+- **`snapshot.ts` entrou no Mapa de Impacto.** Não estava previsto, mas é o gêmeo em TypeScript de `vagas_ocupadas` — o próprio arquivo declara que divergir faz a vitrine oferecer a vaga que o checkout recusa. Mudou junto, com o mesmo critério.
+- **Aprovação síncrona do gateway não confirma o pedido.** `criar-cobranca` grava o rastro e devolve `aguardando`; quem aprova a cobrança é o webhook ou a consulta ativa da RN19. É a leitura literal da RN6, e mantém um caminho de confirmação só.
+- **Os dois cenários de "gateway indisponível" mudaram de arquivo e de decisão.** Saíram de `criar-pedido` (onde a vaga voltava na hora) para `criar-cobranca`, onde a vaga **não** volta: lá o cliente já tinha ido embora, aqui ele está na tela com o cartão na mão.

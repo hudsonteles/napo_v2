@@ -735,14 +735,10 @@ export type Database = {
           endereco_id: string | null
           endereco_snapshot: Json
           expira_em: string
-          forma_pagamento: string | null
           frete_centavos: number
           id: string
           momento_pagamento: Database["public"]["Enums"]["momento_pagamento"]
-          mp_payment_id: string | null
-          mp_preference_id: string | null
           numero: number
-          pago_em: string | null
           profile_id: string
           reserva_id: string | null
           status: Database["public"]["Enums"]["status_pedido"]
@@ -759,14 +755,10 @@ export type Database = {
           endereco_id?: string | null
           endereco_snapshot: Json
           expira_em: string
-          forma_pagamento?: string | null
           frete_centavos: number
           id?: string
           momento_pagamento?: Database["public"]["Enums"]["momento_pagamento"]
-          mp_payment_id?: string | null
-          mp_preference_id?: string | null
           numero?: number
-          pago_em?: string | null
           profile_id: string
           reserva_id?: string | null
           status?: Database["public"]["Enums"]["status_pedido"]
@@ -783,14 +775,10 @@ export type Database = {
           endereco_id?: string | null
           endereco_snapshot?: Json
           expira_em?: string
-          forma_pagamento?: string | null
           frete_centavos?: number
           id?: string
           momento_pagamento?: Database["public"]["Enums"]["momento_pagamento"]
-          mp_payment_id?: string | null
-          mp_preference_id?: string | null
           numero?: number
-          pago_em?: string | null
           profile_id?: string
           reserva_id?: string | null
           status?: Database["public"]["Enums"]["status_pedido"]
@@ -1128,16 +1116,12 @@ export type Database = {
           endereco_id: string | null
           endereco_snapshot: Json | null
           expira_em: string | null
-          forma_pagamento: string | null
           frete_centavos: number | null
           id: string | null
           momento_pagamento:
             | Database["public"]["Enums"]["momento_pagamento"]
             | null
-          mp_payment_id: string | null
-          mp_preference_id: string | null
           numero: number | null
-          pago_em: string | null
           profile_id: string | null
           reserva_id: string | null
           situacao_pagamento:
@@ -1159,16 +1143,12 @@ export type Database = {
           endereco_id?: string | null
           endereco_snapshot?: Json | null
           expira_em?: string | null
-          forma_pagamento?: string | null
           frete_centavos?: number | null
           id?: string | null
           momento_pagamento?:
             | Database["public"]["Enums"]["momento_pagamento"]
             | null
-          mp_payment_id?: string | null
-          mp_preference_id?: string | null
           numero?: number | null
-          pago_em?: string | null
           profile_id?: string | null
           reserva_id?: string | null
           situacao_pagamento?: never
@@ -1188,16 +1168,12 @@ export type Database = {
           endereco_id?: string | null
           endereco_snapshot?: Json | null
           expira_em?: string | null
-          forma_pagamento?: string | null
           frete_centavos?: number | null
           id?: string | null
           momento_pagamento?:
             | Database["public"]["Enums"]["momento_pagamento"]
             | null
-          mp_payment_id?: string | null
-          mp_preference_id?: string | null
           numero?: number | null
-          pago_em?: string | null
           profile_id?: string | null
           reserva_id?: string | null
           situacao_pagamento?: never
@@ -1242,7 +1218,7 @@ export type Database = {
       }
       confirmar_pagamento: {
         Args: {
-          p_pedido: string
+          p_cobranca: string
           p_payment_id: string
           p_forma: string
           p_veredito: Database["public"]["Enums"]["veredito_viabilidade"]
@@ -1368,15 +1344,13 @@ export type Database = {
         | "pago"
         | "estornado"
       status_pedido:
-        | "aguardando_pagamento"
-        | "pago"
-        | "expirado"
+        | "novo"
         | "em_producao"
         | "pronto"
         | "em_rota"
         | "entregue"
         | "cancelado"
-        | "estornado"
+        | "expirado"
       status_reserva: "ativa" | "consumida" | "expirada" | "cancelada"
       tipo_consentimento: "termos" | "privacidade" | "marketing"
       tipo_excecao_area: "bloqueio" | "liberacao"

@@ -58,12 +58,10 @@ function repositorio(parcial: Partial<RepositorioDePedidos> = {}): RepositorioDe
         expira_em: '2026-08-20T12:30:00Z',
       })),
     gravarPedido: async () => ({ id: 'pedido-1', numero: 1042 }),
-    registrarPreferencia: async () => {},
     desfazerPedido: async () => {},
     lerPedido: async () => null,
     lerPedidoPorNumero: async () => null,
     confirmarPagamento: async () => true,
-    marcarEstornado: async () => {},
     cancelarPedido: async () => true,
     registrarEvento: async () => {},
     pedidosVencidos: async () => [],
@@ -72,23 +70,10 @@ function repositorio(parcial: Partial<RepositorioDePedidos> = {}): RepositorioDe
   };
 }
 
-const COBRANCA_OK = { preferenciaId: 'pref-1', urlPagamento: 'https://mp/pagar' };
-
-function pagamento(criarCobranca = vi.fn().mockResolvedValue(COBRANCA_OK)) {
-  return {
-    criarCobranca,
-    consultarPagamento: vi.fn(),
-    buscarPagamentoDaReferencia: vi.fn(),
-    verificarAssinatura: vi.fn(),
-  };
-}
-
 function dependencias(parcial: Partial<DependenciasDoPedido> = {}): DependenciasDoPedido {
   return {
     fontes: fontes(),
     repo: repositorio(),
-    pagamento: pagamento(),
-    urlRetorno: (numero) => `https://napobsb.com.br/pedido/${numero}`,
     ...parcial,
   };
 }
@@ -124,7 +109,7 @@ describe('criarPedido', () => {
     );
   });
 
-  it('T5 — a reserva nasce antes da cobrança, com o prazo do pagamento', async () => {
+  it('T5/RN7 — a reserva nasce antes do pedido, com o prazo do pagamento', async () => {
     const ordem: string[] = [];
     const reservarCarrinho = vi.fn(async () => {
       ordem.push('reserva');
@@ -137,27 +122,30 @@ describe('criarPedido', () => {
         },
       ];
     });
-    const criarCobranca = vi.fn(async () => {
-      ordem.push('cobranca');
-      return { preferenciaId: 'pref-1', urlPagamento: 'https://mp/pagar' };
+    const gravarPedido = vi.fn(async () => {
+      ordem.push('pedido');
+      return { id: 'pedido-1', numero: 1042 };
     });
-    const gravarPedido = vi.fn().mockResolvedValue({ id: 'pedido-1', numero: 1042 });
 
-    await criarPedido(
-      ENTRADA,
-      PERFIL,
-      dependencias({
-        repo: repositorio({ reservarCarrinho, gravarPedido }),
-        pagamento: pagamento(criarCobranca),
-      }),
-    );
+    await criarPedido(ENTRADA, PERFIL, dependencias({
+      repo: repositorio({ reservarCarrinho, gravarPedido }),
+    }));
 
-    expect(ordem).toEqual(['reserva', 'cobranca']);
+    expect(ordem).toEqual(['reserva', 'pedido']);
     expect(reservarCarrinho).toHaveBeenCalledWith(expect.objectContaining({ minutos: 30 }));
-    // O pedido vence junto com a reserva que o sustenta.
+    // O pedido vence junto com a reserva que o sustenta, e TODAS as reservas do
+    // carrinho ficam amarradas a ele — é o vínculo que impede a contagem dupla.
     expect(gravarPedido).toHaveBeenCalledWith(
-      expect.objectContaining({ expiraEm: '2026-08-20T12:30:00Z', reservaId: 'reserva-0' }),
+      expect.objectContaining({ expiraEm: '2026-08-20T12:30:00Z', reservaIds: ['reserva-0'] }),
     );
+  });
+
+  it('RN8 — criar o pedido não toca o gateway: cobrar é a próxima tela', async () => {
+    const resultado = await criarPedido(ENTRADA, PERFIL, dependencias());
+
+    expect(resultado).toMatchObject({ ok: true });
+    // Nenhuma URL de terceiro sai daqui: o cliente não vai a lugar nenhum.
+    expect(JSON.stringify(resultado)).not.toMatch(/https?:\/\//);
   });
 
   it('T14 — preço divergente bloqueia sem reservar nem gravar', async () => {
@@ -259,47 +247,9 @@ describe('criarPedido', () => {
     expect(reservarCarrinho).not.toHaveBeenCalled();
   });
 
-  it('T37 — gateway indisponível devolve a vaga na mesma requisição', async () => {
-    const desfazerPedido = vi.fn();
-    const criarCobranca = vi.fn().mockRejectedValue(new Error('mercado pago fora do ar'));
-
-    const resultado = await criarPedido(
-      ENTRADA,
-      PERFIL,
-      dependencias({
-        repo: repositorio({ desfazerPedido }),
-        pagamento: pagamento(criarCobranca),
-      }),
-    );
-
-    expect(resultado).toEqual({
-      ok: false,
-      falha: { motivo: 'gateway_indisponivel', status: 503 },
-    });
-    expect(desfazerPedido).toHaveBeenCalledWith('pedido-1', ['reserva-0']);
-  });
-
-  it('T37 — todas as reservas do carrinho voltam, não só a gravada no pedido', async () => {
-    const desfazerPedido = vi.fn();
-    const criarCobranca = vi.fn().mockRejectedValue(new Error('mercado pago fora do ar'));
-
-    await criarPedido(
-      {
-        ...ENTRADA,
-        itens: [
-          { produtoId: CALABRESA, quantidade: 2, precoVistoCentavos: 3990 },
-          { produtoId: MARGHERITA, quantidade: 1, precoVistoCentavos: 5990 },
-        ],
-      },
-      PERFIL,
-      dependencias({
-        repo: repositorio({ desfazerPedido }),
-        pagamento: pagamento(criarCobranca),
-      }),
-    );
-
-    expect(desfazerPedido).toHaveBeenCalledWith('pedido-1', ['reserva-0', 'reserva-1']);
-  });
+  // Os dois cenários de gateway fora do ar saíram daqui no NAPO-025: não há
+  // mais gateway nesta requisição. Eles vivem em criar-cobranca.test.ts, e lá a
+  // decisão é outra — a vaga NÃO volta, porque o cliente está na tela.
 
   it('o limite mandado ao banco é o teto do dia, com as vagas já ocupadas somadas', async () => {
     const reservarCarrinho = vi.fn().mockResolvedValue([
@@ -356,23 +306,8 @@ describe('criarPedido', () => {
         numero: 1042,
         diaEntrega: DIA,
         totalCentavos: 8580,
-        urlPagamento: 'https://mp/pagar',
+        expiraEm: '2026-08-20T12:30:00Z',
       },
     });
-  });
-
-  it('a cobrança carrega o id do pedido como referência externa', async () => {
-    const criarCobranca = vi.fn().mockResolvedValue(COBRANCA_OK);
-
-    await criarPedido(ENTRADA, PERFIL, dependencias({ pagamento: pagamento(criarCobranca) }));
-
-    expect(criarCobranca).toHaveBeenCalledWith(
-      expect.objectContaining({
-        referenciaExterna: 'pedido-1',
-        numeroPedido: 1042,
-        freteCentavos: 600,
-        urlRetorno: 'https://napobsb.com.br/pedido/1042',
-      }),
-    );
   });
 });

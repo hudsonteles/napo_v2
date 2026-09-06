@@ -6,7 +6,7 @@
 -- e muda por servidor; (4) que o número é único, sequencial e não reciclado.
 -- ─────────────────────────────────────────────────────────────────────────────
 begin;
-select plan(18);
+select plan(16);
 
 -- ── Fixtures (como superusuário) ────────────────────────────────────────────
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
@@ -77,14 +77,6 @@ select throws_ok(
 );
 
 select throws_ok(
-  $$insert into public.pedidos (profile_id, status, dia_entrega, endereco_snapshot, subtotal_centavos, frete_centavos, total_centavos, expira_em)
-    values ('60000000-0000-0000-0000-000000000001', 'pago', current_date + 3, '{}'::jsonb, 3990, 600, 4590, now())$$,
-  '23514',
-  null,
-  'pedido pago sem identificador de pagamento é recusado (sem prova de pagamento)'
-);
-
-select throws_ok(
   $$insert into public.pedido_itens (pedido_id, produto_id, nome_snapshot, quantidade, preco_unitario_snapshot)
     values ('60ed0000-0000-0000-0000-000000000001', 'dddddddd-0000-0000-0000-000000000002', 'Calabresa', 1, 3990)$$,
   '23505',
@@ -92,18 +84,9 @@ select throws_ok(
   'o mesmo produto duas vezes no mesmo pedido é recusado: quantidade é campo, não linha repetida'
 );
 
--- Idempotência do webhook garantida pelo índice, não pela aplicação (RN9).
-update public.pedidos
-  set status = 'pago', mp_payment_id = 'mp-1', pago_em = now()
-  where id = '60ed0000-0000-0000-0000-000000000001';
-
-select throws_ok(
-  $$update public.pedidos set status = 'pago', mp_payment_id = 'mp-1', pago_em = now()
-    where id = '60ed0000-0000-0000-0000-000000000003'$$,
-  '23505',
-  null,
-  'T35/RN9 — o mesmo mp_payment_id não confirma dois pedidos'
-);
+-- Prova de pagamento e idempotência do webhook saíram daqui no NAPO-025: o
+-- identificador do gateway é da cobrança, não do pedido. As duas asserções
+-- vivem em 0016_cobrancas.sql, sobre a tabela que passou a guardar o rastro.
 
 -- ── T23 — cliente A não lê pedido de B (RN17) ───────────────────────────────
 set local role authenticated;
@@ -129,7 +112,7 @@ select is(
 
 -- ── T22 — nem o dono escreve: pedido nasce e muda por servidor (RN17) ───────
 select throws_ok(
-  $$update public.pedidos set status = 'pago' where profile_id = auth.uid()$$,
+  $$update public.pedidos set status = 'em_producao' where profile_id = auth.uid()$$,
   '42501',
   null,
   'T22 — o dono não altera o status do próprio pedido'

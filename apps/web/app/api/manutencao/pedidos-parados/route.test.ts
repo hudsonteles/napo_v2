@@ -9,6 +9,7 @@ vi.mock('@/lib/env', () => ({ getPagamentoEnv: () => getPagamentoEnv() }));
 vi.mock('@/lib/pagamentos/porta', () => ({ portaDePagamento: () => ({}) }));
 vi.mock('@/features/disponibilidade', () => ({ carregarSnapshot: vi.fn() }));
 vi.mock('@/features/pedidos', () => ({
+  repositorioDeCobrancas: () => ({}),
   reconciliarPedido: (...args: unknown[]) => reconciliarPedido(...args),
   dependenciasDaConfirmacao: () => ({}),
   repositorioDePedidos: () => ({ pedidosVencidos, expirarPedidos }),

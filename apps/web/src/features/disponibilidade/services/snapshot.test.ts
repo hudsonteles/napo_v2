@@ -15,6 +15,8 @@ interface Builder {
   eq: (coluna: string, valor: unknown) => Builder;
   gt: (coluna: string, valor: unknown) => Builder;
   in: (coluna: string, valor: unknown) => Builder;
+  is: (coluna: string, valor: unknown) => Builder;
+  not: (coluna: string, operador: string, valor: unknown) => Builder;
   limit: (n: number) => Builder;
   single: () => Promise<unknown>;
   then: (resolver: (r: unknown) => unknown) => Promise<unknown>;
@@ -53,6 +55,11 @@ vi.mock('@/lib/supabase/admin', () => ({
         eq: registrar('eq'),
         gt: registrar('gt'),
         in: registrar('in'),
+        is: registrar('is'),
+        not: (coluna: string, operador: string, valor: unknown) => {
+          consulta.filtros.push({ operador: `not.${operador}`, coluna, valor });
+          return builder;
+        },
         limit: () => builder,
         single: async () => ({ data: CONFIG, error: null }),
         then: (resolver) =>
@@ -95,21 +102,29 @@ describe('carregarSnapshot — consumos (RN12)', () => {
     expect(somaConsumos(snapshot.consumos)).toBe(5);
   });
 
-  it('T34 — só os status que consomem a fornada são lidos do banco', async () => {
+  it('T34/RN4 — o filtro é o complemento: ocupa quem não foi encerrado', async () => {
     await carregarSnapshot([{ id: PRODUTO, ehMassa: false }], AGORA);
 
     const status = consultaDe('pedidos').filtros.find((f) => f.coluna === 'status');
 
-    // `aguardando_pagamento` fica de fora porque a reserva que o sustenta já
-    // conta a vaga; expirado, cancelado e estornado devolvem.
+    // Espelha `vagas_ocupadas` (0017): pagamento saiu do critério, e só
+    // cancelado e expirado devolvem a vaga.
     expect(status).toEqual({
-      operador: 'in',
+      operador: 'not.in',
       coluna: 'status',
-      valor: ['pago', 'em_producao', 'pronto', 'em_rota', 'entregue'],
+      valor: '(cancelado,expirado)',
     });
   });
 
-  it('T9 — reserva consumida sai da conta, o pedido pago responde pela vaga', async () => {
+  it('RN4 — reserva amarrada a pedido não é lida: quem ocupa a vaga é o pedido', async () => {
+    await carregarSnapshot([{ id: PRODUTO, ehMassa: false }], AGORA);
+
+    const vinculo = consultaDe('reservas').filtros.find((f) => f.coluna === 'pedido_id');
+
+    expect(vinculo).toEqual({ operador: 'is', coluna: 'pedido_id', valor: null });
+  });
+
+  it('T9 — reserva consumida sai da conta, o pedido responde pela vaga', async () => {
     linhas.reservas = [];
     linhas.pedidos = [
       { dia_entrega: DIA, pedido_itens: [{ produto_id: PRODUTO, quantidade: 3 }] },
@@ -121,6 +136,7 @@ describe('carregarSnapshot — consumos (RN12)', () => {
     // A reserva consumida nem chega ao snapshot: a leitura pede `ativa` e ainda viva.
     expect(consultaDe('reservas').filtros).toEqual([
       { operador: 'eq', coluna: 'status', valor: 'ativa' },
+      { operador: 'is', coluna: 'pedido_id', valor: null },
       { operador: 'gt', coluna: 'expira_em', valor: AGORA.toISOString() },
     ]);
   });

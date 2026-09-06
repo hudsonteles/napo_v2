@@ -4,26 +4,32 @@ import type { Devolucao, Veredito } from '@napo/core';
 
 import type { PagamentoConsultado, PortaPagamento } from '@/lib/pagamentos/porta';
 
+import type { CobrancaLida, RepositorioDeCobrancas } from './cobrancas-repo';
 import type { EventoDePagamento, PedidoLido, RepositorioDePedidos } from './pedidos-repo';
 
 /**
- * O ponto onde o dinheiro vira pedido (RN8, RN9, RN10, RN11).
+ * O ponto onde o dinheiro vira pedido (RN6, RN15, RN16, RN17, RN18).
  *
  * Nada aqui confia no corpo da notificação além do id: o status e o valor vêm
  * de consulta ao gateway, e o valor é conferido contra o total do pedido. Uma
  * notificação forjada com valor alto não confirma nada.
+ *
+ * O que mudou no NAPO-025: a referência externa é da **cobrança**, não do
+ * pedido. A notificação diz qual tentativa foi paga — com a referência
+ * apontando para o pedido, duas tentativas chegariam indistinguíveis.
  */
 
 export interface DependenciasDaConfirmacao {
   pagamento: PortaPagamento;
   repo: RepositorioDePedidos;
+  cobrancas: RepositorioDeCobrancas;
   /**
-   * O veredito da RN11, decidido em `packages/core` e passado pronto ao banco.
+   * O veredito da RN18, decidido em `packages/core` e passado pronto ao banco.
    * Chega injetado porque depende do motor de disponibilidade, que é outra
    * feature (ARCHITECTURE §3.2).
    */
   veredito(pedido: PedidoLido): Promise<Veredito>;
-  /** O que volta ao motor num estorno: vaga de forno antes do cutoff, lote depois (RN14). */
+  /** O que volta ao motor num estorno: vaga de forno antes do cutoff, lote depois (RN19). */
   devolucao(pedido: PedidoLido): Promise<Devolucao>;
 }
 
@@ -67,9 +73,10 @@ export async function processarNotificacao(
     return { http: 200, resultado: 'pedido_desconhecido' };
   }
 
-  const pedido = await deps.repo.lerPedido(pagamento.referenciaExterna);
+  const cobranca = await deps.cobrancas.ler(pagamento.referenciaExterna);
+  const pedido = cobranca ? await deps.repo.lerPedido(cobranca.pedidoId) : null;
 
-  if (!pedido) {
+  if (!cobranca || !pedido) {
     await deps.repo.registrarEvento({
       pedidoId: null,
       mpPaymentId: pagamento.id,
@@ -77,40 +84,43 @@ export async function processarNotificacao(
       detalhe: pagamento.referenciaExterna,
       corpo,
     });
-    // 200: reenviar não faz o pedido existir.
+    // 200: reenviar não faz a cobrança existir.
     return { http: 200, resultado: 'pedido_desconhecido' };
   }
 
-  return aplicarPagamento(pedido, pagamento, deps, corpo);
+  return aplicarPagamento(pedido, cobranca, pagamento, deps, corpo);
 }
 
 /**
  * Caminho da RN19: a notificação nunca chegou, e quem pergunta é a tela do
- * pedido ou a varredura. O pagamento é procurado pela referência, porque do
- * nosso lado só existe o id do pedido.
+ * pedido ou a varredura. O pagamento é procurado pela referência da cobrança,
+ * porque do nosso lado só existe o id dela.
  */
 export async function reconciliarPedido(
   pedido: PedidoLido,
   deps: DependenciasDaConfirmacao,
 ): Promise<RespostaDaConfirmacao> {
-  const pagamento = await deps.pagamento.buscarPagamentoDaReferencia(pedido.id);
+  const cobranca = await deps.cobrancas.pendenteDoPedido(pedido.id);
+  if (!cobranca) return { http: 200, resultado: 'pagamento_nao_aprovado' };
 
+  const pagamento = await deps.pagamento.buscarPagamentoDaReferencia(cobranca.id);
   if (!pagamento) return { http: 200, resultado: 'pagamento_nao_aprovado' };
 
-  return aplicarPagamento(pedido, pagamento, deps);
+  return aplicarPagamento(pedido, cobranca, pagamento, deps);
 }
 
 async function aplicarPagamento(
   pedido: PedidoLido,
+  cobranca: CobrancaLida,
   pagamento: PagamentoConsultado,
   deps: DependenciasDaConfirmacao,
   corpo?: unknown,
 ): Promise<RespostaDaConfirmacao> {
-  if (pagamento.status === 'estornado') return estornar(pedido, pagamento, deps, corpo);
+  if (pagamento.status === 'estornado') return estornar(pedido, cobranca, pagamento, deps, corpo);
 
-  if (pedido.status === 'pago') {
-    // O pedido já está resolvido: registra a passagem e não toca em nada. É a
-    // idempotência da RN9 pelo caminho limpo — o índice único é a garantia dura.
+  if (cobranca.situacao === 'aprovada') {
+    // A cobrança já está resolvida: registra a passagem e não toca em nada. É a
+    // idempotência da RN16 pelo caminho limpo — o índice único é a garantia dura.
     await deps.repo.registrarEvento({
       pedidoId: pedido.id,
       mpPaymentId: pagamento.id,
@@ -143,12 +153,12 @@ async function aplicarPagamento(
     return { http: 200, resultado: 'valor_divergente' };
   }
 
-  // Dinheiro que entrou nunca é recusado (RN11): dia inviável nasce pago, com o
+  // Dinheiro que entrou nunca é recusado (RN18): dia inviável nasce pago, com o
   // veredito gravado e alerta para o admin resolver com uma ligação.
   const veredito = await deps.veredito(pedido);
 
   const confirmou = await deps.repo.confirmarPagamento({
-    pedidoId: pedido.id,
+    cobrancaId: cobranca.id,
     mpPaymentId: pagamento.id,
     forma: pagamento.forma,
     veredito,
@@ -167,11 +177,12 @@ async function aplicarPagamento(
 
 async function estornar(
   pedido: PedidoLido,
+  cobranca: CobrancaLida,
   pagamento: PagamentoConsultado,
   deps: DependenciasDaConfirmacao,
   corpo?: unknown,
 ): Promise<RespostaDaConfirmacao> {
-  if (pedido.status === 'estornado') {
+  if (cobranca.situacao === 'estornada') {
     await deps.repo.registrarEvento({
       pedidoId: pedido.id,
       mpPaymentId: pagamento.id,
@@ -183,10 +194,13 @@ async function estornar(
 
   const devolucao = await deps.devolucao(pedido);
 
-  await deps.repo.marcarEstornado(pedido.id);
+  await deps.cobrancas.mudarSituacao({ cobrancaId: cobranca.id, situacao: 'estornada' });
+  // No eixo de entrega, estorno é encerramento: o pedido some da fornada e a
+  // vaga volta (RN3, RN19).
+  await deps.repo.cancelarPedido(pedido.id, devolucao);
 
   // O que volta é vaga de forno ou lote pronto, e quem recoloca o lote em
-  // estoque é o NAPO-008 (RN14). Aqui fica o registro de qual dos dois é.
+  // estoque é o NAPO-008 (RN19). Aqui fica o registro de qual dos dois é.
   await deps.repo.registrarEvento({
     pedidoId: pedido.id,
     mpPaymentId: pagamento.id,

@@ -4,6 +4,7 @@ import type { Devolucao, Snapshot, Veredito } from '@napo/core';
 
 import type { PortaPagamento } from '@/lib/pagamentos/porta';
 
+import type { RepositorioDeCobrancas } from './cobrancas-repo';
 import type { DependenciasDaConfirmacao } from './confirmar-pagamento';
 import type { PedidoLido, RepositorioDePedidos } from './pedidos-repo';
 
@@ -26,6 +27,7 @@ export interface FerramentasDeViabilidade {
 
 export function dependenciasDaConfirmacao(
   repo: RepositorioDePedidos,
+  cobrancas: RepositorioDeCobrancas,
   pagamento: PortaPagamento,
   ferramentas: FerramentasDeViabilidade,
 ): DependenciasDaConfirmacao {
@@ -37,6 +39,7 @@ export function dependenciasDaConfirmacao(
   return {
     pagamento,
     repo,
+    cobrancas,
 
     async veredito(pedido) {
       const snapshot = await snapshotDoPedido(pedido);

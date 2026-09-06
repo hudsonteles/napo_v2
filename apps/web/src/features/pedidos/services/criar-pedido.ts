@@ -14,17 +14,17 @@ import {
   type Snapshot,
 } from '@napo/core';
 
-import type { PortaPagamento } from '@/lib/pagamentos/porta';
-
 import type { EntradaCriarPedido } from '../schema';
 import type { RepositorioDePedidos } from './pedidos-repo';
 
 /**
- * A ordem é a decisão (design §3.2): revalida → reserva → grava → cobra.
+ * A ordem é a decisão: revalida → reserva → grava. E **para aí**.
  *
- * A reserva vem antes da cobrança porque vaga vendida duas vezes é pior que
- * cobrança não criada (RN7); a preferência vem por último porque é o único
- * passo irreversível fora do nosso banco.
+ * A reserva vem antes de qualquer cobrança porque vaga vendida duas vezes é
+ * pior que cobrança não criada (RN7). O que mudou no NAPO-025 é que o gateway
+ * saiu desta requisição: o cliente reserva aqui e paga na tela seguinte, onde o
+ * Brick vive. Uma requisição que reserva **e** cobra deixaria o cliente com o
+ * cartão na mão esperando o terceiro responder.
  *
  * As fontes chegam injetadas porque catálogo, disponibilidade e endereços são
  * outras features — feature não importa de feature (ARCHITECTURE §3.2). Quem
@@ -58,9 +58,6 @@ export interface FontesDoPedido {
 export interface DependenciasDoPedido {
   fontes: FontesDoPedido;
   repo: RepositorioDePedidos;
-  pagamento: PortaPagamento;
-  /** Para onde o gateway devolve o cliente depois de pagar. */
-  urlRetorno(numero: number): string;
 }
 
 export type FalhaDoPedido =
@@ -68,15 +65,15 @@ export type FalhaDoPedido =
   | { motivo: 'preco_mudou'; status: 409; divergencias: DivergenciaPreco[] }
   | { motivo: 'sem_vaga'; status: 409; ajustes?: CarrinhoAjustado['ajustes'] }
   | { motivo: 'endereco_desconhecido'; status: 404 }
-  | { motivo: 'fora_de_area'; status: 422; detalhe: string | null }
-  | { motivo: 'gateway_indisponivel'; status: 503 };
+  | { motivo: 'fora_de_area'; status: 422; detalhe: string | null };
 
 export interface PedidoCriado {
   pedidoId: string;
   numero: number;
   diaEntrega: string;
   totalCentavos: number;
-  urlPagamento: string;
+  /** O cronômetro da tela de pagamento sai daqui (RN11). */
+  expiraEm: string;
 }
 
 export type ResultadoCriacao =
@@ -86,7 +83,7 @@ export type ResultadoCriacao =
 export async function criarPedido(
   entrada: EntradaCriarPedido,
   profileId: string,
-  { fontes, repo, pagamento, urlRetorno }: DependenciasDoPedido,
+  { fontes, repo }: DependenciasDoPedido,
 ): Promise<ResultadoCriacao> {
   const itens = normalizarItens(entrada.itens);
   const precos = await fontes.precos(itens.map((item) => item.produtoId));
@@ -196,9 +193,9 @@ export async function criarPedido(
     subtotalCentavos: totais.subtotalCentavos,
     freteCentavos: frete.freteCentavos,
     totalCentavos: totais.totalCentavos ?? 0,
-    // O mesmo instante da reserva: cobrança e vaga vencem juntas (RN7).
+    // O mesmo instante da reserva: cobrança e vaga vencem juntas (RN11).
     expiraEm: primeira.expira_em,
-    reservaId: primeira.id,
+    reservaIds: reservas.map((reserva) => reserva.id),
     itens: precificados.map((item) => ({
       produtoId: item.produtoId,
       nome: item.nome,
@@ -207,40 +204,16 @@ export async function criarPedido(
     })),
   });
 
-  try {
-    const cobranca = await pagamento.criarCobranca({
-      referenciaExterna: pedido.id,
-      numeroPedido: pedido.numero,
-      itens: precificados.map((item) => ({
-        titulo: item.nome,
-        quantidade: item.quantidade,
-        precoUnitarioCentavos: item.precoUnitarioCentavos,
-      })),
-      freteCentavos: frete.freteCentavos,
-      urlRetorno: urlRetorno(pedido.numero),
-    });
-
-    await repo.registrarPreferencia(pedido.id, cobranca.preferenciaId);
-
-    return {
-      ok: true,
-      pedido: {
-        pedidoId: pedido.id,
-        numero: pedido.numero,
-        diaEntrega: dia.data,
-        totalCentavos: totais.totalCentavos ?? 0,
-        urlPagamento: cobranca.urlPagamento,
-      },
-    };
-  } catch {
-    // Gateway fora do ar não pode prender a fornada por trinta minutos: a vaga
-    // volta na mesma requisição (T37).
-    await repo.desfazerPedido(
-      pedido.id,
-      reservas.map((reserva) => reserva.id),
-    );
-    return falhar({ motivo: 'gateway_indisponivel', status: 503 });
-  }
+  return {
+    ok: true,
+    pedido: {
+      pedidoId: pedido.id,
+      numero: pedido.numero,
+      diaEntrega: dia.data,
+      totalCentavos: totais.totalCentavos ?? 0,
+      expiraEm: primeira.expira_em,
+    },
+  };
 }
 
 function ocupadas(consumos: Snapshot['consumos'], dia: string, produtoId: string): number {

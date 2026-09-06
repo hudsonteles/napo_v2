@@ -7,16 +7,16 @@ import { carregarSnapshot } from '@/features/disponibilidade';
 import { calcularFreteDoEndereco, listarEnderecos } from '@/features/enderecos';
 import { criarPedido, esquemaCriarPedido, repositorioDePedidos } from '@/features/pedidos';
 import type { FontesDoPedido } from '@/features/pedidos';
-import { publicEnv } from '@/lib/env';
 import { exigirClienteValidado } from '@/lib/guarda-api';
-import { portaDePagamento } from '@/lib/pagamentos/porta';
 
 export const dynamic = 'force-dynamic';
 
 /**
- * Um endpoint para revalidar, reservar, gravar e cobrar (design §3.2): são
- * quatro passos que só têm sentido juntos, e expor cada um deixaria o cliente
- * parar no meio com uma vaga reservada e nenhum pedido dono dela.
+ * Um endpoint para revalidar, reservar e gravar: três passos que só têm sentido
+ * juntos, e expor cada um deixaria o cliente parar no meio com uma vaga
+ * reservada e nenhum pedido dono dela. **Cobrar é a próxima tela** (NAPO-025):
+ * o gateway saiu daqui para o cliente não esperar o terceiro com o cartão na
+ * mão antes de ter vaga garantida.
  *
  * A composição das fontes mora **aqui**, e não no serviço: catálogo,
  * disponibilidade e endereços são features distintas, e só a camada `app` pode
@@ -74,8 +74,6 @@ export async function POST(request: Request) {
   const resultado = await criarPedido(corpo.data, guarda.perfil.id, {
     fontes: fontesDoPedido(),
     repo: repositorioDePedidos(),
-    pagamento: portaDePagamento(),
-    urlRetorno: (numero) => `${publicEnv.NEXT_PUBLIC_SITE_URL}/pedido/${numero}`,
   });
 
   if (!resultado.ok) {
