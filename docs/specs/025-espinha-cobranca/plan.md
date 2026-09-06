@@ -51,7 +51,7 @@ Arquivos: `app/(loja)/checkout/page.tsx`, `app/(loja)/pedido/[numero]/pagar/page
 > Ambiente real aberto **antes** de declarar verde (postmortem 2026-08-18). Aprovação explícita do PM.
 
 ### Bloco H — RN20: os seis caminhos no Mercado Pago real
-Arquivos: nenhum de produto — evidência registrada em `tests.md` §F · Testes: T37 · Depende: G · Est: 60min · Agente: inline · `[ ]`
+Arquivos: nenhum de produto — evidência registrada em `tests.md` §F · Testes: T37 · Depende: G · Est: 60min · Agente: inline · `[~]` **2 de 6 caminhos fechados; 4 dependem de credencial de test user**
 > **Depende de insumo do PM:** `MP_ACCESS_TOKEN` e `NEXT_PUBLIC_MP_PUBLIC_KEY` de teste + túnel `cloudflared` de pé. A URL do túnel grátis muda a cada execução e precisa ser espelhada em `DEV_TUNNEL_HOST`.
 
 ---

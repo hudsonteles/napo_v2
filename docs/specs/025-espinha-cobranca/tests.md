@@ -346,14 +346,35 @@ E nenhuma chamada ao SDK do Mercado Pago é feita
 ### T37 — Os seis caminhos
 *Cobre: RN20*
 
-| # | Caminho | Evidência a registrar |
-|---|---|---|
-| 1 | Pix aprovado | `mp_payment_id` + evento `confirmado` + situação derivada `pago` |
-| 2 | Cartão de crédito aprovado | idem, com a forma gravada na cobrança |
-| 3 | Cartão recusado | cobrança `recusada` + família de motivo exibida na tela |
-| 4 | Pix pendente que expira | cobrança `expirada` no mesmo instante da reserva + vaga devolvida |
-| 5 | Notificação duplicada | segundo evento `duplicado`, uma só cobrança aprovada |
-| 6 | Assinatura inválida | 401 + evento `assinatura_invalida`, nada tocado |
+**Execução em 2026-09-06**, contra a conta NAPOBSB com credenciais `TEST-`, pelo túnel
+`attribute-screen-none-cards.trycloudflare.com`, com `PAGAMENTO_PROVIDER=mercado_pago`.
+
+| # | Caminho | Estado | Evidência |
+|---|---|---|---|
+| 1 | Pix aprovado | ⏳ **bloqueado** | ver nota abaixo |
+| 2 | Cartão aprovado | ⏳ **bloqueado** | 4 tentativas, todas em `pending_contingency` |
+| 3 | Cartão recusado | ⏳ **bloqueado** | idem — a simulação por nome do titular não vale nesta conta |
+| 4 | Pix pendente | ✅ | pagamento `1328075818`, `pending_waiting_transfer`, **QR devolvido**; evento `pagamento_nao_aprovado` |
+| 5 | Notificação duplicada | ⏳ **bloqueado** | depende de uma cobrança aprovada existir |
+| 6 | Assinatura inválida | ✅ | `401` + evento `assinatura_invalida` (`mp_payment_id` = `teste`) |
+
+**O que ficou provado contra o gateway real, além dos dois caminhos fechados:**
+
+- **A assinatura HMAC real confere.** Quatro notificações do Mercado Pago chegaram pelo
+  túnel e nenhuma virou `assinatura_invalida` — o caminho que o NAPO-006 nunca exercitou.
+- **RN14 corrigida e provada:** notificação de pagamento que o gateway não conhece
+  devolveu `502` **com** a linha em `pagamento_eventos`. No código antigo era `500` sem
+  rastro nenhum — o defeito que originou esta spec.
+- **Status novo não confirma por omissão:** `in_process` virou `pendente` e nenhum pedido
+  foi confirmado, em três notificações independentes.
+- **`consultarPagamento` contra a API real** rodou em cada notificação, sem exceção.
+
+**Bloqueio conhecido:** os cartões de teste desta conta caem todos em
+`pending_contingency`, e a simulação determinística por nome do titular (`APRO`, `FUND`)
+não tem efeito. O Mercado Pago exige um **usuário de teste vendedor** para isso — o
+`MP_ACCESS_TOKEN` atual é a credencial de teste da conta real, não de um test user. Usar
+o e-mail de um comprador de teste com essa credencial devolve `Payer email forbidden`.
+Fechar os caminhos 1, 2, 3 e 5 depende de trocar as credenciais, e isso é decisão do PM.
 
 ---
 
@@ -396,7 +417,7 @@ E nenhuma chamada ao SDK do Mercado Pago é feita
 
 ### Gates
 - [x] **Gate Visual B** (aprovado pelo PM em 2026-09-06) — as três telas abertas na aplicação real **antes** de qualquer bloco ser declarado verde, com aprovação explícita do PM (postmortem 2026-08-18, `AGENTS.md` §2 item 11b)
-- [ ] **T37 (RN20)** — os seis caminhos observados contra o Mercado Pago real, com evidência registrada
+- [~] **T37 (RN20)** — 2 de 6 caminhos fechados; 4 bloqueados por credencial da conta (ver §F)
 
 ### Fechamento
 - [ ] Retrospectiva feita (`AGENTS.md` §5.1)
