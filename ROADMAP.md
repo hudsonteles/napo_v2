@@ -101,10 +101,12 @@ _O escopo do R1 cresceu em 2026-09-05: vender deixou de ser só o site. Ver [`do
   - **Bloqueia:** NAPO-021 · e a ideia "E-mail transacional de pedido"
   - **Valor:** Alto · **Esforço:** Baixo · **MoSCoW:** Must
   - **Notas:** o SMTP embutido do Supabase entrega 2–4 e-mails por hora e é explicitamente proibido em produção — sem SMTP próprio **o login não sobe**, porque o Magic Link não sai fora do ambiente local. Decisão de 2026-08-11: Resend, como `ARCHITECTURE.md` §2.1 já define, com `From: pedido@napobsb.com.br` e DKIM no domínio. **Gmail avaliado a pedido do PM e descartado duas vezes** (2026-08-11 e 2026-09-06): conta gratuita reescreve o remetente para `@gmail.com`, sem DKIM do domínio próprio, no e-mail que menos pode cair em spam. O argumento de custo não se sustenta — o plano gratuito do Resend dá 3.000 e-mails/mês e 100/dia com domínio próprio, contra a necessidade da Napo de ~900/mês e ~10/dia. **Fazer antes de o NAPO-021 começar:** verificação de domínio depende de propagação de DNS, que não é instantânea.
+  - **Roteiro (parte A):** [`docs/napo-031-resend-smtp.md`](docs/napo-031-resend-smtp.md) — conta, verificação de domínio e DNS. É a metade com latência e pode ser feita hoje.
+  - **✂️ Partido em dois (2026-09-06, na especificação):** **A** — conta no Resend, domínio verificado e DNS publicado, **agora**; **B** — colar as credenciais nos painéis de staging e produção, **dentro do NAPO-021**, porque esses projetos só nascem lá. Descoberta ao especificar: o ambiente local continua no inbox falso, e SMTP de projeto remoto é painel, não `config.toml` — **não há código a versionar**, por isso o item não virou spec.
   - **Promovida de 💡 em:** 2026-09-06
 
 - [ ] **NAPO-021** Provisionar homologação e produção + primeiro deploy
-  - **Dependências:** NAPO-001, NAPO-031 (sem SMTP próprio o Magic Link não sai e o login não sobe)
+  - **Dependências:** NAPO-001 · **NAPO-031 parte A** (domínio verificado no Resend) — a parte B do 031, que é configurar o SMTP nos painéis, **acontece dentro desta spec**: os projetos de staging e produção nascem aqui
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **⚠️ Conferir antes de publicar (do NAPO-003, 2026-08-17):** (a) a separação real de bancada entre doce e salgado, que sustenta o precaucional de avelã estar só nos doces; (b) a Banana declara leite em "contém" e a Massa Doce, que é a base dela, declara só glúten — uma das duas está errada.
   - **⬇️ Movido para o fim da fila (2026-09-04):** decisão do PM — validar telas, fluxos e o pagamento real no ambiente de desenvolvimento antes de provisionar homologação e produção. Continua sendo o último passo do R1, não um item opcional.
