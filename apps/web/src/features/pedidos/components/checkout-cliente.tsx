@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { TriangleAlert, Zap } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ShieldCheck, TriangleAlert, Zap } from 'lucide-react';
 import { calcularFrete, type FaixaFrete } from '@napo/core';
+import { Badge } from '@napo/ui/components/badge';
 import { Card } from '@napo/ui/components/card';
 import { toast } from '@napo/ui/components/toaster';
 
@@ -47,6 +49,7 @@ export function CheckoutCliente({
   freteGratisCentavos: number;
   minutosDeReserva: number;
 }) {
+  const router = useRouter();
   const { itens, pronto } = useCarrinho();
   const [validado, setValidado] = useState<CarrinhoValidado | null>(null);
   const [escolhido, setEscolhido] = useState<string | null>(
@@ -144,8 +147,10 @@ export function CheckoutCliente({
 
       const corpo = await resposta.json();
 
-      if (resposta.ok && corpo?.data?.urlPagamento) {
-        window.location.href = corpo.data.urlPagamento;
+      if (resposta.ok && corpo?.data?.numero) {
+        // O cliente não sai do site (RN8): a próxima tela é nossa, endereçável,
+        // e sobrevive a recarregar — o que um passo revelado por estado não faz.
+        router.push(`/pedido/${corpo.data.numero}/pagar`);
         return;
       }
 
@@ -157,7 +162,7 @@ export function CheckoutCliente({
 
       setProcessando(false);
     } catch {
-      toast.error('Não conseguimos abrir o pagamento. Seu carrinho continua aqui.');
+      toast.error('Não conseguimos reservar sua entrega. Seu carrinho continua aqui.');
       setProcessando(false);
     }
   }
@@ -208,21 +213,31 @@ export function CheckoutCliente({
             </span>
             Como você paga
           </h2>
-          <p className="mt-3 text-sm leading-relaxed text-texto-suave">
-            O pagamento acontece no ambiente do Mercado Pago. Pix vem selecionado — cai na hora e
-            a fornada é confirmada na hora.
+          <p className="mt-3 max-w-prose text-sm leading-relaxed text-texto-suave">
+            O pagamento acontece <strong className="text-branco">aqui mesmo, na próxima tela</strong>{' '}
+            — você não vai para nenhum site de terceiro. Pix cai na hora e sua entrega é
+            confirmada na hora.
           </p>
+
+          {/* Os selos deixaram de ser `span` com classes soltas e passaram a usar
+              o primitivo do catálogo (design §4.1). */}
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="flex items-center gap-1.5 rounded-campo border border-amarelo/40 bg-amarelo/10 px-3 py-1.5 font-mono text-xs text-amarelo">
+            <Badge variant="default" className="font-mono">
               <Zap className="h-3.5 w-3.5" /> Pix
-            </span>
-            <span className="rounded-campo border border-borda px-3 py-1.5 font-mono text-xs text-texto-suave">
+            </Badge>
+            <Badge variant="contorno" className="font-mono">
               crédito
-            </span>
-            <span className="rounded-campo border border-borda px-3 py-1.5 font-mono text-xs text-texto-suave">
+            </Badge>
+            <Badge variant="contorno" className="font-mono">
               débito
-            </span>
+            </Badge>
           </div>
+
+          <p className="mt-4 flex items-start gap-2 text-xs leading-relaxed text-texto-suave">
+            <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            Os dados do seu cartão são digitados em campos protegidos do Mercado Pago e{' '}
+            <strong className="text-branco">não passam pelos nossos servidores</strong>.
+          </p>
         </section>
       </div>
 
@@ -288,9 +303,7 @@ function mensagemDeFalha(motivo: string | undefined): string {
   switch (motivo) {
     case 'fora_de_area':
       return 'Ainda não entregamos neste endereço.';
-    case 'gateway_indisponivel':
-      return 'O pagamento está fora do ar neste momento. Seu carrinho continua aqui.';
     default:
-      return 'Não conseguimos abrir o pagamento. Seu carrinho continua aqui.';
+      return 'Não conseguimos reservar sua entrega. Seu carrinho continua aqui.';
   }
 }

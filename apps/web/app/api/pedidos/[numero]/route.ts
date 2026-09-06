@@ -56,12 +56,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ num
 function resumo(pedido: {
   numero: number;
   status: string;
+  situacaoPagamento: string;
   diaEntrega: string;
   totalCentavos: number;
 }) {
   return {
     numero: pedido.numero,
     status: pedido.status,
+    situacaoPagamento: pedido.situacaoPagamento,
     diaEntrega: pedido.diaEntrega,
     totalCentavos: pedido.totalCentavos,
   };

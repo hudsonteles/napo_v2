@@ -36,6 +36,7 @@ export default async function PedidoPage({ params }: { params: Promise<{ numero:
         inicial={{
           numero: pedido.numero,
           status: pedido.status,
+          situacaoPagamento: pedido.situacaoPagamento,
           diaEntrega: pedido.diaEntrega,
           totalCentavos: pedido.totalCentavos,
         }}

@@ -5,11 +5,14 @@ import { Button } from '@napo/ui/components/button';
 import { Card } from '@napo/ui/components/card';
 
 /**
- * A ficha da fornada (Direção A, aprovada no Gate Visual A).
+ * A ficha da entrega (Direção A, aprovada no Gate Visual A do NAPO-006).
  *
- * O dia de entrega é o **título** do resumo, não uma linha entre subtotal e
- * frete: o que o cliente compra não é "3 pizzas", é uma vaga numa fornada de um
- * dia específico — a leitura literal do gargalo do negócio.
+ * O dia é o **título** do resumo, não uma linha entre subtotal e frete: o que o
+ * cliente compra não é "3 pizzas", é a entrega de um dia específico.
+ *
+ * O rótulo deixou de dizer "fornada" no NAPO-025 (spec §7): a palavra continua
+ * onde explica a escassez — vitrine, barra, seletor —, mas o cliente não guarda
+ * um lugar numa assadeira, ele guarda a entrega de sexta.
  */
 const reais = (centavos: number) =>
   (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -54,12 +57,12 @@ export function ResumoPedido({
       {/* `p-0`: o padding é por faixa (canhoto e corpo têm o seu), não do card. */}
       <Card className="overflow-hidden border-amarelo/30 p-0">
         <div className="serrilha border-b border-dashed border-borda-forte bg-amarelo/5 px-5 py-4">
-          <p className="font-mono text-[10px] uppercase tracking-wider text-amarelo">Fornada</p>
+          <p className="font-mono text-[10px] uppercase tracking-wider text-amarelo">Entrega</p>
           <p className="mt-1.5 text-2xl font-extrabold leading-none tracking-tight">
             {diaEntrega ? diaCurto(diaEntrega) : 'a definir'}
           </p>
           <p className="mt-2 text-xs leading-relaxed text-texto-suave">
-            Assada e congelada no dia. Entrega entre 14h e 20h.
+            Assada e congelada no dia. Chega entre 14h e 20h.
           </p>
         </div>
 
@@ -105,7 +108,7 @@ export function ResumoPedido({
               onPagar={onPagar}
             />
             <p className="mt-2.5 text-center text-[11px] leading-relaxed text-texto-suave">
-              {bloqueio ?? `Sua vaga na fornada fica reservada por ${minutosDeReserva} minutos.`}
+              {bloqueio ?? textoDaReserva(diaEntrega, minutosDeReserva)}
             </p>
           </div>
         </div>
@@ -155,10 +158,24 @@ function BotaoPagar({
     <Button className={className} disabled={processando || bloqueio !== null} onClick={onPagar}>
       <Lock className="h-4 w-4" />
       {processando
-        ? 'Abrindo pagamento…'
+        ? 'Reservando…'
         : compacto || total === null
-          ? 'Pagar'
-          : `Pagar ${reais(total)}`}
+          ? 'Reservar'
+          : `Reservar e pagar ${reais(total)}`}
     </Button>
   );
+}
+
+/**
+ * O botão promete o que faz: este clique guarda a entrega, o pagamento é na
+ * próxima tela. "Pagar" mentia sobre onde o dinheiro sai.
+ */
+function textoDaReserva(diaEntrega: string | null, minutos: number): string {
+  if (!diaEntrega) return `Sua entrega fica reservada por ${minutos} minutos.`;
+
+  const diaSemana = new Date(`${diaEntrega}T12:00:00`).toLocaleDateString('pt-BR', {
+    weekday: 'long',
+  });
+
+  return `Sua entrega de ${diaSemana} fica reservada por ${minutos} minutos.`;
 }

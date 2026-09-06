@@ -47,7 +47,7 @@ Arquivos: `packages/ui/src/components/contagem-regressiva.tsx`, `features/pedido
 > Os dois `✨ CRIAR NOVO` de `design.md` §4.4.3. Vêm **antes** das telas que os consomem (regra 4.0.1).
 
 ### Bloco G — Telas + Gate Visual B
-Arquivos: `app/(loja)/checkout/page.tsx`, `app/(loja)/pedido/[numero]/pagar/page.tsx`, `features/pedidos/components/{checkout-cliente,resumo-pedido,estado-pagamento}.tsx` · Testes: critérios visuais 1–9 · Depende: F · Est: 90min · Agente: inline · `[ ]`
+Arquivos: `app/(loja)/checkout/page.tsx`, `app/(loja)/pedido/[numero]/pagar/page.tsx`, `features/pedidos/components/{checkout-cliente,resumo-pedido,estado-pagamento}.tsx` · Testes: critérios visuais 1–9 · Depende: F · Est: 90min · Agente: inline · `[~]` **código verde, aguardando Gate Visual B do PM**
 > Ambiente real aberto **antes** de declarar verde (postmortem 2026-08-18). Aprovação explícita do PM.
 
 ### Bloco H — RN20: os seis caminhos no Mercado Pago real
@@ -96,3 +96,6 @@ B depende de A (mesma tabela)
 - **Os dois cenários de "gateway indisponível" mudaram de arquivo e de decisão.** Saíram de `criar-pedido` (onde a vaga voltava na hora) para `criar-cobranca`, onde a vaga **não** volta: lá o cliente já tinha ido embora, aqui ele está na tela com o cartão na mão.
 - **A lógica do cronômetro foi para `packages/core`, o componente ficou burro.** O projeto não tem infraestrutura de teste de componente React (`environment: 'node'`, `include: *.test.ts`) e criar uma seria escopo novo. `formatarContagem` mora em `tempo.ts` com 4 casos cobertos — arredondamento para cima, prazo vencido, mais de uma hora; o `.tsx` só conta o tempo e chama `aoZerar` uma vez.
 - **`packages/ui` passou a depender de `@napo/core`.** A aresta é permitida pela arquitetura (§3.2) e nunca tinha sido usada. Declarada no `package.json` do pacote.
+- **`pagamento-cliente.tsx` entrou no Mapa.** A página de pagar é servidor e o Brick é ilha cliente; a divisão exigia um componente no meio. É a mesma separação que `checkout/page.tsx` + `checkout-cliente.tsx` já usam.
+- **O e-mail do pagador vem da sessão, não de um campo.** `PerfilSessao` não carrega e-mail, então a página lê `auth.getUser()` pelo client de servidor — dentro do Mapa, sem tocar a feature de auth. Deixar o Brick perguntar seria pedir dado que já existe e somar uma desistência ao formulário.
+- **O selo da tela do pedido mostra o eixo que interessa naquele momento:** enquanto a pizza não anda, o cliente quer saber do dinheiro; depois que ela anda, o dinheiro já está resolvido e o que importa é onde ela está.

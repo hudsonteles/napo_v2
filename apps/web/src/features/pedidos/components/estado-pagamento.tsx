@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, Flame, LoaderCircle, ReceiptText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Flame, LoaderCircle, ReceiptText } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@napo/ui/components/button';
 import { Card } from '@napo/ui/components/card';
@@ -19,14 +19,19 @@ import { useCarrinho } from '@/lib/carrinho/provider';
 
 const ESPERAS_MS = [2_000, 3_000, 5_000, 8_000, 13_000, 21_000];
 
-/** Estados em que o dinheiro entrou: a sacola virou pedido. */
-const PAGOS = ['pago', 'em_producao', 'pronto', 'em_rota', 'entregue'];
-
 export interface PedidoNaTela {
   numero: number;
+  /** Ciclo de entrega (RN3). */
   status: string;
+  /** Derivada das cobranças (RN2) — não existe como campo. */
+  situacaoPagamento: string;
   diaEntrega: string;
   totalCentavos: number;
+}
+
+/** Ainda há o que esperar do gateway (RN19). */
+function aguardando(pedido: PedidoNaTela): boolean {
+  return pedido.situacaoPagamento === 'sem_pagamento' || pedido.situacaoPagamento === 'aguardando';
 }
 
 const reais = (centavos: number) =>
@@ -53,13 +58,13 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
    * uma desistência no meio do gateway em carrinho perdido.
    */
   useEffect(() => {
-    if (PAGOS.includes(pedido.status)) limpar();
-    // `limpar` muda a cada render do provider; o gatilho é o status.
+    if (pedido.situacaoPagamento === 'pago') limpar();
+    // `limpar` muda a cada render do provider; o gatilho é a situação.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pedido.status]);
+  }, [pedido.situacaoPagamento]);
 
   useEffect(() => {
-    if (pedido.status !== 'aguardando_pagamento') return;
+    if (!aguardando(pedido) || encerrado(pedido.status)) return;
 
     const espera = ESPERAS_MS[tentativa.current];
 
@@ -86,7 +91,7 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
     return () => clearTimeout(timer);
   }, [pedido]);
 
-  if (pedido.status === 'aguardando_pagamento') {
+  if (aguardando(pedido) && !encerrado(pedido.status)) {
     return (
       <Card className="p-6">
         <div className="flex items-center gap-3">
@@ -104,12 +109,20 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
           Pedido #{pedido.numero} · {reais(pedido.totalCentavos)}
         </p>
 
+        {/* Enquanto a entrega viver, retomar a tentativa é melhor que recomeçar
+            o pedido — recomeçar consumiria uma segunda vaga da mesma pessoa. */}
+        <Button className="mt-5" variant="outline" asChild>
+          <Link href={`/pedido/${pedido.numero}/pagar`}>
+            <ArrowLeft className="h-4 w-4" /> Voltar ao pagamento
+          </Link>
+        </Button>
+
         <SaidasDoPedido />
       </Card>
     );
   }
 
-  const pago = PAGOS.includes(pedido.status);
+  const pago = pedido.situacaoPagamento === 'pago';
 
   return (
     <Card className="border-amarelo/30 p-6">
@@ -121,7 +134,7 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
         )}
         <div>
           <h1 className="text-lg font-bold leading-tight">
-            {pago ? 'Pedido confirmado' : rotuloDeEncerramento(pedido.status)}
+            {pago ? 'Pedido confirmado' : rotuloDeEncerramento(pedido)}
           </h1>
           <p className="font-mono text-xs text-texto-suave">#{pedido.numero}</p>
         </div>
@@ -130,7 +143,7 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
       {pago && (
         <div className="mt-5 rounded-campo border border-borda-forte bg-superficie-alta p-4">
           <p className="font-mono text-[10px] uppercase tracking-wider text-texto-suave">
-            Sua fornada
+            Sua entrega
           </p>
           <p className="mt-1 text-xl font-extrabold tracking-tight">
             {diaPorExtenso(pedido.diaEntrega)}
@@ -141,7 +154,7 @@ export function EstadoPagamento({ inicial }: { inicial: PedidoNaTela }) {
 
       <div className="mt-5 flex items-center gap-2">
         <span className="rounded-full bg-amarelo/15 px-2.5 py-1 font-mono text-[11px] font-bold text-amarelo">
-          {rotuloDeStatus(pedido.status)}
+          {rotuloDeSituacao(pedido)}
         </span>
       </div>
 
@@ -215,23 +228,37 @@ function ConviteEventos() {
   );
 }
 
-function rotuloDeStatus(status: string): string {
+/** Pedido que saiu da fila: não há mais o que esperar do gateway. */
+function encerrado(status: string): boolean {
+  return status === 'cancelado' || status === 'expirado';
+}
+
+/**
+ * O selo mostra o eixo que interessa naquele momento: enquanto a pizza não
+ * anda, o que o cliente quer saber é do dinheiro; depois que ela anda, o
+ * dinheiro já está resolvido e o que importa é onde ela está.
+ */
+function rotuloDeSituacao(pedido: PedidoNaTela): string {
+  if (encerrado(pedido.status)) {
+    return pedido.status === 'expirado' ? 'expirado' : 'cancelado';
+  }
+
+  if (pedido.situacaoPagamento === 'estornado') return 'estornado';
+  if (pedido.situacaoPagamento === 'parcial') return 'pago em parte';
+
   const rotulos: Record<string, string> = {
-    pago: 'pago',
     em_producao: 'em produção',
     pronto: 'pronto',
     em_rota: 'em rota',
     entregue: 'entregue',
-    cancelado: 'cancelado',
-    expirado: 'expirado',
-    estornado: 'estornado',
   };
-  return rotulos[status] ?? status;
+
+  return rotulos[pedido.status] ?? 'pago';
 }
 
-function rotuloDeEncerramento(status: string): string {
-  if (status === 'expirado') return 'O prazo de pagamento venceu';
-  if (status === 'cancelado') return 'Pedido cancelado';
-  if (status === 'estornado') return 'Pagamento estornado';
+function rotuloDeEncerramento(pedido: PedidoNaTela): string {
+  if (pedido.status === 'expirado') return 'O prazo de pagamento venceu';
+  if (pedido.status === 'cancelado') return 'Pedido cancelado';
+  if (pedido.situacaoPagamento === 'estornado') return 'Pagamento estornado';
   return 'Pedido';
 }
