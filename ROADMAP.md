@@ -94,8 +94,16 @@ _O escopo do R1 cresceu em 2026-09-05: vender deixou de ser só o site. Ver [`do
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **Notas:** termos, política de privacidade, banner, consentimento **versionado** (quando e qual versão foi aceita). Utilidade (OTP, aviso de entrega) é separada de marketing — validar o número não autoriza propaganda. Spec §8.
 
+- [ ] **NAPO-031** SMTP customizado no Supabase Auth via Resend
+  - **Spec:** *(a criar)*
+  - **Dependências:** — (o domínio `napobsb.com.br` já existe no Registro.br)
+  - **Bloqueia:** NAPO-021 · e a ideia "E-mail transacional de pedido"
+  - **Valor:** Alto · **Esforço:** Baixo · **MoSCoW:** Must
+  - **Notas:** o SMTP embutido do Supabase entrega 2–4 e-mails por hora e é explicitamente proibido em produção — sem SMTP próprio **o login não sobe**, porque o Magic Link não sai fora do ambiente local. Decisão de 2026-08-11: Resend, como `ARCHITECTURE.md` §2.1 já define, com `From: pedido@napobsb.com.br` e DKIM no domínio. **Gmail avaliado a pedido do PM e descartado duas vezes** (2026-08-11 e 2026-09-06): conta gratuita reescreve o remetente para `@gmail.com`, sem DKIM do domínio próprio, no e-mail que menos pode cair em spam. O argumento de custo não se sustenta — o plano gratuito do Resend dá 3.000 e-mails/mês e 100/dia com domínio próprio, contra a necessidade da Napo de ~900/mês e ~10/dia. **Fazer antes de o NAPO-021 começar:** verificação de domínio depende de propagação de DNS, que não é instantânea.
+  - **Promovida de 💡 em:** 2026-09-06
+
 - [ ] **NAPO-021** Provisionar homologação e produção + primeiro deploy
-  - **Dependências:** NAPO-001
+  - **Dependências:** NAPO-001, NAPO-031 (sem SMTP próprio o Magic Link não sai e o login não sobe)
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **⚠️ Conferir antes de publicar (do NAPO-003, 2026-08-17):** (a) a separação real de bancada entre doce e salgado, que sustenta o precaucional de avelã estar só nos doces; (b) a Banana declara leite em "contém" e a Massa Doce, que é a base dela, declara só glúten — uma das duas está errada.
   - **⬇️ Movido para o fim da fila (2026-09-04):** decisão do PM — validar telas, fluxos e o pagamento real no ambiente de desenvolvimento antes de provisionar homologação e produção. Continua sendo o último passo do R1, não um item opcional.
@@ -192,7 +200,6 @@ Ainda abertas, para as fases seguintes:
 - [ ] **Migrar o Supabase CLI para 2.x e o Postgres local para 17** — o repositório fixa CLI 1.x e `major_version = 15`, que já não são o padrão de projetos novos do Supabase. A troca é barata enquanto não existe produção e cara depois que houver dado real. Gatilho observado: um volume Docker criado por uma CLI 2.x recusou subir na 1.x (`database files are incompatible with server`) e derrubou o ambiente local inteiro — enquanto as máquinas de dev tiverem CLIs diferentes, quem clonar perde o stack. Registrado em 2026-08-10. **Origem:** conserto do merge travado de NAPO-001, com duas máquinas em CLIs divergentes. **Exige revisão de spec NAPO-001 antes de promover** — mexe em `supabase/config.toml`, no `package.json` e no CI.
 
 - [ ] **Templates de e-mail do Supabase Auth em português com a identidade da Napo** — o Magic Link chega hoje com o texto padrão do GoTrue, em inglês e sem marca: é o primeiro e-mail que o cliente recebe da casa e o que carrega o link de acesso à conta. Configurável por `[auth.email.template.*]` no `config.toml` (local) e pelo painel (staging/prod). Envolve copy, não só HTML. Registrado em 2026-08-11. **Origem:** Gate Visual B do NAPO-002.
-- [ ] **SMTP customizado no Supabase Auth via Resend** — o SMTP embutido do Supabase entrega 2–4 e-mails por hora e é explicitamente proibido em produção; sem SMTP próprio o Magic Link não funciona fora do ambiente local, ou seja, **o login não sobe**. Decisão de 2026-08-11: Resend, como a arquitetura §2.1 já define, com `From: pedido@napobsb.com.br` e DKIM no domínio. Gmail avaliado a pedido do PM e **descartado** — conta gratuita reescreve o remetente para `@gmail.com`, sem DKIM do domínio próprio, no e-mail que menos pode cair em spam. Registrado em 2026-08-11. **Origem:** Gate Visual B do NAPO-002. **Bloqueia NAPO-021** (provisionar homologação e produção).
 
 ---
 
