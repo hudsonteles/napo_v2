@@ -79,3 +79,20 @@ export function somarDias(dia: string, quantidade: number): string {
   base.setUTCDate(base.getUTCDate() + quantidade);
   return hojeEmBrasilia(base);
 }
+
+/**
+ * Milissegundos restantes em `mm:ss`, para contagem regressiva.
+ *
+ * Arredonda para cima: enquanto sobrar qualquer fração de segundo, o relógio
+ * ainda mostra aquele segundo. Mostrar `00:00` com meio segundo de vida faria a
+ * tela desmontar o pagamento antes de o prazo acabar de verdade.
+ *
+ * Passou do prazo devolve `00:00`, nunca negativo — o cliente não precisa saber
+ * há quanto tempo perdeu a vaga.
+ */
+export function formatarContagem(msRestantes: number): string {
+  const segundos = Math.max(0, Math.ceil(msRestantes / 1000));
+  const minutos = Math.floor(segundos / 60);
+
+  return `${String(minutos).padStart(2, '0')}:${String(segundos % 60).padStart(2, '0')}`;
+}

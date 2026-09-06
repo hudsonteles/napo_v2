@@ -245,6 +245,8 @@ Nenhuma delas repete texto, código ou `status_detail` do Mercado Pago.
 - Grid de duas colunas do checkout e da tela de pagar (`lg:grid-cols-[1fr_340px]`) — layout puro.
 - Espaçamento entre as seções numeradas do checkout — spacing entre primitivos.
 - Cabeçalho da tela de pagar (título + cronômetro em `flex justify-between`) — composição de dois elementos do catálogo, sem lógica visual própria.
+- Faixa de cabeçalho dentro do `<Card>` do Brick (`border-b` + título + selo de conexão segura) — o catálogo não tem `CardHeader`, e criar o primitivo para uma única ocorrência infla o catálogo em vez de reusá-lo. Reavaliar quando surgir a segunda.
+- Esqueleto de carregamento do Brick (`h-64 animate-pulse`) — placeholder de altura, não conteúdo.
 
 #### 4.4.5 Critérios visuais de aceite
 

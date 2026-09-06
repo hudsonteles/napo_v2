@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@googlemaps/js-api-loader": "^2.1.1",
+    "@mercadopago/sdk-react": "^1.0.7",
     "@napo/core": "workspace:*",
     "@napo/db": "workspace:*",
     "@napo/ui": "workspace:*",

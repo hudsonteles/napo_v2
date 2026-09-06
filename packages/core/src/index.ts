@@ -8,6 +8,7 @@
 export {
   FUSO_HORARIO,
   diaDaSemanaEmBrasilia,
+  formatarContagem,
   hojeEmBrasilia,
   inicioDoDiaEmBrasilia,
   instanteEmBrasilia,

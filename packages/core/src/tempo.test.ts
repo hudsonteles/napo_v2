@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { hojeEmBrasilia } from './tempo';
+import { formatarContagem, hojeEmBrasilia } from './tempo';
 
 describe('hojeEmBrasilia (RN6)', () => {
   // T3 — 02:30Z de 10/ago ainda é 09/ago às 23:30 em Brasília (UTC-3).
@@ -28,5 +28,29 @@ describe('hojeEmBrasilia (RN6)', () => {
     } finally {
       process.env.TZ = tzOriginal;
     }
+  });
+});
+
+describe('formatarContagem', () => {
+  it('formata minutos e segundos com dois dígitos', () => {
+    expect(formatarContagem(30 * 60_000)).toBe('30:00');
+    expect(formatarContagem(9 * 60_000 + 5_000)).toBe('09:05');
+  });
+
+  it('arredonda para cima: o segundo só some quando acaba de verdade', () => {
+    // Meio segundo de vida ainda é 00:01. Zerar antes desmontaria o pagamento
+    // antes de o prazo terminar.
+    expect(formatarContagem(500)).toBe('00:01');
+    expect(formatarContagem(1)).toBe('00:01');
+    expect(formatarContagem(0)).toBe('00:00');
+  });
+
+  it('prazo vencido é 00:00, nunca negativo', () => {
+    expect(formatarContagem(-1)).toBe('00:00');
+    expect(formatarContagem(-90_000)).toBe('00:00');
+  });
+
+  it('passa de uma hora sem virar horas: o prazo é de minutos', () => {
+    expect(formatarContagem(75 * 60_000)).toBe('75:00');
   });
 });

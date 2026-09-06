@@ -43,7 +43,7 @@ Arquivos: `features/pedidos/services/{cobrancas-repo,criar-cobranca,criar-pedido
 Arquivos: `app/api/pedidos/route.ts`, `app/api/pagamentos/route.ts`, `app/api/pedidos/[numero]/route.ts`, `app/api/webhook/mp/route.ts`, `app/api/manutencao/pedidos-parados/route.ts` · Testes: T17, T18, T27, T32, T36 · Depende: D · Est: 60min · Agente: inline · `[x]` concluído
 
 ### Bloco F — Componentes novos do catálogo
-Arquivos: `packages/ui/src/components/contagem-regressiva.tsx`, `features/pedidos/components/brick-pagamento.tsx` · Testes: T22, T36 · Depende: E · Est: 60min · Agente: inline · `[ ]`
+Arquivos: `packages/ui/src/components/contagem-regressiva.tsx`, `features/pedidos/components/brick-pagamento.tsx` · Testes: T22, T36 · Depende: E · Est: 60min · Agente: inline · `[x]` concluído
 > Os dois `✨ CRIAR NOVO` de `design.md` §4.4.3. Vêm **antes** das telas que os consomem (regra 4.0.1).
 
 ### Bloco G — Telas + Gate Visual B
@@ -94,3 +94,5 @@ B depende de A (mesma tabela)
 - **`snapshot.ts` entrou no Mapa de Impacto.** Não estava previsto, mas é o gêmeo em TypeScript de `vagas_ocupadas` — o próprio arquivo declara que divergir faz a vitrine oferecer a vaga que o checkout recusa. Mudou junto, com o mesmo critério.
 - **Aprovação síncrona do gateway não confirma o pedido.** `criar-cobranca` grava o rastro e devolve `aguardando`; quem aprova a cobrança é o webhook ou a consulta ativa da RN19. É a leitura literal da RN6, e mantém um caminho de confirmação só.
 - **Os dois cenários de "gateway indisponível" mudaram de arquivo e de decisão.** Saíram de `criar-pedido` (onde a vaga voltava na hora) para `criar-cobranca`, onde a vaga **não** volta: lá o cliente já tinha ido embora, aqui ele está na tela com o cartão na mão.
+- **A lógica do cronômetro foi para `packages/core`, o componente ficou burro.** O projeto não tem infraestrutura de teste de componente React (`environment: 'node'`, `include: *.test.ts`) e criar uma seria escopo novo. `formatarContagem` mora em `tempo.ts` com 4 casos cobertos — arredondamento para cima, prazo vencido, mais de uma hora; o `.tsx` só conta o tempo e chama `aoZerar` uma vez.
+- **`packages/ui` passou a depender de `@napo/core`.** A aresta é permitida pela arquitetura (§3.2) e nunca tinha sido usada. Declarada no `package.json` do pacote.
