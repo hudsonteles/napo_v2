@@ -1,7 +1,7 @@
 # 📋 Spec: Espinha de cobrança — cobrança como entidade e pagamento sem sair do site
 
 **ID:** NAPO-025
-**Status:** Aprovado
+**Status:** Em Execução
 **Responsável:** Hudson (PM)
 **Data:** 2026-09-05
 **Item no Roadmap:** NAPO-025

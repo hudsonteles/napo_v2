@@ -141,6 +141,86 @@ export type Database = {
         }
         Relationships: []
       }
+      cobrancas: {
+        Row: {
+          aprovada_em: string | null
+          created_at: string
+          criada_por: string | null
+          expira_em: string | null
+          forma: string | null
+          id: string
+          instrumento: Database["public"]["Enums"]["cobranca_instrumento"]
+          mp_payment_id: string | null
+          mp_status_detail: string | null
+          operador_id: string | null
+          pedido_id: string
+          situacao: Database["public"]["Enums"]["cobranca_situacao"]
+          updated_at: string
+          valor_centavos: number
+        }
+        Insert: {
+          aprovada_em?: string | null
+          created_at?: string
+          criada_por?: string | null
+          expira_em?: string | null
+          forma?: string | null
+          id?: string
+          instrumento: Database["public"]["Enums"]["cobranca_instrumento"]
+          mp_payment_id?: string | null
+          mp_status_detail?: string | null
+          operador_id?: string | null
+          pedido_id: string
+          situacao?: Database["public"]["Enums"]["cobranca_situacao"]
+          updated_at?: string
+          valor_centavos: number
+        }
+        Update: {
+          aprovada_em?: string | null
+          created_at?: string
+          criada_por?: string | null
+          expira_em?: string | null
+          forma?: string | null
+          id?: string
+          instrumento?: Database["public"]["Enums"]["cobranca_instrumento"]
+          mp_payment_id?: string | null
+          mp_status_detail?: string | null
+          operador_id?: string | null
+          pedido_id?: string
+          situacao?: Database["public"]["Enums"]["cobranca_situacao"]
+          updated_at?: string
+          valor_centavos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cobrancas_criada_por_fkey"
+            columns: ["criada_por"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobrancas_operador_id_fkey"
+            columns: ["operador_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobrancas_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobrancas_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos_com_pagamento"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       config_operacao: {
         Row: {
           buffer_cutoff_min: number
@@ -579,6 +659,13 @@ export type Database = {
             referencedRelation: "pedidos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "pagamento_eventos_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos_com_pagamento"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pedido_itens: {
@@ -624,6 +711,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "pedido_itens_pedido_id_fkey"
+            columns: ["pedido_id"]
+            isOneToOne: false
+            referencedRelation: "pedidos_com_pagamento"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "pedido_itens_produto_id_fkey"
             columns: ["produto_id"]
             isOneToOne: false
@@ -644,6 +738,7 @@ export type Database = {
           forma_pagamento: string | null
           frete_centavos: number
           id: string
+          momento_pagamento: Database["public"]["Enums"]["momento_pagamento"]
           mp_payment_id: string | null
           mp_preference_id: string | null
           numero: number
@@ -667,6 +762,7 @@ export type Database = {
           forma_pagamento?: string | null
           frete_centavos: number
           id?: string
+          momento_pagamento?: Database["public"]["Enums"]["momento_pagamento"]
           mp_payment_id?: string | null
           mp_preference_id?: string | null
           numero?: number
@@ -690,6 +786,7 @@ export type Database = {
           forma_pagamento?: string | null
           frete_centavos?: number
           id?: string
+          momento_pagamento?: Database["public"]["Enums"]["momento_pagamento"]
           mp_payment_id?: string | null
           mp_preference_id?: string | null
           numero?: number
@@ -1020,7 +1117,120 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      pedidos_com_pagamento: {
+        Row: {
+          atividade_fiscal:
+            | Database["public"]["Enums"]["atividade_fiscal"]
+            | null
+          canal: Database["public"]["Enums"]["canal_pedido"] | null
+          created_at: string | null
+          dia_entrega: string | null
+          endereco_id: string | null
+          endereco_snapshot: Json | null
+          expira_em: string | null
+          forma_pagamento: string | null
+          frete_centavos: number | null
+          id: string | null
+          momento_pagamento:
+            | Database["public"]["Enums"]["momento_pagamento"]
+            | null
+          mp_payment_id: string | null
+          mp_preference_id: string | null
+          numero: number | null
+          pago_em: string | null
+          profile_id: string | null
+          reserva_id: string | null
+          situacao_pagamento:
+            | Database["public"]["Enums"]["situacao_pagamento_pedido"]
+            | null
+          status: Database["public"]["Enums"]["status_pedido"] | null
+          subtotal_centavos: number | null
+          total_centavos: number | null
+          updated_at: string | null
+          veredito: Database["public"]["Enums"]["veredito_viabilidade"] | null
+        }
+        Insert: {
+          atividade_fiscal?:
+            | Database["public"]["Enums"]["atividade_fiscal"]
+            | null
+          canal?: Database["public"]["Enums"]["canal_pedido"] | null
+          created_at?: string | null
+          dia_entrega?: string | null
+          endereco_id?: string | null
+          endereco_snapshot?: Json | null
+          expira_em?: string | null
+          forma_pagamento?: string | null
+          frete_centavos?: number | null
+          id?: string | null
+          momento_pagamento?:
+            | Database["public"]["Enums"]["momento_pagamento"]
+            | null
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
+          numero?: number | null
+          pago_em?: string | null
+          profile_id?: string | null
+          reserva_id?: string | null
+          situacao_pagamento?: never
+          status?: Database["public"]["Enums"]["status_pedido"] | null
+          subtotal_centavos?: number | null
+          total_centavos?: number | null
+          updated_at?: string | null
+          veredito?: Database["public"]["Enums"]["veredito_viabilidade"] | null
+        }
+        Update: {
+          atividade_fiscal?:
+            | Database["public"]["Enums"]["atividade_fiscal"]
+            | null
+          canal?: Database["public"]["Enums"]["canal_pedido"] | null
+          created_at?: string | null
+          dia_entrega?: string | null
+          endereco_id?: string | null
+          endereco_snapshot?: Json | null
+          expira_em?: string | null
+          forma_pagamento?: string | null
+          frete_centavos?: number | null
+          id?: string | null
+          momento_pagamento?:
+            | Database["public"]["Enums"]["momento_pagamento"]
+            | null
+          mp_payment_id?: string | null
+          mp_preference_id?: string | null
+          numero?: number | null
+          pago_em?: string | null
+          profile_id?: string | null
+          reserva_id?: string | null
+          situacao_pagamento?: never
+          status?: Database["public"]["Enums"]["status_pedido"] | null
+          subtotal_centavos?: number | null
+          total_centavos?: number | null
+          updated_at?: string | null
+          veredito?: Database["public"]["Enums"]["veredito_viabilidade"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_endereco_id_fkey"
+            columns: ["endereco_id"]
+            isOneToOne: false
+            referencedRelation: "enderecos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedidos_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pedidos_reserva_id_fkey"
+            columns: ["reserva_id"]
+            isOneToOne: false
+            referencedRelation: "reservas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       cancelar_pedido: {
@@ -1100,6 +1310,12 @@ export type Database = {
         }
         Returns: Json
       }
+      situacao_pagamento: {
+        Args: {
+          p_pedido_id: string
+        }
+        Returns: Database["public"]["Enums"]["situacao_pagamento_pedido"]
+      }
       vagas_ocupadas: {
         Args: {
           p_dia: string
@@ -1129,6 +1345,14 @@ export type Database = {
         | "crustaceos"
       atividade_fiscal: "congelado_industrializado" | "fresca_balcao"
       canal_pedido: "site" | "balcao" | "whatsapp"
+      cobranca_instrumento: "online" | "pix_qr" | "link" | "dinheiro" | "point"
+      cobranca_situacao:
+        | "pendente"
+        | "aprovada"
+        | "recusada"
+        | "expirada"
+        | "estornada"
+      momento_pagamento: "antecipado" | "no_ato" | "na_entrega" | "a_combinar"
       resultado_evento_pagamento:
         | "confirmado"
         | "duplicado"
@@ -1137,6 +1361,12 @@ export type Database = {
         | "pagamento_nao_aprovado"
         | "pedido_desconhecido"
         | "erro"
+      situacao_pagamento_pedido:
+        | "sem_pagamento"
+        | "aguardando"
+        | "parcial"
+        | "pago"
+        | "estornado"
       status_pedido:
         | "aguardando_pagamento"
         | "pago"

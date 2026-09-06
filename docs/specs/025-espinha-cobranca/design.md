@@ -73,6 +73,8 @@ Função estável `public.situacao_pagamento(pedido_id)` + view `public.pedidos_
 
 `parcial` existe desde já porque sinal e saldo de evento são duas cobranças do mesmo pedido — não custa nada agora e evitaria uma migration no R2.
 
+**A view nasce com `security_invoker = on` e sem privilégio para `anon` e `authenticated`.** View no schema `public` é exposta pelo PostgREST automaticamente, e view comum roda com os direitos de quem a criou — ou seja, **ignoraria a RLS de `pedidos`** e devolveria pedido de qualquer pessoa a quem chamasse a API REST com uma sessão válida. Com `security_invoker` (Postgres 15+, e o projeto está em 15.6) a RLS das tabelas de baixo passa a valer para quem chama; o `revoke` é a segunda camada, no mesmo padrão adotado no NAPO-005 — privilégio revogado, não apenas política ausente, para que uma política acrescentada por descuido amanhã não reabra o caminho. A aplicação lê pelo cliente de servidor (`service_role`), que ignora RLS por construção, então não perde nada.
+
 **Alternativas de modelagem descartadas:**
 
 - **A — Coluna `situacao_pagamento` mantida por trigger.** Leitura barata, sem view. · **Descartada porque:** é o campo que alguém esquece de atualizar, com um trigger no lugar do alguém. O desenho da espinha nomeia esse erro (§3); trocar o esquecimento humano pelo esquecimento de um trigger não muda o resultado — muda quem é culpado.

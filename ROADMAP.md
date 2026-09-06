@@ -34,7 +34,13 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_Fila vazia — o NAPO-006 fechou em 2026-09-04. O próximo a entrar é o topo de 🟡 Próximos: **NAPO-025**._
+- [ ] **NAPO-025** Espinha de cobrança: cobrança como entidade e pagamento no site sem sair dele
+  - **Dependências:** NAPO-006 · **Iniciado em:** 2026-09-05
+  - **ADR pré-requisito:** [ADR-0001-checkout-bricks](docs/adr/0001-checkout-bricks.md) (Status: Aceito)
+  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
+  - **🐞 Defeito encontrado no spike de 2026-09-05 (corrigir aqui):** o `PagamentoMercadoPago.consultarPagamento` **viola o contrato da própria porta**. A `PortaPagamento` documenta `null` quando o gateway não conhece o pagamento (`porta.ts:53`), e o `PagamentoFake` cumpre — mas o SDK do Mercado Pago **lança exceção no 404**, e ela sobe antes do `if (!pagamento)` que gravaria o evento e devolveria 502. Resultado observado com o gateway real: **500 sem nenhuma linha em `pagamento_eventos`**. Isso importa porque notificação chegando antes de o pagamento ficar consultável é corrida real em produção: o reenvio acontece (é 5xx), mas o rastro de auditoria se perde. Só apareceu porque o webhook foi exercitado contra o Mercado Pago de verdade.
+  - **Spec:** [`docs/specs/025-espinha-cobranca/`](docs/specs/025-espinha-cobranca/) — aprovada em 2026-09-05 (20 RNs, 37 cenários, Gate Visual A aprovado)
+  - **Notas:** desenho completo em [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md). **Absorve o NAPO-023.** Cria `cobranca` como entidade de primeira classe — um pedido tem 0..n cobranças e `situacao_pagamento` é **derivada**, nunca um campo que alguém esquece de atualizar. Cinco instrumentos atrás da porta que o NAPO-006 já criou: `online` (Checkout Bricks, no nosso domínio), `pix_qr`, `link`, `dinheiro` e `point` (este entra no NAPO-027). Dinheiro é ofertado **sem destaque** — atrito deliberado, decisão do PM. Aqui também acontece o que era o NAPO-023: credenciais de teste, túnel, assinatura HMAC real, aprovado/recusado/pendente e idempotência sob notificação duplicada. **Dispara Gate Visual A** — a tela de checkout ganha o Brick.
 
 ---
 
@@ -45,13 +51,6 @@ _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em An
 _Ordem definida pelo PM em 2026-09-04: validar telas, fluxos e pagamento **no ambiente de desenvolvimento** antes de provisionar qualquer ambiente. Por isso o NAPO-021 (deploy) foi para o fim do Backlog._
 
 _**Reescopado em 2026-09-05** conforme [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md) §9. O NAPO-023 foi absorvido pelo NAPO-025 e cinco itens novos (025–029) entraram: a venda deixa de existir só no site e passa a nascer também no balcão, na rua e no WhatsApp, com cobrança na maquininha. O NAPO-022 saiu de Próximos para o Backlog._
-
-- [ ] **NAPO-025** Espinha de cobrança: cobrança como entidade e pagamento no site sem sair dele
-  - **Dependências:** NAPO-006
-  - **ADR pré-requisito:** [ADR-0001-checkout-bricks](docs/adr/0001-checkout-bricks.md) (Status: Aceito)
-  - **Valor:** Alto · **Esforço:** Alto · **MoSCoW:** Must
-  - **🐞 Defeito encontrado no spike de 2026-09-05 (corrigir aqui):** o `PagamentoMercadoPago.consultarPagamento` **viola o contrato da própria porta**. A `PortaPagamento` documenta `null` quando o gateway não conhece o pagamento (`porta.ts:53`), e o `PagamentoFake` cumpre — mas o SDK do Mercado Pago **lança exceção no 404**, e ela sobe antes do `if (!pagamento)` que gravaria o evento e devolveria 502. Resultado observado com o gateway real: **500 sem nenhuma linha em `pagamento_eventos`**. Isso importa porque notificação chegando antes de o pagamento ficar consultável é corrida real em produção: o reenvio acontece (é 5xx), mas o rastro de auditoria se perde. Só apareceu porque o webhook foi exercitado contra o Mercado Pago de verdade.
-  - **Notas:** desenho completo em [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md). **Absorve o NAPO-023.** Cria `cobranca` como entidade de primeira classe — um pedido tem 0..n cobranças e `situacao_pagamento` é **derivada**, nunca um campo que alguém esquece de atualizar. Cinco instrumentos atrás da porta que o NAPO-006 já criou: `online` (Checkout Bricks, no nosso domínio), `pix_qr`, `link`, `dinheiro` e `point` (este entra no NAPO-027). Dinheiro é ofertado **sem destaque** — atrito deliberado, decisão do PM. Aqui também acontece o que era o NAPO-023: credenciais de teste, túnel, assinatura HMAC real, aprovado/recusado/pendente e idempotência sob notificação duplicada. **Dispara Gate Visual A** — a tela de checkout ganha o Brick.
 
 - [ ] **NAPO-007** Área do cliente: meu perfil, endereços e meus pedidos
   - **Dependências:** NAPO-006
