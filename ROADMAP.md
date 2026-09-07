@@ -34,7 +34,18 @@ admin de pedidos/estoque/custos, LGPD e auditoria.
 
 _Itens sendo trabalhados agora. O agente move de "Próximos" ao iniciar._
 
-_Fila vazia — o NAPO-025 fechou em 2026-09-06. O próximo a entrar é o topo de 🟡 Próximos: **NAPO-007**._
+_**Campanha "login redondo" aberta em 2026-09-06 por decisão do PM.** O NAPO-007 era o próximo da fila e **cede a vez**: nenhum item novo entra enquanto o login não estiver fechado ponta a ponta — Magic Link e Google com e-mail real, boas-vindas ao novo usuário, OTP de verdade no WhatsApp, e tudo isso rodando também fora da máquina de dev. Os quatro itens da campanha são NAPO-031 → NAPO-033 → NAPO-032 → NAPO-034, **nesta ordem** (e-mail antes do WhatsApp, como o PM pediu)._
+
+- [ ] **NAPO-031** SMTP customizado no Supabase Auth via Resend
+  - **Iniciado em:** 2026-09-06
+  - **Spec:** *(a criar)* · modalidade a decidir na Fase 0.5 (candidata a **lite** — 1 domínio, sem RN nova)
+  - **Dependências:** — (o domínio `napobsb.com.br` já existe no Registro.br)
+  - **Bloqueia:** NAPO-033, NAPO-032 (canal de reserva do OTP), NAPO-034 · e a ideia "E-mail transacional de pedido"
+  - **Valor:** Alto · **Esforço:** Baixo · **MoSCoW:** Must
+  - **Notas:** o SMTP embutido do Supabase entrega 2–4 e-mails por hora e é explicitamente proibido em produção — sem SMTP próprio **o login não sobe**, porque o Magic Link não sai fora do ambiente local. Decisão de 2026-08-11: Resend, como `ARCHITECTURE.md` §2.1 já define, com `From: pedido@napobsb.com.br` e DKIM no domínio. **Gmail avaliado a pedido do PM e descartado duas vezes** (2026-08-11 e 2026-09-06): conta gratuita reescreve o remetente para `@gmail.com`, sem DKIM do domínio próprio, no e-mail que menos pode cair em spam. O argumento de custo não se sustenta — o plano gratuito do Resend dá 3.000 e-mails/mês e 100/dia com domínio próprio, contra a necessidade da Napo de ~900/mês e ~10/dia.
+  - **Roteiro (parte A):** [`docs/napo-031-resend-smtp.md`](docs/napo-031-resend-smtp.md) — conta, verificação de domínio e DNS. **O PM confirmou em 2026-09-06 que tem conta no Resend e acesso ao DNS do Registro.br**; falta confirmar o domínio em `Verified`, que é o único ponto com latência de propagação.
+  - **🔄 Reescopado em 2026-09-06 (PM):** **o item volta a ter código.** A divisão de 2026-09-06 assumiu que "o ambiente local não muda — continua no Inbucket", e concluiu daí que não havia nada a versionar. O PM inverteu essa premissa: quer o SMTP real **rodando em dev**, para exercitar em desenvolvimento a mesma integração que vai para homologação. Consequência: `supabase/config.toml` ganha `[auth.email.smtp]` lendo de env, e o `.env.example` ganha o contrato das variáveis do Resend. A parte B (colar credenciais nos painéis) continua fora daqui — mas migra do NAPO-021 para o **NAPO-034**, que é onde o projeto de staging nasce.
+  - **Promovida de 💡 em:** 2026-09-06
 
 ---
 
@@ -45,6 +56,35 @@ _Próximos na fila, ordem definida. O agente promove o primeiro item para "Em An
 _Ordem definida pelo PM em 2026-09-04: validar telas, fluxos e pagamento **no ambiente de desenvolvimento** antes de provisionar qualquer ambiente. Por isso o NAPO-021 (deploy) foi para o fim do Backlog._
 
 _**Reescopado em 2026-09-05** conforme [`docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md`](docs/superpowers/specs/2026-09-05-espinha-cobranca-design.md) §9. O NAPO-023 foi absorvido pelo NAPO-025 e cinco itens novos (025–029) entraram: a venda deixa de existir só no site e passa a nascer também no balcão, na rua e no WhatsApp, com cobrança na maquininha. O NAPO-022 saiu de Próximos para o Backlog._
+
+_**Reordenado em 2026-09-06 (PM):** os três itens da campanha "login redondo" ocupam o topo, à frente do NAPO-007. Motivo declarado pelo PM: nada de código foi disponibilizado ainda, e ele não quer avançar para nenhum outro item enquanto entrar na conta não estiver fechado — em dev primeiro, homologação depois._
+
+- [ ] **NAPO-033** E-mail transacional da Napo: boas-vindas e templates do Auth em PT-BR
+  - **Spec:** *(a criar)*
+  - **Dependências:** NAPO-031 (sem remetente próprio não há e-mail para escrever)
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **Criada em:** 2026-09-06 · **Absorve a ideia** "Templates de e-mail do Supabase Auth em português com a identidade da Napo" (em 💡 desde 2026-08-11, origem: Gate Visual B do NAPO-002)
+  - **Notas:** duas mensagens numa spec só, por decisão do PM em 2026-09-06 — **é o mesmo contrato de e-mail**: mesma casca HTML, mesma voz, mesmo remetente. Escrever a copy duas vezes em semanas diferentes é como as mensagens divergem. **(1) Boas-vindas:** todo novo usuário recebe um e-mail da Napo — pedido novo do PM, não estava no backlog. **(2) Templates do Auth:** o Magic Link chega hoje com o texto padrão do GoTrue, em inglês e sem marca; é o primeiro e-mail que o cliente recebe da casa e o que carrega o link de acesso à conta (`[auth.email.template.*]` no `config.toml` local, painel em staging/prod).
+  - **Duas decisões técnicas que a spec precisa fechar:** (a) o boas-vindas **não é do GoTrue** — sai pela API HTTP do Resend a partir do callback onde o perfil já nasce hoje (NAPO-002), porque esse e-mail é nosso e o Supabase não tem gatilho nativo para ele; (b) **idempotência**, senão dois callbacks mandam dois e-mails na cara do cliente — candidato natural é um carimbo no perfil, o que arrasta migration e faz a modalidade tender a **completo**.
+  - **Envolve copy, não só HTML** — a voz da marca é decisão de produto do PM, não derivável do código.
+
+- [ ] **NAPO-032** Canal do OTP pelo WhatsGW
+  - **Spec:** *(a criar)* · **modalidade completa obrigatória** — mexe em auth (`AGENTS.md` §3.1), não pode ser rebaixada
+  - **Dependências:** NAPO-002 (concluído — a porta `RemetenteDeCodigo` já existe) · NAPO-031 (o canal de reserva é OTP por e-mail)
+  - **Bloqueia:** NAPO-034 e NAPO-021 (o login não sobe sem um canal real de OTP)
+  - **ADR pré-requisito:** [ADR-0002-otp-whatsgw](docs/adr/0002-otp-whatsgw.md) (Status: Aceito)
+  - **Valor:** Alto · **Esforço:** Baixo · **MoSCoW:** Must
+  - **Notas:** adaptador `RemetenteWhatsGW` atrás da porta que o NAPO-002 criou, e `WHATSAPP_PROVIDER` ganha o valor `whatsgw`. Envio é um POST com `apikey`, número remetente, destinatário e texto — sem template. **Número dedicado**, separado do WhatsApp da loja: se a Meta banir por automação, o estrago fica no envio de código e não leva o atendimento junto. **A spec precisa resolver duas coisas que o ADR deixou em aberto:** como o sistema percebe que a **sessão caiu** (ela cai sozinha, sem deploy) e qual é o **canal de reserva** — decidido em 2026-09-06: OTP por e-mail, o que amarra este item ao NAPO-031. O contrato de negócio do NAPO-002 segue intacto: HMAC com pepper, tempo constante, tetos por número e IP, recusa cega para número de outra conta.
+  - **PM confirmou em 2026-09-06:** conta na WhatsGW e chip dedicado já em mãos — o item não espera terceiro.
+  - **Criada em:** 2026-09-06 (a partir do ADR-0002)
+
+- [ ] **NAPO-034** Provisionar homologação (staging) e validar o login fora da máquina de dev
+  - **Spec:** *(a criar)*
+  - **Dependências:** NAPO-001, NAPO-031, NAPO-033, NAPO-032
+  - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **Criada em:** 2026-09-06 · **✂️ Desmembrado do NAPO-021** por decisão do PM: ID novo, porque `AGENTS.md` §4.1 não recicla nem renumera. O NAPO-021 fica sendo **só produção** e continua no fim do Backlog.
+  - **Notas:** cria **um** projeto Supabase online (staging) e o liga à Vercel em preview. Fecha aqui a **parte B do NAPO-031** — colar as credenciais SMTP do Resend no painel do projeto, que só pode acontecer depois que o projeto existir. O critério de pronto é o PM entrando na conta em staging pelos quatro caminhos: Magic Link, Google, e-mail de boas-vindas chegando, e OTP no WhatsApp pelo WhatsGW.
+  - **Atenção conhecida:** projeto free **pausa após ~7 dias sem atividade** (o CI tocando o banco a cada PR resolve). O apontamento do DNS de `napobsb.com.br`, o PITR e as duas conferências de rotulagem **ficam no NAPO-021** — não têm relação com login e não devem entrar nesta campanha.
 
 - [ ] **NAPO-007** Área do cliente: meu perfil, endereços e meus pedidos
   - **Dependências:** NAPO-006
@@ -96,31 +136,14 @@ _O escopo do R1 cresceu em 2026-09-05: vender deixou de ser só o site. Ver [`do
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
   - **Notas:** termos, política de privacidade, banner, consentimento **versionado** (quando e qual versão foi aceita). Utilidade (OTP, aviso de entrega) é separada de marketing — validar o número não autoriza propaganda. Spec §8.
 
-- [ ] **NAPO-031** SMTP customizado no Supabase Auth via Resend
-  - **Spec:** *(a criar)*
-  - **Dependências:** — (o domínio `napobsb.com.br` já existe no Registro.br)
-  - **Bloqueia:** NAPO-021 · e a ideia "E-mail transacional de pedido"
-  - **Valor:** Alto · **Esforço:** Baixo · **MoSCoW:** Must
-  - **Notas:** o SMTP embutido do Supabase entrega 2–4 e-mails por hora e é explicitamente proibido em produção — sem SMTP próprio **o login não sobe**, porque o Magic Link não sai fora do ambiente local. Decisão de 2026-08-11: Resend, como `ARCHITECTURE.md` §2.1 já define, com `From: pedido@napobsb.com.br` e DKIM no domínio. **Gmail avaliado a pedido do PM e descartado duas vezes** (2026-08-11 e 2026-09-06): conta gratuita reescreve o remetente para `@gmail.com`, sem DKIM do domínio próprio, no e-mail que menos pode cair em spam. O argumento de custo não se sustenta — o plano gratuito do Resend dá 3.000 e-mails/mês e 100/dia com domínio próprio, contra a necessidade da Napo de ~900/mês e ~10/dia. **Fazer antes de o NAPO-021 começar:** verificação de domínio depende de propagação de DNS, que não é instantânea.
-  - **Roteiro (parte A):** [`docs/napo-031-resend-smtp.md`](docs/napo-031-resend-smtp.md) — conta, verificação de domínio e DNS. É a metade com latência e pode ser feita hoje.
-  - **✂️ Partido em dois (2026-09-06, na especificação):** **A** — conta no Resend, domínio verificado e DNS publicado, **agora**; **B** — colar as credenciais nos painéis de staging e produção, **dentro do NAPO-021**, porque esses projetos só nascem lá. Descoberta ao especificar: o ambiente local continua no inbox falso, e SMTP de projeto remoto é painel, não `config.toml` — **não há código a versionar**, por isso o item não virou spec.
-  - **Promovida de 💡 em:** 2026-09-06
-
-- [ ] **NAPO-032** Canal do OTP pelo WhatsGW
-  - **Spec:** *(a criar)*
-  - **Dependências:** NAPO-002 (concluído — a porta `RemetenteDeCodigo` já existe)
-  - **Bloqueia:** NAPO-021 (o login não sobe sem um canal real de OTP)
-  - **ADR pré-requisito:** [ADR-0002-otp-whatsgw](docs/adr/0002-otp-whatsgw.md) (Status: Aceito)
-  - **Valor:** Alto · **Esforço:** Baixo · **MoSCoW:** Must
-  - **Notas:** adaptador `RemetenteWhatsGW` atrás da porta que o NAPO-002 criou, e `WHATSAPP_PROVIDER` ganha o valor `whatsgw`. Envio é um POST com `apikey`, número remetente, destinatário e texto — sem template. **Número dedicado**, separado do WhatsApp da loja: se a Meta banir por automação, o estrago fica no envio de código e não leva o atendimento junto. **A spec precisa resolver duas coisas que o ADR deixou em aberto:** como o sistema percebe que a **sessão caiu** (ela cai sozinha, sem deploy) e qual é o **canal de reserva** — candidato natural é OTP por e-mail, o que amarra este item ao NAPO-031. O contrato de negócio do NAPO-002 segue intacto: HMAC com pepper, tempo constante, tetos por número e IP, recusa cega para número de outra conta.
-  - **Criada em:** 2026-09-06 (a partir do ADR-0002)
-
-- [ ] **NAPO-021** Provisionar homologação e produção + primeiro deploy
-  - **Dependências:** NAPO-001, NAPO-032 (canal real de OTP) · **NAPO-031 parte A** (domínio verificado no Resend) — a parte B do 031, que é configurar o SMTP nos painéis, **acontece dentro desta spec**: os projetos de staging e produção nascem aqui
+- [ ] **NAPO-021** Provisionar produção + primeiro deploy público
+  - **Dependências:** NAPO-001, NAPO-034 (homologação validada antes de existir produção)
   - **Valor:** Alto · **Esforço:** Médio · **MoSCoW:** Must
+  - **✂️ Reduzido em 2026-09-06:** a metade de **homologação** saiu para o **NAPO-034**, dentro da campanha "login redondo" — o PM quer ver o login rodando em staging antes de qualquer coisa nascer em produção. Sai junto a parte B do NAPO-031 referente ao painel de staging; a de **produção** continua aqui.
   - **⚠️ Conferir antes de publicar (do NAPO-003, 2026-08-17):** (a) a separação real de bancada entre doce e salgado, que sustenta o precaucional de avelã estar só nos doces; (b) a Banana declara leite em "contém" e a Massa Doce, que é a base dela, declara só glúten — uma das duas está errada.
-  - **⬇️ Movido para o fim da fila (2026-09-04):** decisão do PM — validar telas, fluxos e o pagamento real no ambiente de desenvolvimento antes de provisionar homologação e produção. Continua sendo o último passo do R1, não um item opcional.
-  - **Notas:** desmembrado do NAPO-001 em 2026-08-10 por decisão de focar em desenvolvimento primeiro. Cria os dois projetos Supabase online (staging e prod — **2 ativos cabem no free tier**), conecta a Vercel, aponta o DNS de `napobsb.com.br` no Registro.br e roda o primeiro `db:push` de verdade. Dois pontos de atenção conhecidos: projeto free **pausa após ~7 dias sem atividade** (o CI tocando o banco a cada PR resolve), e produção no free não tem PITR — vira Pro (~US$ 25/mês) antes de faturar. **Quanto mais specs acumularem antes deste item, maior a superfície de surpresa de ambiente** (`docs/specs/001-fundacao/design.md` §8).
+  - **⬇️ Movido para o fim da fila (2026-09-04):** decisão do PM — validar telas, fluxos e o pagamento real no ambiente de desenvolvimento antes de provisionar. Continua sendo o último passo do R1, não um item opcional.
+  - **Notas:** desmembrado do NAPO-001 em 2026-08-10 por decisão de focar em desenvolvimento primeiro. Cria o projeto Supabase de produção (**2 ativos cabem no free tier**, e o de staging nasce no NAPO-034), conecta a Vercel, aponta o DNS de `napobsb.com.br` no Registro.br, cola as credenciais do Resend no painel de produção e roda o primeiro `db:push` de verdade. Ponto de atenção conhecido: produção no free **não tem PITR** — vira Pro (~US$ 25/mês) antes de faturar. **Quanto mais specs acumularem antes deste item, maior a superfície de surpresa de ambiente** (`docs/specs/001-fundacao/design.md` §8).
+  - **Estreiam aqui:** os três caminhos de aprovação do Mercado Pago que viraram dívida no NAPO-025 (a conta de teste manda todo cartão para análise antifraude).
 
 - [ ] **NAPO-022** Meus chamados: abertura, anexos e acompanhamento pelo cliente
   - **Dependências:** NAPO-007
@@ -212,8 +235,6 @@ Ainda abertas, para as fases seguintes:
 - [ ] **Resiliência offline e degradação do KDS** — o PDV resolve por fila offline-first, o KDS ainda não tem estratégia. Registrado em 2026-08-10.
 - [ ] **Migrar o Supabase CLI para 2.x e o Postgres local para 17** — o repositório fixa CLI 1.x e `major_version = 15`, que já não são o padrão de projetos novos do Supabase. A troca é barata enquanto não existe produção e cara depois que houver dado real. Gatilho observado: um volume Docker criado por uma CLI 2.x recusou subir na 1.x (`database files are incompatible with server`) e derrubou o ambiente local inteiro — enquanto as máquinas de dev tiverem CLIs diferentes, quem clonar perde o stack. Registrado em 2026-08-10. **Origem:** conserto do merge travado de NAPO-001, com duas máquinas em CLIs divergentes. **Exige revisão de spec NAPO-001 antes de promover** — mexe em `supabase/config.toml`, no `package.json` e no CI.
 
-- [ ] **Templates de e-mail do Supabase Auth em português com a identidade da Napo** — o Magic Link chega hoje com o texto padrão do GoTrue, em inglês e sem marca: é o primeiro e-mail que o cliente recebe da casa e o que carrega o link de acesso à conta. Configurável por `[auth.email.template.*]` no `config.toml` (local) e pelo painel (staging/prod). Envolve copy, não só HTML. Registrado em 2026-08-11. **Origem:** Gate Visual B do NAPO-002.
-
 ---
 
 - [ ] **Copy do site derivada de configuração, não cravada no código** — o site do NAPO-003 escreve à mão o que hoje é premissa de dado único: o **dia de entrega** ("Brasília, às sextas", rótulo "esta sexta" no seletor de fornada), as **faixas de frete** (R$6/R$10/R$14, grátis >R$150) e os **valores de evento** (R$99→R$64,90/pessoa, garçom R$250). O motor de entrega já é config-driven (`dias_semana_entrega`, NAPO-004), mas os textos não derivam dela. Quando o frete (NAPO-005) e a gestão no admin (NAPO-008) existirem, essas superfícies do site devem **ler** a config em vez de repetir números — senão ligar um segundo dia de entrega ou reajustar frete exige editar copy. Registrado em 2026-08-17. **Origem:** Gate Visual B do NAPO-003 (PM perguntou como escalar dias de entrega e tornar frete/evento gerenciáveis).
@@ -228,7 +249,7 @@ Ainda abertas, para as fases seguintes:
 
 ---
 
-- [ ] **E-mail transacional de pedido: confirmação e lembrete de Pix** — hoje **nenhum e-mail é enviado**. O cliente paga e a única confirmação que ele tem é a tela; fechou a aba, não sobra nada. Duas mensagens distintas: **confirmação** quando a cobrança aprova (com dia de entrega, itens e endereço) e **lembrete** enquanto um Pix segue pendente dentro dos 30 minutos — sem lembrete, o cliente que fecha a aba perde a vaga sem saber. **Depende do SMTP customizado via Resend**, que já está em 💡 e bloqueia o NAPO-021. Quando o WhatsApp existir (NAPO-015), a mesma decisão de "o que avisar e quando" deve valer para os dois canais — escrever a regra duas vezes é como as mensagens divergem. Registrado em 2026-09-06. **Origem:** PM ao ver o fluxo de pagamento completo no NAPO-025.
+- [ ] **E-mail transacional de pedido: confirmação e lembrete de Pix** — hoje **nenhum e-mail é enviado**. O cliente paga e a única confirmação que ele tem é a tela; fechou a aba, não sobra nada. Duas mensagens distintas: **confirmação** quando a cobrança aprova (com dia de entrega, itens e endereço) e **lembrete** enquanto um Pix segue pendente dentro dos 30 minutos — sem lembrete, o cliente que fecha a aba perde a vaga sem saber. **Depende do NAPO-031** (SMTP via Resend) **e do NAPO-033** — a casca HTML, a voz e o remetente nascem lá; aqui entram só as duas mensagens de pedido. Quando o WhatsApp existir (NAPO-015), a mesma decisão de "o que avisar e quando" deve valer para os dois canais — escrever a regra duas vezes é como as mensagens divergem. Registrado em 2026-09-06. **Atualizado em 2026-09-06:** a referência a "está em 💡" envelheceu — o SMTP virou o NAPO-031 e está em andamento.
 
 - [ ] **Impressora térmica na loja: todo pedido novo sai em papel** — a cozinha precisa do pedido impresso para preparar e separar, e o gatilho tem que ser **todo pedido, de qualquer origem**: site, balcão, WhatsApp, iFood e 99food. É isso que torna a ideia dependente da espinha de cobrança e do registro de venda (NAPO-026) — sem um lugar único onde a venda nasce, seriam cinco integrações de impressão. A decisão técnica principal é **como a impressora é alcançada**: rede (IP fixo, o servidor imprime sozinho) × USB/Bluetooth (exige uma máquina de pé na loja com o sistema aberto). Registrado em 2026-09-06. **Origem:** PM durante a validação do NAPO-025.
 
@@ -305,7 +326,7 @@ _Histórico — adicionar mais recentes NO TOPO._
   - Consentimento versionado com IP, gravado antes da conclusão do cadastro; override de admin e promoção de papel como funções `SECURITY DEFINER` com auditoria atômica, exercitadas por `scripts/admin.mjs`.
   - **Inaugura a base de UI do projeto:** Tailwind v4, tokens completos, 7 primitivos shadcn, o pattern `<AuthCard>` e o componente `<Marca>` — herdados pelo NAPO-003.
   - 119 testes Vitest + 43 pgTAP. Divergência do preview aprovado registrada em `drift.md` (identidade visual real substituiu a marca provisória); regra permanente de marca em `ARCHITECTURE.md` §2.2.2.
-  - **Não sobe em produção sem NAPO-017** (elegibilidade do template de autenticação na Meta) **nem sem o SMTP customizado** capturado em 💡 Ideias — sem ele o Magic Link não sai fora do ambiente local.
+  - **Não sobe fora de dev com os dois canais falsos** — Magic Link no inbox falso e código de OTP no log. **Atualizado em 2026-09-06:** a redação original dizia "não sobe sem NAPO-017"; o [ADR-0002](docs/adr/0002-otp-whatsgw.md) tirou a Meta do caminho do login e o canal real virou o **NAPO-032** (WhatsGW). O SMTP, então "capturado em 💡", é o **NAPO-031**. Os dois, mais o **NAPO-033** (boas-vindas e templates em PT-BR), formam a campanha que fecha o que este item deixou aberto.
 
 - [x] **NAPO-004** Motor de disponibilidade (calendário, cutoff, dois tetos) · concluído 2026-08-10 · [`docs/specs/004-motor-disponibilidade/`](docs/specs/004-motor-disponibilidade/)
   - Cutoff derivado com recuo por dia sem produção, horizonte deslizante com buffer, CTP/ATP, dois tetos (forno e freezer) e sub-teto de massa — tudo em `packages/core`, 30 testes determinísticos. Calendário e tetos configuráveis (`config_operacao`, entrega sexta, produção seg–sex). Reserva de 15 min atômica por advisory lock, sem `pg_cron`. `GET /api/disponibilidade` e `POST /api/disponibilidade/reserva`.
