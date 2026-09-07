@@ -42,7 +42,7 @@ O gargalo é o **forno, não o mercado**: a cozinha opera a 47% da capacidade (3
 - **Canal do OTP:** **WhatsGW** — gateway não-oficial, por número dedicado do sistema. Decidido em [ADR-0002](docs/adr/0002-otp-whatsgw.md), porque a verificação da empresa na Meta depende de documentos em revisão e, no volume da Napo (303 pizzas/mês), o limiar de *authentication templates* pode nunca ser alcançado. A **API oficial da Meta** segue prevista para o bot (NAPO-015) e o marketing (NAPO-016): volume por gateway não-oficial é o caminho mais curto para o banimento
 - **Pagamento (online):** Mercado Pago **Checkout Bricks** (Payment Brick, conta PJ) — Pix, crédito, débito, conta Mercado Pago. Renderizado no nosso domínio: o cliente não sai do site. Decidido em [ADR-0001](docs/adr/0001-checkout-bricks.md).
 - **Pagamento (presencial):** Mercado Pago **Point Integration API** — o valor sai do sistema para a maquininha e o cliente escolhe a forma no aparelho
-- **E-mail transacional:** Resend, `pedido@napobsb.com.br`
+- **E-mail transacional:** Resend. `pedido@napobsb.com.br` para e-mail de pedido; `acesso@napobsb.com.br` para o que diz respeito à conta (Magic Link, boas-vindas) — remetente chamado "pedido" contradiz a mensagem de quem não pediu nada. Decidido na especificação do NAPO-031 (2026-09-06)
 - **Monitoramento de erros:** Sentry
 
 ### 2.2 UI & UX (Design System)
@@ -281,7 +281,7 @@ Tudo persistido em `timestamptz` **UTC**. **Toda** decisão de data de negócio 
 
 | Serviço              | Local                     | Como tratar                                         |
 | -------------------- | ------------------------- | --------------------------------------------------- |
-| Magic Link           | ✅ funciona (inbox fake)  | —                                                   |
+| Magic Link           | ✅ inbox fake por padrão  | SMTP real do Resend é **opt-in por env** (NAPO-031) — ligado para exercitar a integração que vai para homologação, desligado para desenvolver |
 | Google OAuth         | ⚠️ exige credencial real  | configurar ou testar só em staging                  |
 | OTP WhatsApp (WhatsGW) | ❌ API externa · **sessão viva** (QR code) que cai sozinha | **mock obrigatório** — decisão da spec NAPO-002. Em `WHATSAPP_PROVIDER=fake` o código é fixo `123456` |
 | Webhook Mercado Pago | ❌ precisa de URL pública | **túnel `cloudflared`** (o ngrok é removido pelo Windows Defender como `Trojan:Win32/Kepavll!rfn` — heurística de ferramenta de túnel; ver 2026-09-05). **A URL do túnel grátis muda a cada execução** e precisa ser espelhada em `DEV_TUNNEL_HOST`, senão o Next recusa as requisições. **Dois tópicos:** `payment` (Bricks, Pix, link) e `point_integration_wh`/`orders` (maquininha) |
